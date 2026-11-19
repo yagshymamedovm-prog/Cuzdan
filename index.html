@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Cüzdanım v29 — Kişisel Finans & Kart Asistanı</title>
+<title>Cüzdanım v31 — Kişisel Finans & Kart Asistanı</title>
 <meta name="theme-color" content="#eef2f8">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1190,16 +1190,16 @@ body:has(#app-shell.night-mode[data-night-theme="titanium"]){background:radial-g
 </div>
 </div>
 <div data-home-widget="quick-stats" class="grid grid-cols-2 gap-2.5">
-<div class="neo-card rounded-[22px] p-3.5 relative overflow-hidden">
+<div onclick="switchTab('fxcard')" class="neo-card rounded-[22px] p-3.5 relative overflow-hidden cursor-pointer active:scale-[0.98] transition">
 <div class="flex items-center justify-between mb-1.5">
 <span class="w-7 h-7 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center">
-<i class="fa-solid fa-coins text-xs"></i>
+<i class="fa-solid fa-credit-card text-xs"></i>
 </span>
-<span class="text-[9px] font-extrabold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">Nakit</span>
+<span id="home-fx-card-badge" class="text-[9px] font-extrabold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">Kart</span>
 </div>
-<p class="text-[10px] font-bold text-slate-400">Eldeki Nakit</p>
-<p id="pocket-cash-try" class="text-base font-extrabold text-slate-900 mt-0.5">₺0</p>
-<p id="card-waiting-try" class="text-[10px] text-slate-500 font-medium mt-0.5 truncate">Kartta: $0 (≈₺0)</p>
+<p class="text-[10px] font-bold text-slate-400">Yurt Dışı Kart</p>
+<p id="pocket-cash-try" class="text-base font-extrabold text-slate-900 mt-0.5">$0.00</p>
+<p id="card-waiting-try" class="text-[10px] text-slate-500 font-medium mt-0.5 truncate">≈ ₺0 çekilebilir</p>
 </div>
 <div class="neo-card rounded-[22px] p-3.5 relative overflow-hidden">
 <div class="flex items-center justify-between mb-1.5">
@@ -1210,7 +1210,7 @@ body:has(#app-shell.night-mode[data-night-theme="titanium"]){background:radial-g
 </div>
 <p class="text-[10px] font-bold text-slate-400">Günlük Güvenli Limit</p>
 <p id="daily-safe-limit" class="text-base font-extrabold text-slate-900 mt-0.5">₺0 / gün</p>
-<p class="text-[10px] text-slate-500 font-medium mt-0.5 truncate">Nakit + Kart dahil</p>
+<p class="text-[10px] text-slate-500 font-medium mt-0.5 truncate">Tüm hesaplar + Kart dahil</p>
 </div>
 </div>
 <div data-home-widget="budget" class="neo-card rounded-[22px] p-4">
@@ -1357,8 +1357,12 @@ class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs
 <span id="atm-calc-preview" class="text-xs font-extrabold text-emerald-400 mt-0.5">$0.00 (Kom: $0.00)</span>
 </div>
 </div>
-<button onclick="recordAtmWithdrawal()" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-slate-950 text-xs font-extrabold rounded-xl shadow-sm transition flex items-center justify-center gap-1.5 active:scale-95">
-<i class="fa-solid fa-plus-circle"></i> Çekimi Kaydet & Nakit Cüzdana Aktar
+<button type="button" id="btn-atm-withdraw-full" onclick="withdrawFullAtmLimit()" class="w-full py-3 px-3 bg-[#090d16] hover:bg-slate-800 text-white text-xs font-extrabold rounded-xl shadow-sm transition flex items-center justify-between gap-2 active:scale-95">
+<span class="flex items-center gap-1.5 min-w-0 truncate"><i class="fa-solid fa-bolt shrink-0 opacity-90"></i><span id="btn-atm-full-label" class="truncate">Tüm Limiti Çek (₺5.000)</span></span>
+<span id="btn-atm-full-usd" class="text-[10px] font-extrabold px-2 py-0.5 rounded-lg shrink-0" style="background:rgba(128,128,128,.22)">-$0.00</span>
+</button>
+<button onclick="recordAtmWithdrawal()" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 text-xs font-extrabold rounded-xl shadow-sm transition flex items-center justify-center gap-1.5 active:scale-95">
+<i class="fa-solid fa-plus-circle"></i> Girilen Tutarı Çek & Nakite Aktar
 </button>
 <div class="pt-2.5 border-t border-slate-100">
 <p class="text-[10px] font-bold text-slate-400 uppercase mb-1.5">Bu Kartın ATM Çekim Kayıtları</p>
@@ -2839,6 +2843,41 @@ const usdBase = tryVal / fxState.usdRate;
 const usdFee = (usdBase * (card.feePercent / 100)) + card.feeFixedUsd;
 previewEl.textContent = `${formatUsd(usdBase + usdFee)} (Kom: ${formatUsd(usdFee)})`;
 }
+function getQuickFullAtmInfo(card) {
+const todayStr = getTodayOffset(0);
+const todayPulled = (card.withdrawals || []).filter(w => w.date === todayStr).reduce((s, w) => s + Number(w.tryAmount || 0), 0);
+const leftToday = Math.max(0, Number(card.dailyLimitTry || 0) - todayPulled);
+const stats = getCardStats(card);
+const rate = Number(fxState.usdRate) || 34.5;
+const feePct = Number(card.feePercent || 0);
+const feeFix = Number(card.feeFixedUsd || 0);
+const usableUsd = Math.max(0, stats.remainingUsd - feeFix);
+const maxTryByCard = usableUsd > 0 ? Math.floor((usableUsd / (1 + feePct / 100)) * rate) : 0;
+const targetTry = Math.max(0, Math.min(leftToday, maxTryByCard));
+const usdBase = targetTry > 0 ? targetTry / rate : 0;
+const usdFee = targetTry > 0 ? (usdBase * (feePct / 100)) + feeFix : 0;
+const totalUsdDeducted = usdBase + usdFee;
+return { todayStr, todayPulled, leftToday, maxTryByCard, targetTry, usdBase, usdFee, totalUsdDeducted, remainingUsd: stats.remainingUsd };
+}
+function withdrawFullAtmLimit() {
+const card = getActiveCard();
+const info = getQuickFullAtmInfo(card);
+if (info.leftToday <= 0) { showToast('Bugünkü günlük ATM çekim limitin doldu!'); return; }
+if (info.targetTry <= 0) { showToast('Kart bakiyesi çekim için yetersiz!'); return; }
+const wId = Date.now();
+const txId = wId + 1;
+card.withdrawals.unshift({ id: wId, tryAmount: info.targetTry, usdBase: info.usdBase, usdFee: info.usdFee, totalUsdDeducted: info.totalUsdDeducted, date: info.todayStr });
+transactions.unshift({ id: txId, type: 'income', title: `ATM Nakit (${card.name} - ${formatUsd(info.totalUsdDeducted)})`, amount: info.targetTry, category: 'salary', paymentMethod: 'Nakit (Çekilen)', accountId: 'cash-try', currency: 'TRY', originalAmount: info.targetTry, exchangeRate: 1, date: info.todayStr, recurring: false });
+const inputEl = document.getElementById('atm-withdraw-try');
+if (inputEl) inputEl.value = '';
+previewAtmCalc(); updateUI(); updateFxCardUI(); triggerCloudSave();
+showToastWithUndo(`${formatCurrency(info.targetTry)} çekildi (-${formatUsd(info.totalUsdDeducted)}) & nakite eklendi`, () => {
+card.withdrawals = (card.withdrawals || []).filter(w => w.id !== wId);
+transactions = transactions.filter(t => t.id !== txId);
+previewAtmCalc(); updateUI(); updateFxCardUI(); triggerCloudSave();
+showToast('ATM çekimi geri alındı');
+});
+}
 function recordAtmWithdrawal() {
 const card = getActiveCard();
 const inputEl = document.getElementById('atm-withdraw-try');
@@ -2853,11 +2892,18 @@ return;
 const usdBase = tryAmount / fxState.usdRate;
 const usdFee = (usdBase * (card.feePercent / 100)) + card.feeFixedUsd;
 const totalUsdDeducted = usdBase + usdFee;
-card.withdrawals.unshift({ id: Date.now(), tryAmount, usdBase, usdFee, totalUsdDeducted, date: todayStr });
-transactions.unshift({ id: Date.now() + 1, type: 'income', title: `ATM Nakit (${card.name} - ${formatUsd(totalUsdDeducted)})`, amount: tryAmount, category: 'salary', paymentMethod: 'Nakit (Çekilen)', accountId: 'cash-try', currency: 'TRY', originalAmount: tryAmount, exchangeRate: 1, date: todayStr, recurring: false });
+const wId = Date.now();
+const txId = wId + 1;
+card.withdrawals.unshift({ id: wId, tryAmount, usdBase, usdFee, totalUsdDeducted, date: todayStr });
+transactions.unshift({ id: txId, type: 'income', title: `ATM Nakit (${card.name} - ${formatUsd(totalUsdDeducted)})`, amount: tryAmount, category: 'salary', paymentMethod: 'Nakit (Çekilen)', accountId: 'cash-try', currency: 'TRY', originalAmount: tryAmount, exchangeRate: 1, date: todayStr, recurring: false });
 inputEl.value = '';
 previewAtmCalc(); updateUI(); updateFxCardUI(); triggerCloudSave();
-showToast('ATM çekimi karta işlendi ve nakite eklendi!');
+showToastWithUndo('ATM çekimi karta işlendi ve nakite eklendi!', () => {
+card.withdrawals = (card.withdrawals || []).filter(w => w.id !== wId);
+transactions = transactions.filter(t => t.id !== txId);
+previewAtmCalc(); updateUI(); updateFxCardUI(); triggerCloudSave();
+showToast('ATM çekimi geri alındı');
+});
 }
 function deleteAtmWithdrawal(id) {
 const card = getActiveCard();
@@ -3117,6 +3163,33 @@ document.getElementById('atm-limit-title').textContent = 'Günlük Çekme Limiti
 document.getElementById('atm-max-label').textContent = `Günlük Maks: ${formatCurrency(card.dailyLimitTry)}`;
 document.getElementById('atm-daily-left').textContent = `Kalan: ${formatCurrency(leftToday)}`;
 document.getElementById('atm-today-pulled').textContent = `Bugün Çekilen: ${formatCurrency(todayPulled)}`;
+const atmInp = document.getElementById('atm-withdraw-try');
+if (atmInp) { atmInp.max = card.dailyLimitTry; atmInp.placeholder = `Örn: ${card.dailyLimitTry}`; }
+const fullBtn = document.getElementById('btn-atm-withdraw-full');
+const fullLbl = document.getElementById('btn-atm-full-label');
+const fullUsd = document.getElementById('btn-atm-full-usd');
+if (fullBtn && fullLbl && fullUsd) {
+const qInfo = getQuickFullAtmInfo(card);
+if (qInfo.leftToday <= 0) {
+fullBtn.disabled = true;
+fullBtn.classList.add('opacity-50', 'cursor-not-allowed');
+fullLbl.textContent = 'Günlük ATM Limiti Doldu';
+fullUsd.textContent = '₺0';
+} else if (qInfo.targetTry <= 0) {
+fullBtn.disabled = true;
+fullBtn.classList.add('opacity-50', 'cursor-not-allowed');
+fullLbl.textContent = 'Kart Bakiyesi Yetersiz';
+fullUsd.textContent = '$0.00';
+} else {
+fullBtn.disabled = false;
+fullBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+const isCardCapped = qInfo.targetTry < qInfo.leftToday;
+fullLbl.textContent = isCardCapped
+? `Karttaki Tümünü Çek (${formatCurrency(qInfo.targetTry)})`
+: `Tüm Limiti Çek (${formatCurrency(qInfo.targetTry)})`;
+fullUsd.textContent = `-${formatUsd(qInfo.totalUsdDeducted)}`;
+}
+}
 const bar = document.getElementById('atm-limit-bar');
 bar.style.width = `${pct}%`;
 bar.className = pct >= 90 ? "bg-rose-500 h-1.5 rounded-full transition-all" : "bg-emerald-500 h-1.5 rounded-full transition-all";
@@ -4589,12 +4662,14 @@ document.getElementById('total-expense').textContent = formatCurrency(expense);
 renderHeroAccountsList();
 const totalCardsRemainingUsd = fxState.cards.reduce((totalUsd, card) => totalUsd + getCardStats(card).remainingUsd, 0);
 const totalCardsRemainingTry = totalCardsRemainingUsd * fxState.usdRate;
-document.getElementById('pocket-cash-try').textContent = formatCurrency(pocketCash);
-document.getElementById('card-waiting-try').textContent = `Kartta: ${formatUsd(totalCardsRemainingUsd)} (≈${formatCurrency(totalCardsRemainingTry)})`;
+document.getElementById('pocket-cash-try').textContent = formatUsd(totalCardsRemainingUsd);
+document.getElementById('card-waiting-try').textContent = `≈ ${formatCurrency(totalCardsRemainingTry)} çekilebilir`;
+const fxBadgeEl = document.getElementById('home-fx-card-badge');
+if (fxBadgeEl) fxBadgeEl.textContent = fxState.cards.length > 1 ? `${fxState.cards.length} Kart` : 'Kart';
 const now = new Date();
 const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
 const daysLeft = Math.max(1, (lastDayOfMonth - now.getDate()) + 1);
-const totalSpendablePower = Math.max(0, pocketCash) + totalCardsRemainingTry;
+const totalSpendablePower = Math.max(0, net + totalCardsRemainingTry);
 const dailySafe = totalSpendablePower / daysLeft;
 document.getElementById('days-left-badge').textContent = `${daysLeft} gün`;
 document.getElementById('daily-safe-limit').textContent = `${formatCurrency(dailySafe)} / gün`;
@@ -5891,6 +5966,79 @@ showToast(`${otherName} ile ${formatCurrency(offsetAmt)} mahsuplaştırıldı!`)
 } catch (err) { showToast(sharedErrText(err)); }
 });
 }
+const DELETE_HISTORY_SQL_SNIPPET = `create or replace function public.delete_personal_debt_history(
+  p_debt_id uuid
+) returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_creditor uuid;
+  v_status text;
+begin
+  if auth.uid() is null then
+    raise exception 'Oturum gerekli';
+  end if;
+  select creditor_id, status into v_creditor, v_status
+  from public.shared_personal_debts
+  where id = p_debt_id;
+  if v_creditor is null then
+    raise exception 'Kayıt bulunamadı';
+  end if;
+  if v_creditor is distinct from auth.uid() then
+    raise exception 'Bu geçmiş kaydını yalnızca ekleyen kişi silebilir';
+  end if;
+  if v_status is distinct from 'settled' then
+    raise exception 'Yalnızca kapanmış geçmiş kayıtları buradan silinebilir';
+  end if;
+  delete from public.shared_personal_debts
+  where id = p_debt_id and creditor_id = auth.uid() and status = 'settled';
+end;
+$$;
+grant execute on function public.delete_personal_debt_history(uuid) to authenticated, anon;
+notify pgrst, 'reload schema';`;
+
+function copyDeleteHistorySql() {
+copyTextToClipboard(DELETE_HISTORY_SQL_SNIPPET, 'Geçmiş silme SQL kodu panoya kopyalandı!');
+}
+function deletePersonalDebtHistory(pdId) {
+const uid = sharedState.userId;
+const r = (sharedState.personalDebts || []).find(x => x.id === pdId);
+if (!r) return;
+const isCreator = r.created_by ? r.created_by === uid : r.creditor_id === uid;
+if (!isCreator) return showToast('Bu geçmiş kaydını yalnızca ekleyen kişi silebilir');
+openConfirmModal(`"${r.title}" (${formatCurrency(r.amount)}) hesaplaşma geçmişinden kalıcı olarak silinsin mi? Her iki tarafın geçmişinden de kaldırılır.`, async () => {
+try {
+const client = getSharedClient();
+await ensureSharedAuth();
+const { error } = await client.rpc('delete_personal_debt_history', { p_debt_id: pdId });
+if (error) {
+if (/does not exist|schema cache/i.test(error.message || '')) {
+const fallback = await client.from('shared_personal_debts').delete().eq('id', pdId).eq('creditor_id', uid).eq('status', 'settled').select('id');
+if (fallback.error || !fallback.data || fallback.data.length === 0) {
+sharedState.historyDeleteSqlNeeded = true;
+renderSharedSpace();
+showToast('Önce Supabase SQL Editor\'da geçmiş silme SQL kodunu çalıştır');
+return;
+}
+} else {
+throw error;
+}
+}
+sharedState.historyDeleteSqlNeeded = false;
+sharedState.personalDebts = (sharedState.personalDebts || []).filter(x => x.id !== pdId);
+savePersonalCache();
+renderDebts();
+updateSharedIndicators();
+renderSharedSpace();
+showToast('Hesaplaşma geçmişi kaydı silindi');
+refreshPersonalDebts().catch(() => {});
+} catch (err) {
+showToast(sharedErrText(err));
+}
+});
+}
 function setHistoryFilterPerson(val) { sharedState.historyFilterPerson = val || 'ALL'; renderSharedSpace(); }
 function copySimplifiedSettlementSummary() {
 const list = getSimplifiedSettlementList();
@@ -6846,9 +6994,13 @@ ${historyPeople.map(p => `<option value="${escHtml(p)}" ${hFilter === p ? 'selec
 </div>
 <div class="space-y-1 max-h-40 overflow-y-auto pr-0.5">${filteredHistory.slice(0, 20).map(r => {
 const iAmDebtor = r.debtor_id === uid;
+const isCreator = r.created_by ? r.created_by === uid : r.creditor_id === uid;
 const rBtn = r.receipt_img ? `<button type="button" onclick="openImageLightbox('${r.receipt_img.replace(/'/g,"\\'")}','Dekont • ${escHtml(r.title).replace(/'/g,"\\'")}')" class="text-sky-600 px-1"><i class="fa-solid fa-receipt text-[10px]"></i></button>` : '';
-return `<div class="flex items-center justify-between text-[10px] px-2.5 py-1.5 rounded-xl bg-slate-50/80"><span class="font-semibold text-slate-600 truncate"><i class="fa-solid fa-circle-check text-emerald-500 mr-1"></i>${escHtml(r.title)} • ${escHtml(iAmDebtor ? r.creditor_name : r.debtor_name)} <span class="text-slate-400">(${escHtml(r.expense_date || '')})</span></span><div class="flex items-center gap-1 shrink-0">${rBtn}<span class="font-extrabold ${iAmDebtor ? 'text-rose-600' : 'text-emerald-600'}">${iAmDebtor ? '-' : '+'}${formatCurrency(r.amount)}</span></div></div>`;
+const delBtn = isCreator ? `<button type="button" onclick="deletePersonalDebtHistory('${r.id}')" class="text-slate-300 hover:text-rose-500 px-1 active:scale-95 transition" title="Geçmişten Sil (Sadece Ekleyen)"><i class="fa-solid fa-trash-can text-[10px]"></i></button>` : '';
+return `<div class="flex items-center justify-between gap-1.5 text-[10px] px-2.5 py-1.5 rounded-xl bg-slate-50/80"><span class="font-semibold text-slate-600 truncate"><i class="fa-solid fa-circle-check text-emerald-500 mr-1"></i>${escHtml(r.title)} • ${escHtml(iAmDebtor ? r.creditor_name : r.debtor_name)} <span class="text-slate-400">(${escHtml(r.expense_date || '')})</span></span><div class="flex items-center gap-1 shrink-0">${rBtn}<span class="font-extrabold ${iAmDebtor ? 'text-rose-600' : 'text-emerald-600'}">${iAmDebtor ? '-' : '+'}${formatCurrency(r.amount)}</span>${delBtn}</div></div>`;
 }).join('')}</div>
+${sharedState.historyDeleteSqlNeeded ? `<div class="flex items-center justify-between gap-2 bg-rose-50/70 border border-rose-200/70 rounded-xl px-2.5 py-1.5"><span class="text-[9.5px] font-semibold text-rose-700">Geçmiş silme için Supabase SQL fonksiyonu gerekli.</span><button type="button" onclick="copyDeleteHistorySql()" class="px-2 py-1 rounded-lg bg-rose-600 text-white text-[9.5px] font-extrabold shrink-0 active:scale-95">SQL Kopyala</button></div>` : ''}
+<p class="text-[9px] text-slate-400">Geçmiş kayıtlarını yalnızca işlemi ekleyen kişi silebilir.</p>
 </div>` : '';
 
 // 4) Otomatik Borç Sadeleştirme / Net Hesaplaşma Planı (Hesaplaşma 1)
@@ -7727,7 +7879,7 @@ syncAppViewportHeight();
 const HOME_LAYOUT_STORAGE_KEY = 'cuzdanim_home_layout_v1';
 const HOME_WIDGET_DEFS = [
 { id: 'hero', label: 'Toplam Net Varlık', desc: 'Ana bakiye, giriş/çıkış ve hesap özeti', icon: 'fa-wallet', color: '#10b981' },
-{ id: 'quick-stats', label: 'Nakit & Günlük Limit', desc: 'Eldeki nakit ve günlük güvenli harcama', icon: 'fa-coins', color: '#0ea5e9' },
+{ id: 'quick-stats', label: 'Kart & Günlük Limit', desc: 'Yurt dışı kart bakiyesi ve tüm hesaplara göre günlük limit', icon: 'fa-credit-card', color: '#0ea5e9' },
 { id: 'budget', label: 'Aylık Bütçe Kontrolü', desc: 'Aylık harcama hedefi ilerleme çubuğu', icon: 'fa-gauge-high', color: '#059669' },
 { id: 'transfers', label: 'Hesaplar Arası Transferler', desc: 'Hesap ve yurt dışı kart transferleri', icon: 'fa-right-left', color: '#6366f1' },
 { id: 'debts', label: 'Borç & Alacak Defteri', desc: 'Kişi bazlı açık hesaplar ve ortak borçlar', icon: 'fa-handshake-simple', color: '#f59e0b' },
@@ -8014,7 +8166,9 @@ const I18N_EXACT = {
 'Nakit': { en: 'Cash', ru: 'Наличные' },
 'Eldeki Nakit': { en: 'Cash on Hand', ru: 'Наличные на руках' },
 'Günlük Güvenli Limit': { en: 'Daily Safe Limit', ru: 'Дневной лимит' },
-'Nakit + Kart dahil': { en: 'Cash + Cards included', ru: 'Наличные + карты' },
+'Tüm hesaplar + Kart dahil': { en: 'All accounts + Cards included', ru: 'Все счета + карты' },
+'Yurt Dışı Kart': { en: 'Foreign Card', ru: 'Зарубежная карта' },
+'Girilen Tutarı Çek & Nakite Aktar': { en: 'Withdraw Entered Amount to Cash', ru: 'Снять указанную сумму в наличные' },
 'Aylık Bütçe Kontrolü': { en: 'Monthly Budget Control', ru: 'Месячный бюджет' },
 'Aylık harcama limitine ulaşıldı.': { en: 'Monthly spending limit reached.', ru: 'Месячный лимит расходов достигнут.' },
 'Aylık harcama limitini aştın.': { en: 'Monthly spending limit exceeded.', ru: 'Месячный лимит расходов превышен.' },
