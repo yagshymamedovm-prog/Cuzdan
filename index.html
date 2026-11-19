@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Cüzdanım v28 — Kişisel Finans & Kart Asistanı</title>
+<title>Cüzdanım v29 — Kişisel Finans & Kart Asistanı</title>
 <meta name="theme-color" content="#eef2f8">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -159,16 +159,18 @@ html,body{overscroll-behavior:none}
 #app-shell .tab-content{height:100%;min-height:0;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;touch-action:pan-y;padding-left:18px;padding-right:18px;padding-bottom:calc(108px + env(safe-area-inset-bottom))}
 #app-shell #transaction-list{min-height:0;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain}
 /* Eski yüzen alt çubuk (Gündüz & Gece ayrı stil) */
-#app-shell #bottom-dock{left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom))}
+#app-shell #bottom-dock{left:12px;right:12px;bottom:max(10px,calc(env(safe-area-inset-bottom) - 18px))}
 #app-shell{--nav:rgba(255,255,255,.86);--nav-line:rgba(15,23,42,.08)}
 #app-shell nav{background:var(--nav);-webkit-backdrop-filter:saturate(180%) blur(22px);backdrop-filter:saturate(180%) blur(22px);border:1px solid var(--nav-line);border-radius:30px;padding:6px 8px;box-shadow:0 20px 44px -16px rgba(15,23,42,.36)}
 #app-shell nav button:not(.w-12){padding:4px 0}
 #app-shell nav button span{font-size:10.5px;white-space:nowrap}
 @media (max-width:639px){
-html{width:100%;height:100%;height:-webkit-fill-available;margin:0;padding:0;overflow:hidden;overscroll-behavior:none;background:#f4f5f8}
-body{position:fixed;top:0;left:0;right:0;bottom:0;width:100%;height:100%!important;min-height:0!important;margin:0!important;padding:0!important;overflow:hidden!important;overscroll-behavior:none;display:block;background:#f4f5f8!important;touch-action:none}
+html{width:100%;height:100%;margin:0;padding:0;overflow:hidden;overscroll-behavior:none;background:#f4f5f8}
+html:has(#app-shell.night-mode){background:var(--nm-bg,#090a0f)!important}
+body{position:fixed;inset:0;width:100%;height:auto!important;min-height:0!important;margin:0!important;padding:0!important;overflow:hidden!important;overscroll-behavior:none;display:block;background:#f4f5f8!important;touch-action:none}
 body:has(#app-shell.night-mode){background:var(--nm-bg,#090a0f)!important}
-#app-shell{position:fixed;top:0;left:0;right:0;bottom:0;width:100%;height:var(--app-vh,100%)!important;max-height:none!important;padding-top:env(safe-area-inset-top);overflow:hidden;transform:translate3d(0,0,0)}
+#app-shell{position:fixed;inset:0;width:100%;height:auto!important;max-height:none!important;padding-top:env(safe-area-inset-top);overflow:hidden;transform:translate3d(0,0,0)}
+html.ios-standalone,html.ios-standalone body,html.ios-standalone #app-shell{height:var(--app-vh,100vh)!important;min-height:var(--app-vh,100vh)!important;bottom:auto!important}
 #app-shell>header,#app-shell #bottom-dock{touch-action:none}
 }
 /* ---- Gece modu: yumuşak lacivert, tinted kutular, okunur renkler ---- */
@@ -7628,16 +7630,28 @@ return container.contains(document.activeElement);
 }
 function syncAppViewportHeight() {
 try {
+const root = document.documentElement;
 if (window.innerWidth > 639) {
-document.documentElement.style.removeProperty('--app-vh');
+root.classList.remove('ios-standalone');
+root.style.removeProperty('--app-vh');
 return;
 }
 if (isUserTypingInInput()) return;
-const vv = window.visualViewport;
-const h = Math.max(window.innerHeight || 0, vv ? Math.round(vv.height + vv.offsetTop) : 0);
-if (h > 300) {
-document.documentElement.style.setProperty('--app-vh', h + 'px');
+const isIosStandalone = window.navigator.standalone === true;
+if (!isIosStandalone) {
+root.classList.remove('ios-standalone');
+root.style.removeProperty('--app-vh');
+return;
 }
+root.classList.add('ios-standalone');
+const vv = window.visualViewport;
+let h = Math.max(window.innerHeight || 0, vv ? Math.round(vv.height + vv.offsetTop) : 0);
+const isPortrait = window.innerWidth <= window.innerHeight;
+const sw = Number(window.screen && window.screen.width) || 0;
+const sh = Number(window.screen && window.screen.height) || 0;
+const fullScreenH = isPortrait ? Math.max(sw, sh) : Math.min(sw, sh);
+if (fullScreenH > h && (fullScreenH - h) <= 140) h = fullScreenH;
+if (h > 300) root.style.setProperty('--app-vh', h + 'px');
 } catch (e) {}
 }
 function resetPageScroll(force = false) {
