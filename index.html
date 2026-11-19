@@ -3,20 +3,24 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Cüzdanım v15 — Kişisel Finans & Kart Asistanı</title>
+<title>Cüzdanım v28 — Kişisel Finans & Kart Asistanı</title>
 <meta name="theme-color" content="#eef2f8">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Cüzdanım">
 <meta name="description" content="Cihaza özel, tamamen izole kişisel gelir, gider, döviz kartı ve borç takip uygulaması.">
 <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='42' fill='%23090d16'/%3E%3Ccircle cx='140' cy='40' r='60' fill='%2310b981' fill-opacity='0.22'/%3E%3Crect x='34' y='48' width='112' height='84' rx='22' fill='%2310b981'/%3E%3Crect x='34' y='66' width='112' height='20' fill='%23052e16' fill-opacity='0.35'/%3E%3Ccircle cx='118' cy='104' r='10' fill='%23090d16'/%3E%3C/svg%3E">
-<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="dns-prefetch" href="https://pokghdlfhufibxnkeuvw.supabase.co">
+<script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root {
 --bg-app: #f2f4f7;
@@ -155,16 +159,17 @@ html,body{overscroll-behavior:none}
 #app-shell .tab-content{height:100%;min-height:0;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;touch-action:pan-y;padding-left:18px;padding-right:18px;padding-bottom:calc(108px + env(safe-area-inset-bottom))}
 #app-shell #transaction-list{min-height:0;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain}
 /* Eski yüzen alt çubuk (Gündüz & Gece ayrı stil) */
-#app-shell #bottom-dock{left:12px;right:12px;bottom:max(12px,calc(env(safe-area-inset-bottom) - 14px))}
+#app-shell #bottom-dock{left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom))}
 #app-shell{--nav:rgba(255,255,255,.86);--nav-line:rgba(15,23,42,.08)}
 #app-shell nav{background:var(--nav);-webkit-backdrop-filter:saturate(180%) blur(22px);backdrop-filter:saturate(180%) blur(22px);border:1px solid var(--nav-line);border-radius:30px;padding:6px 8px;box-shadow:0 20px 44px -16px rgba(15,23,42,.36)}
 #app-shell nav button:not(.w-12){padding:4px 0}
 #app-shell nav button span{font-size:10.5px;white-space:nowrap}
 @media (max-width:639px){
-html{height:100%;height:100dvh;overflow:hidden}
-body{position:fixed;inset:0;width:100%;height:auto!important;min-height:0!important;overflow:hidden;display:block;padding:0!important;background:#eef2f8!important}
-body:has(#app-shell.night-mode){background:#141c2b!important}
-#app-shell{position:fixed;inset:0;width:100%;height:auto!important;max-height:none!important;padding-top:env(safe-area-inset-top)}
+html{width:100%;height:100%;height:-webkit-fill-available;margin:0;padding:0;overflow:hidden;overscroll-behavior:none;background:#f4f5f8}
+body{position:fixed;top:0;left:0;right:0;bottom:0;width:100%;height:100%!important;min-height:0!important;margin:0!important;padding:0!important;overflow:hidden!important;overscroll-behavior:none;display:block;background:#f4f5f8!important;touch-action:none}
+body:has(#app-shell.night-mode){background:var(--nm-bg,#090a0f)!important}
+#app-shell{position:fixed;top:0;left:0;right:0;bottom:0;width:100%;height:var(--app-vh,100%)!important;max-height:none!important;padding-top:env(safe-area-inset-top);overflow:hidden;transform:translate3d(0,0,0)}
+#app-shell>header,#app-shell #bottom-dock{touch-action:none}
 }
 /* ---- Gece modu: yumuşak lacivert, tinted kutular, okunur renkler ---- */
 #app-shell.night-mode{--nav:rgba(28,38,56,.88);--nav-line:rgba(255,255,255,.11);--line:rgba(255,255,255,.08);--shadow:0 1px 2px rgba(0,0,0,.2),0 14px 30px -16px rgba(0,0,0,.55)}
@@ -240,6 +245,883 @@ body:has(#app-shell.night-mode){background:#141c2b!important}
 #app-shell nav button.text-emerald-400:hover{color:var(--accent-ink)}
 </style>
 
+<style id="night-palette-v21">
+/* ===== GECE MODU v24: STÜDYO (Dumanlı Grafit • Titanyum • Elektrik İris • Mercan — Varsayılan) + Diğer Temalar ===== */
+#app-shell.night-mode,
+#app-shell.night-mode[data-night-theme="neo"]{
+  --nm-bg:#090a0f;
+  --nm-card:#12141e;
+  --nm-card-2:#0d0f17;
+  --nm-surface:#171a26;
+  --nm-surface-2:#1f2333;
+  --nm-field:#0b0d14;
+  --nm-ink:#f8fafc;
+  --nm-ink-2:#c7cddb;
+  --nm-muted:#7e869c;
+  --nm-line:rgba(255,255,255,.075);
+  --nm-line-strong:rgba(165,180,252,.22);
+  --nm-accent:#818cf8;
+  --nm-accent-soft:#e0e7ff;
+  --nm-accent-alt:#a5b4fc;
+  --nm-accent-bg:rgba(129,140,248,.16);
+  --nm-alt-bg:rgba(129,140,248,.11);
+  --nm-btn-grad:linear-gradient(135deg,#ffffff 0%,#e2e8f0 100%);
+  --nm-btn-ink:#090a0f;
+  --nm-btn-shadow:rgba(255,255,255,.18);
+  --nm-fab-grad:linear-gradient(145deg,#1d1f38 0%,#2d2b55 55%,#3b2654 100%);
+  --nm-fab-ink:#ffffff;
+  --nm-fab-shadow:rgba(139,92,246,.58);
+  --nm-toggle-grad:linear-gradient(90deg,#6366f1 0%,#a855f7 100%);
+  --nm-bar-grad:linear-gradient(90deg,#38bdf8 0%,#818cf8 54%,#fb7185 100%);
+  --nm-main-bg:radial-gradient(74% 36% at 95% 0%,rgba(99,102,241,.17),transparent 65%),radial-gradient(62% 32% at 5% 16%,rgba(251,113,133,.11),transparent 68%),radial-gradient(50% 26% at 50% 100%,rgba(56,189,248,.07),transparent 70%),#090a0f;
+  --nm-hero-bg:radial-gradient(110% 90% at 96% 2%,rgba(129,140,248,.34),transparent 54%),radial-gradient(90% 85% at 6% 100%,rgba(251,113,133,.28),transparent 56%),linear-gradient(148deg,#161829 0%,#111320 55%,#0a0b12 100%);
+  --nm-fx-bg:radial-gradient(100% 95% at 94% 6%,rgba(56,189,248,.28),transparent 54%),radial-gradient(88% 85% at 8% 100%,rgba(168,85,247,.30),transparent 56%),linear-gradient(140deg,#13192c 0%,#151324 58%,#0a0b12 100%);
+  --nm-nav-bg:rgba(16,18,28,.88);
+  --nm-toast-bg:rgba(22,25,38,.96);
+}
+#app-shell.night-mode[data-night-theme="petrol"]{
+  --nm-bg:#06090d;
+  --nm-card:#0e151d;
+  --nm-card-2:#0a0f16;
+  --nm-surface:#121e29;
+  --nm-surface-2:#172938;
+  --nm-field:#080e14;
+  --nm-ink:#ffffff;
+  --nm-ink-2:#d2dfe6;
+  --nm-muted:#7d96a6;
+  --nm-line:rgba(34,211,238,.12);
+  --nm-line-strong:rgba(34,211,238,.24);
+  --nm-accent:#06d6d0;
+  --nm-accent-soft:#ffffff;
+  --nm-accent-alt:#22d3ee;
+  --nm-accent-bg:rgba(6,214,208,.15);
+  --nm-alt-bg:rgba(15,76,92,.36);
+  --nm-btn-grad:linear-gradient(135deg,#ffffff 0%,#e2edf2 100%);
+  --nm-btn-ink:#06090d;
+  --nm-btn-shadow:rgba(255,255,255,.20);
+  --nm-fab-grad:linear-gradient(145deg,#0d2a36 0%,#123d4d 55%,#6b1424 100%);
+  --nm-fab-ink:#ffffff;
+  --nm-fab-shadow:rgba(6,214,208,.28);
+  --nm-toggle-grad:linear-gradient(90deg,#0f4c5c 0%,#06d6d0 100%);
+  --nm-bar-grad:linear-gradient(90deg,#06d6d0 0%,#0e7490 52%,#ef233c 100%);
+  --nm-main-bg:radial-gradient(76% 36% at 96% 0%,rgba(6,214,208,.16),transparent 64%),radial-gradient(64% 34% at 4% 18%,rgba(15,76,92,.38),transparent 68%),radial-gradient(56% 28% at 88% 92%,rgba(239,35,60,.11),transparent 66%),#06090d;
+  --nm-hero-bg:radial-gradient(110% 90% at 98% 2%,rgba(6,214,208,.30),transparent 54%),radial-gradient(90% 85% at 6% 100%,rgba(239,35,60,.26),transparent 56%),linear-gradient(148deg,#0c2836 0%,#0b1924 52%,#06090d 100%);
+  --nm-fx-bg:radial-gradient(100% 95% at 94% 6%,rgba(34,211,238,.28),transparent 54%),radial-gradient(85% 85% at 8% 100%,rgba(239,35,60,.24),transparent 56%),linear-gradient(140deg,#0f3545 0%,#0b1b26 58%,#06090d 100%);
+  --nm-nav-bg:rgba(12,19,27,.92);
+  --nm-toast-bg:rgba(15,32,44,.97);
+}
+#app-shell.night-mode[data-night-theme="crimson"]{
+  --nm-bg:#070709;
+  --nm-card:#111115;
+  --nm-card-2:#0d0d11;
+  --nm-surface:#18181e;
+  --nm-surface-2:#22222a;
+  --nm-field:#0b0b0f;
+  --nm-ink:#ffffff;
+  --nm-ink-2:#d4d4dc;
+  --nm-muted:#8a8a98;
+  --nm-line:rgba(255,255,255,.09);
+  --nm-line-strong:rgba(255,255,255,.16);
+  --nm-accent:#ef233c;
+  --nm-accent-soft:#ffffff;
+  --nm-accent-alt:#ff4d6d;
+  --nm-accent-bg:rgba(239,35,60,.16);
+  --nm-alt-bg:rgba(255,255,255,.07);
+  --nm-btn-grad:linear-gradient(135deg,#ffffff 0%,#e5e7eb 100%);
+  --nm-btn-ink:#070709;
+  --nm-btn-shadow:rgba(255,255,255,.22);
+  --nm-fab-grad:linear-gradient(145deg,#1a1a22 0%,#5c101d 55%,#991429 100%);
+  --nm-fab-ink:#ffffff;
+  --nm-fab-shadow:rgba(239,35,60,.45);
+  --nm-toggle-grad:linear-gradient(90deg,#ef233c,#ff4d6d);
+  --nm-bar-grad:linear-gradient(90deg,#ffffff 0%,#ff4d6d 58%,#ef233c 100%);
+  --nm-main-bg:radial-gradient(74% 34% at 96% 0%,rgba(239,35,60,.17),transparent 64%),radial-gradient(58% 30% at 4% 18%,rgba(255,255,255,.05),transparent 68%),#070709;
+  --nm-hero-bg:radial-gradient(110% 90% at 98% 0%,rgba(239,35,60,.36),transparent 54%),radial-gradient(80% 80% at 6% 100%,rgba(255,255,255,.10),transparent 56%),linear-gradient(148deg,#141418 0%,#0c0c10 55%,#070709 100%);
+  --nm-fx-bg:radial-gradient(100% 95% at 94% 6%,rgba(255,255,255,.14),transparent 52%),radial-gradient(90% 85% at 8% 100%,rgba(239,35,60,.34),transparent 56%),linear-gradient(140deg,#16161b 0%,#0e0e12 60%,#070709 100%);
+  --nm-nav-bg:rgba(15,15,19,.92);
+  --nm-toast-bg:rgba(22,22,28,.97);
+}
+#app-shell.night-mode[data-night-theme="copper"]{
+  --nm-bg:#0b0c10;
+  --nm-card:#14161d;
+  --nm-card-2:#101218;
+  --nm-surface:#1a1d27;
+  --nm-surface-2:#232735;
+  --nm-field:#0d0f15;
+  --nm-ink:#f4f4f6;
+  --nm-ink-2:#c8ccd6;
+  --nm-muted:#8b90a0;
+  --nm-line:rgba(226,168,107,.15);
+  --nm-line-strong:rgba(226,168,107,.28);
+  --nm-accent:#e2a86b;
+  --nm-accent-soft:#f5d0a9;
+  --nm-accent-alt:#93c5fd;
+  --nm-accent-bg:rgba(226,168,107,.14);
+  --nm-alt-bg:rgba(147,197,253,.13);
+  --nm-btn-grad:linear-gradient(135deg,#e2a86b 0%,#b87333 100%);
+  --nm-btn-ink:#0b0c10;
+  --nm-btn-shadow:rgba(226,168,107,.35);
+  --nm-fab-grad:linear-gradient(145deg,#1e1a18 0%,#4a3220 55%,#7c502d 100%);
+  --nm-fab-ink:#f5d0a9;
+  --nm-fab-shadow:rgba(226,168,107,.5);
+  --nm-toggle-grad:linear-gradient(90deg,#e2a86b,#c67d3b);
+  --nm-bar-grad:linear-gradient(90deg,#93c5fd 0%,#e2a86b 58%,#fb7185 100%);
+  --nm-main-bg:radial-gradient(72% 35% at 96% 0%,rgba(226,168,107,.14),transparent 65%),radial-gradient(62% 32% at 4% 16%,rgba(147,197,253,.09),transparent 68%),#0b0c10;
+  --nm-hero-bg:radial-gradient(110% 90% at 98% 2%,rgba(226,168,107,.34),transparent 56%),radial-gradient(90% 90% at 6% 100%,rgba(147,197,253,.18),transparent 58%),linear-gradient(148deg,#1a1614 0%,#151721 55%,#0d0e14 100%);
+  --nm-fx-bg:radial-gradient(100% 95% at 96% 8%,rgba(147,197,253,.28),transparent 55%),radial-gradient(85% 85% at 8% 100%,rgba(226,168,107,.28),transparent 58%),linear-gradient(140deg,#161b26 0%,#191618 60%,#0d0e14 100%);
+  --nm-nav-bg:rgba(20,22,29,.90);
+  --nm-toast-bg:rgba(28,30,40,.96);
+}
+#app-shell.night-mode[data-night-theme="cobalt"]{
+  --nm-bg:#080c16;
+  --nm-card:#101728;
+  --nm-card-2:#0d1322;
+  --nm-surface:#162036;
+  --nm-surface-2:#1e2b47;
+  --nm-field:#0a0f1c;
+  --nm-ink:#f8fafc;
+  --nm-ink-2:#cbd5e1;
+  --nm-muted:#8a9bb8;
+  --nm-line:rgba(96,165,250,.16);
+  --nm-line-strong:rgba(96,165,250,.30);
+  --nm-accent:#60a5fa;
+  --nm-accent-soft:#bae6fd;
+  --nm-accent-alt:#c084fc;
+  --nm-accent-bg:rgba(59,130,246,.16);
+  --nm-alt-bg:rgba(192,132,252,.14);
+  --nm-btn-grad:linear-gradient(135deg,#3b82f6 0%,#2563eb 100%);
+  --nm-btn-ink:#ffffff;
+  --nm-btn-shadow:rgba(59,130,246,.45);
+  --nm-fab-grad:linear-gradient(135deg,#38bdf8 0%,#3b82f6 55%,#6366f1 100%);
+  --nm-fab-ink:#ffffff;
+  --nm-fab-shadow:rgba(59,130,246,.6);
+  --nm-toggle-grad:linear-gradient(90deg,#38bdf8,#3b82f6);
+  --nm-bar-grad:linear-gradient(90deg,#38bdf8 0%,#3b82f6 55%,#a855f7 100%);
+  --nm-main-bg:radial-gradient(72% 35% at 96% 0%,rgba(59,130,246,.18),transparent 65%),radial-gradient(62% 32% at 4% 16%,rgba(139,92,246,.13),transparent 68%),#080c16;
+  --nm-hero-bg:radial-gradient(110% 90% at 98% 2%,rgba(56,189,248,.34),transparent 56%),radial-gradient(90% 90% at 6% 100%,rgba(139,92,246,.32),transparent 58%),linear-gradient(148deg,#0e1730 0%,#131f3d 55%,#090e1c 100%);
+  --nm-fx-bg:radial-gradient(100% 95% at 96% 8%,rgba(192,132,252,.32),transparent 55%),radial-gradient(85% 85% at 8% 100%,rgba(56,189,248,.30),transparent 58%),linear-gradient(140deg,#111936 0%,#181738 60%,#090e1c 100%);
+  --nm-nav-bg:rgba(16,23,40,.90);
+  --nm-toast-bg:rgba(22,32,54,.96);
+}
+#app-shell.night-mode[data-night-theme="sunset"]{
+  --nm-bg:#110d0c;
+  --nm-card:#1b1514;
+  --nm-card-2:#161110;
+  --nm-surface:#251d1b;
+  --nm-surface-2:#312623;
+  --nm-field:#130e0d;
+  --nm-ink:#faf4f0;
+  --nm-ink-2:#dfcfc7;
+  --nm-muted:#a8958c;
+  --nm-line:rgba(251,146,60,.16);
+  --nm-line-strong:rgba(251,146,60,.30);
+  --nm-accent:#fb923c;
+  --nm-accent-soft:#fed7aa;
+  --nm-accent-alt:#fda4af;
+  --nm-accent-bg:rgba(251,146,60,.16);
+  --nm-alt-bg:rgba(253,164,175,.14);
+  --nm-btn-grad:linear-gradient(135deg,#f97316 0%,#e11d48 100%);
+  --nm-btn-ink:#ffffff;
+  --nm-btn-shadow:rgba(249,115,22,.45);
+  --nm-fab-grad:linear-gradient(135deg,#fbbf24 0%,#f97316 55%,#e11d48 100%);
+  --nm-fab-ink:#ffffff;
+  --nm-fab-shadow:rgba(249,115,22,.6);
+  --nm-toggle-grad:linear-gradient(90deg,#fb923c,#e11d48);
+  --nm-bar-grad:linear-gradient(90deg,#fbbf24 0%,#f97316 55%,#f43f5e 100%);
+  --nm-main-bg:radial-gradient(72% 35% at 96% 0%,rgba(251,146,60,.17),transparent 65%),radial-gradient(62% 32% at 4% 16%,rgba(244,63,94,.13),transparent 68%),#110d0c;
+  --nm-hero-bg:radial-gradient(110% 90% at 98% 2%,rgba(251,191,36,.32),transparent 56%),radial-gradient(90% 90% at 6% 100%,rgba(244,63,94,.34),transparent 58%),linear-gradient(148deg,#261614 0%,#2c1a19 55%,#140e0d 100%);
+  --nm-fx-bg:radial-gradient(100% 95% at 96% 8%,rgba(253,164,175,.30),transparent 55%),radial-gradient(85% 85% at 8% 100%,rgba(251,146,60,.32),transparent 58%),linear-gradient(140deg,#241619 0%,#261914 60%,#140e0d 100%);
+  --nm-nav-bg:rgba(27,21,20,.92);
+  --nm-toast-bg:rgba(37,29,27,.96);
+}
+#app-shell.night-mode[data-night-theme="aurora"]{
+  --nm-bg:#0b0d17;
+  --nm-card:#141827;
+  --nm-card-2:#101321;
+  --nm-surface:#1b2136;
+  --nm-surface-2:#232a44;
+  --nm-field:#0f1322;
+  --nm-ink:#f1f3fa;
+  --nm-ink-2:#c9d0e6;
+  --nm-muted:#8f99b8;
+  --nm-line:rgba(167,139,250,.15);
+  --nm-line-strong:rgba(167,139,250,.30);
+  --nm-accent:#c084fc;
+  --nm-accent-soft:#fde68a;
+  --nm-accent-alt:#38bdf8;
+  --nm-accent-bg:rgba(167,139,250,.16);
+  --nm-alt-bg:rgba(56,189,248,.14);
+  --nm-btn-grad:linear-gradient(135deg,#7c3aed 0%,#ec4899 100%);
+  --nm-btn-ink:#ffffff;
+  --nm-btn-shadow:rgba(124,58,237,.5);
+  --nm-fab-grad:linear-gradient(135deg,#f43f5e 0%,#fb923c 55%,#fbbf24 100%);
+  --nm-fab-ink:#ffffff;
+  --nm-fab-shadow:rgba(244,63,94,.6);
+  --nm-toggle-grad:linear-gradient(90deg,#8b5cf6,#ec4899);
+  --nm-bar-grad:linear-gradient(90deg,#38bdf8 0%,#8b5cf6 55%,#f43f5e 100%);
+  --nm-main-bg:radial-gradient(75% 36% at 96% 0%,rgba(139,92,246,.22),transparent 65%),radial-gradient(65% 34% at 4% 14%,rgba(244,63,94,.16),transparent 66%),#0b0d17;
+  --nm-hero-bg:radial-gradient(110% 90% at 98% 2%,rgba(245,158,11,.34),transparent 56%),radial-gradient(95% 90% at 8% 100%,rgba(236,72,153,.36),transparent 58%),linear-gradient(145deg,#181230 0%,#1f1842 52%,#11162a 100%);
+  --nm-fx-bg:radial-gradient(100% 95% at 96% 8%,rgba(56,189,248,.36),transparent 55%),radial-gradient(90% 85% at 6% 98%,rgba(217,70,239,.36),transparent 58%),linear-gradient(140deg,#121a3a 0%,#1d1840 58%,#0e1326 100%);
+  --nm-nav-bg:rgba(20,24,41,.92);
+  --nm-toast-bg:rgba(30,27,54,.96);
+}
+
+/* Ortak Gece Modu Uygulama Kuralları */
+body:has(#app-shell.night-mode){background:var(--nm-bg,#0b0c10)!important}
+body:has(#app-shell.night-mode[data-night-theme="petrol"]){background:radial-gradient(circle at 20% 0%,#0d2b38 0%,#06090d 72%)!important}
+/* Siyah • Beyaz • Petrol Mavisi • Turkuaz • Kırmızı tema uyumu */
+#app-shell.night-mode[data-night-theme="petrol"]>header div.bg-\[\#090d16\]{
+  background:linear-gradient(135deg,#0f4c5c 0%,#06d6d0 100%)!important;color:#06090d!important;
+  box-shadow:0 10px 22px -8px rgba(6,214,208,.55)!important;
+}
+#app-shell.night-mode[data-night-theme="petrol"]>header button.header-btn-active{
+  background:linear-gradient(135deg,#0f4c5c 0%,#06d6d0 100%)!important;color:#06090d!important;
+  box-shadow:0 10px 22px -8px rgba(6,214,208,.45)!important;
+}
+#app-shell.night-mode[data-night-theme="petrol"] .bg-emerald-500,
+#app-shell.night-mode[data-night-theme="petrol"] .bg-emerald-600{
+  background:linear-gradient(135deg,#06d6d0 0%,#0f6b7d 100%)!important;color:#06090d!important;
+  box-shadow:0 10px 24px -10px rgba(6,214,208,.50)!important;
+}
+#app-shell.night-mode[data-night-theme="petrol"] .hero-mesh .text-emerald-300,
+#app-shell.night-mode[data-night-theme="petrol"] .fx-mesh .text-emerald-300{
+  color:#5eead4!important;
+}
+#app-shell.night-mode[data-night-theme="petrol"] .hero-mesh .bg-emerald-400{
+  background-color:#06d6d0!important;
+  box-shadow:0 0 8px rgba(6,214,208,.85);
+}
+#app-shell.night-mode[data-night-theme="petrol"] .hero-mesh .bg-emerald-400\/20{
+  background-color:rgba(6,214,208,.18)!important;
+}
+#app-shell.night-mode[data-night-theme="petrol"] .bg-rose-400\/20{
+  background-color:rgba(239,35,60,.22)!important;
+}
+#app-shell.night-mode[data-night-theme="petrol"] .bg-rose-50,
+#app-shell.night-mode[data-night-theme="petrol"] .bg-rose-100,
+#app-shell.night-mode[data-night-theme="petrol"] .bg-rose-50\/70{
+  background-color:rgba(239,35,60,.15)!important;
+}
+#app-shell.night-mode[data-night-theme="petrol"] .border-rose-200\/70{
+  border-color:rgba(239,35,60,.36)!important;
+}
+#app-shell.night-mode[data-night-theme="petrol"] .text-rose-300,
+#app-shell.night-mode[data-night-theme="petrol"] .text-rose-500,
+#app-shell.night-mode[data-night-theme="petrol"] .text-rose-600,
+#app-shell.night-mode[data-night-theme="petrol"] .text-rose-700,
+#app-shell.night-mode[data-night-theme="petrol"] .text-rose-900{
+  color:#ff4d6d!important;
+}
+#app-shell.night-mode[data-night-theme="petrol"] .bg-sky-50,
+#app-shell.night-mode[data-night-theme="petrol"] .bg-sky-100,
+#app-shell.night-mode[data-night-theme="petrol"] .bg-sky-50\/70,
+#app-shell.night-mode[data-night-theme="petrol"] .bg-indigo-50\/60,
+#app-shell.night-mode[data-night-theme="petrol"] .bg-violet-50{
+  background-color:rgba(15,76,92,.32)!important;
+}
+#app-shell.night-mode[data-night-theme="petrol"] .border-sky-100,
+#app-shell.night-mode[data-night-theme="petrol"] .border-sky-200\/70,
+#app-shell.night-mode[data-night-theme="petrol"] .border-sky-200\/80,
+#app-shell.night-mode[data-night-theme="petrol"] .border-indigo-100,
+#app-shell.night-mode[data-night-theme="petrol"] .border-indigo-200,
+#app-shell.night-mode[data-night-theme="petrol"] .border-indigo-200\/80,
+#app-shell.night-mode[data-night-theme="petrol"] .border-violet-200{
+  border-color:rgba(34,211,238,.26)!important;
+}
+#app-shell.night-mode[data-night-theme="petrol"] .text-sky-500,
+#app-shell.night-mode[data-night-theme="petrol"] .text-sky-600,
+#app-shell.night-mode[data-night-theme="petrol"] .text-sky-700,
+#app-shell.night-mode[data-night-theme="petrol"] .text-indigo-500,
+#app-shell.night-mode[data-night-theme="petrol"] .text-indigo-600,
+#app-shell.night-mode[data-night-theme="petrol"] .text-indigo-700,
+#app-shell.night-mode[data-night-theme="petrol"] .text-violet-500,
+#app-shell.night-mode[data-night-theme="petrol"] .text-violet-600,
+#app-shell.night-mode[data-night-theme="petrol"] .text-violet-700{
+  color:#22d3ee!important;
+}
+#app-shell.night-mode[data-night-theme="petrol"] .bg-amber-50,
+#app-shell.night-mode[data-night-theme="petrol"] .bg-amber-100{
+  background-color:rgba(255,255,255,.07)!important;
+}
+#app-shell.night-mode[data-night-theme="petrol"] .border-amber-200,
+#app-shell.night-mode[data-night-theme="petrol"] .border-amber-200\/80{
+  border-color:rgba(255,255,255,.16)!important;
+}
+#app-shell.night-mode[data-night-theme="petrol"] .text-amber-500,
+#app-shell.night-mode[data-night-theme="petrol"] .text-amber-600,
+#app-shell.night-mode[data-night-theme="petrol"] .text-amber-700,
+#app-shell.night-mode[data-night-theme="petrol"] .text-amber-900{
+  color:#ffffff!important;
+}
+#app-shell.night-mode[data-night-theme="petrol"] .bg-sky-500\/10,
+#app-shell.night-mode[data-night-theme="petrol"] .bg-sky-500\/15,
+#app-shell.night-mode[data-night-theme="petrol"] .bg-indigo-500\/10,
+#app-shell.night-mode[data-night-theme="petrol"] .bg-indigo-500\/15,
+#app-shell.night-mode[data-night-theme="petrol"] .bg-violet-500\/15{
+  background-color:rgba(15,76,92,.45)!important;
+}
+#app-shell.night-mode[data-night-theme="petrol"] .bg-amber-500\/10,
+#app-shell.night-mode[data-night-theme="petrol"] .bg-amber-500\/15{
+  background-color:rgba(255,255,255,.09)!important;
+}
+#app-shell.night-mode[data-night-theme="petrol"] #shared-btn-dot{
+  background-color:#ef233c!important;
+}
+#app-shell.night-mode[data-night-theme="petrol"] .bg-white\/\[0\.06\],
+#app-shell.night-mode[data-night-theme="petrol"] .bg-white\/\[0\.08\]{
+  background-color:rgba(255,255,255,.05)!important;
+  border-color:rgba(34,211,238,.14)!important;
+}
+body:has(#app-shell.night-mode[data-night-theme="crimson"]){background:radial-gradient(circle at 20% 0%,#1a0b10 0%,#070709 72%)!important}
+/* Siyah-Beyaz-Kırmızı temada tüm ikincil renkleri tutarlı tut (monokrom + kızıl vurgu) */
+#app-shell.night-mode[data-night-theme="crimson"]>header div.bg-\[\#090d16\]{
+  background:linear-gradient(135deg,#ef233c,#b91c1c)!important;color:#ffffff!important;
+  box-shadow:0 10px 22px -8px rgba(239,35,60,.65)!important;
+}
+#app-shell.night-mode[data-night-theme="crimson"] .bg-emerald-500,
+#app-shell.night-mode[data-night-theme="crimson"] .bg-emerald-600{
+  background:linear-gradient(135deg,#ef233c,#c8102e)!important;color:#ffffff!important;
+  box-shadow:0 10px 24px -10px rgba(239,35,60,.6)!important;
+}
+#app-shell.night-mode[data-night-theme="crimson"] .bg-sky-50,
+#app-shell.night-mode[data-night-theme="crimson"] .bg-sky-100,
+#app-shell.night-mode[data-night-theme="crimson"] .bg-sky-50\/70,
+#app-shell.night-mode[data-night-theme="crimson"] .bg-indigo-50\/60,
+#app-shell.night-mode[data-night-theme="crimson"] .bg-violet-50,
+#app-shell.night-mode[data-night-theme="crimson"] .bg-amber-50,
+#app-shell.night-mode[data-night-theme="crimson"] .bg-amber-100{
+  background-color:rgba(255,255,255,.06)!important;
+}
+#app-shell.night-mode[data-night-theme="crimson"] .bg-rose-50,
+#app-shell.night-mode[data-night-theme="crimson"] .bg-rose-100,
+#app-shell.night-mode[data-night-theme="crimson"] .bg-rose-50\/70{
+  background-color:rgba(239,35,60,.15)!important;
+}
+#app-shell.night-mode[data-night-theme="crimson"] .border-sky-100,
+#app-shell.night-mode[data-night-theme="crimson"] .border-sky-200\/70,
+#app-shell.night-mode[data-night-theme="crimson"] .border-sky-200\/80,
+#app-shell.night-mode[data-night-theme="crimson"] .border-indigo-100,
+#app-shell.night-mode[data-night-theme="crimson"] .border-indigo-200,
+#app-shell.night-mode[data-night-theme="crimson"] .border-indigo-200\/80,
+#app-shell.night-mode[data-night-theme="crimson"] .border-violet-200,
+#app-shell.night-mode[data-night-theme="crimson"] .border-amber-200,
+#app-shell.night-mode[data-night-theme="crimson"] .border-amber-200\/80{
+  border-color:rgba(255,255,255,.14)!important;
+}
+#app-shell.night-mode[data-night-theme="crimson"] .border-rose-200\/70{
+  border-color:rgba(239,35,60,.36)!important;
+}
+#app-shell.night-mode[data-night-theme="crimson"] .text-sky-500,
+#app-shell.night-mode[data-night-theme="crimson"] .text-sky-600,
+#app-shell.night-mode[data-night-theme="crimson"] .text-sky-700,
+#app-shell.night-mode[data-night-theme="crimson"] .text-indigo-500,
+#app-shell.night-mode[data-night-theme="crimson"] .text-indigo-600,
+#app-shell.night-mode[data-night-theme="crimson"] .text-indigo-700,
+#app-shell.night-mode[data-night-theme="crimson"] .text-violet-500,
+#app-shell.night-mode[data-night-theme="crimson"] .text-violet-600,
+#app-shell.night-mode[data-night-theme="crimson"] .text-violet-700,
+#app-shell.night-mode[data-night-theme="crimson"] .text-amber-500,
+#app-shell.night-mode[data-night-theme="crimson"] .text-amber-600,
+#app-shell.night-mode[data-night-theme="crimson"] .text-amber-700,
+#app-shell.night-mode[data-night-theme="crimson"] .text-amber-900{
+  color:#ffffff!important;
+}
+#app-shell.night-mode[data-night-theme="crimson"] .text-rose-300,
+#app-shell.night-mode[data-night-theme="crimson"] .text-rose-500,
+#app-shell.night-mode[data-night-theme="crimson"] .text-rose-600,
+#app-shell.night-mode[data-night-theme="crimson"] .text-rose-700,
+#app-shell.night-mode[data-night-theme="crimson"] .text-rose-900{
+  color:#ff4d6d!important;
+}
+#app-shell.night-mode[data-night-theme="crimson"] .bg-sky-500\/10,
+#app-shell.night-mode[data-night-theme="crimson"] .bg-sky-500\/15,
+#app-shell.night-mode[data-night-theme="crimson"] .bg-indigo-500\/10,
+#app-shell.night-mode[data-night-theme="crimson"] .bg-indigo-500\/15,
+#app-shell.night-mode[data-night-theme="crimson"] .bg-amber-500\/10,
+#app-shell.night-mode[data-night-theme="crimson"] .bg-amber-500\/15,
+#app-shell.night-mode[data-night-theme="crimson"] .bg-violet-500\/15{
+  background-color:rgba(255,255,255,.08)!important;
+}
+#app-shell.night-mode[data-night-theme="crimson"] .bg-rose-400\/20{
+  background-color:rgba(239,35,60,.22)!important;
+}
+#app-shell.night-mode[data-night-theme="crimson"] .hero-mesh .text-emerald-300,
+#app-shell.night-mode[data-night-theme="crimson"] .fx-mesh .text-emerald-300{
+  color:#ffffff!important;
+}
+#app-shell.night-mode[data-night-theme="crimson"] .hero-mesh .bg-emerald-400{
+  background-color:#ef233c!important;
+  box-shadow:0 0 8px rgba(239,35,60,.9);
+}
+#app-shell.night-mode[data-night-theme="crimson"] .hero-mesh .bg-emerald-400\/20{
+  background-color:rgba(255,255,255,.14)!important;
+}
+#app-shell.night-mode[data-night-theme="crimson"] .bg-white\/\[0\.06\],
+#app-shell.night-mode[data-night-theme="crimson"] .bg-white\/\[0\.08\]{
+  background-color:rgba(255,255,255,.05)!important;
+  border-color:rgba(255,255,255,.10)!important;
+}
+body:has(#app-shell.night-mode[data-night-theme="copper"]){background:radial-gradient(circle at 20% 0%,#1c1814 0%,#0b0c10 72%)!important}
+body:has(#app-shell.night-mode[data-night-theme="cobalt"]){background:radial-gradient(circle at 20% 0%,#131f3d 0%,#080c16 72%)!important}
+body:has(#app-shell.night-mode[data-night-theme="sunset"]){background:radial-gradient(circle at 20% 0%,#2a1815 0%,#110d0c 72%)!important}
+body:has(#app-shell.night-mode[data-night-theme="aurora"]){background:radial-gradient(circle at 20% 0%,#1f1638 0%,#0b0d17 72%)!important}
+
+#app-shell.night-mode{
+  --bg:var(--nm-bg);--card:var(--nm-card);--ink:var(--nm-ink);--muted:var(--nm-muted);
+  --line:var(--nm-line);--field:var(--nm-field);--field-line:var(--nm-line-strong);
+  --accent:var(--nm-accent);--accent-ink:var(--nm-accent-soft);
+  --nav:var(--nm-nav-bg);--nav-line:var(--nm-line-strong);--sheet:var(--nm-card);
+  background:var(--nm-bg)!important;color:var(--nm-ink)!important;border-color:var(--nm-surface)!important;
+}
+#app-shell.night-mode>header{background:transparent!important;border-color:var(--nm-line)!important}
+#app-shell.night-mode>header div.bg-\[\#090d16\]{
+  background:var(--nm-btn-grad)!important;color:var(--nm-btn-ink)!important;
+  border:none!important;box-shadow:0 10px 22px -8px var(--nm-btn-shadow)!important;
+}
+#app-shell.night-mode>header button{
+  background:var(--nm-card)!important;color:var(--nm-ink)!important;border-color:var(--nm-line-strong)!important;
+}
+#app-shell.night-mode>header button.header-btn-active{
+  background:var(--nm-btn-grad)!important;color:var(--nm-btn-ink)!important;
+  border-color:transparent!important;box-shadow:0 10px 22px -8px var(--nm-btn-shadow)!important;
+}
+#app-shell.night-mode main{background:var(--nm-main-bg)!important}
+#app-shell.night-mode .neo-card{
+  background:linear-gradient(165deg,var(--nm-card),var(--nm-card-2))!important;
+  border-color:var(--nm-line)!important;
+  box-shadow:0 2px 10px rgba(0,0,0,.35),0 18px 36px -18px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.04)!important;
+}
+#app-shell.night-mode .hero-mesh{
+  background:var(--nm-hero-bg)!important;border-color:rgba(255,255,255,.14)!important;
+  box-shadow:0 26px 52px -20px rgba(0,0,0,.78),inset 0 1px 0 rgba(255,255,255,.12)!important;
+}
+#app-shell.night-mode .fx-mesh{
+  background:var(--nm-fx-bg)!important;border-color:rgba(255,255,255,.14)!important;
+  box-shadow:0 24px 48px -18px rgba(0,0,0,.78),inset 0 1px 0 rgba(255,255,255,.12)!important;
+}
+#app-shell.night-mode .text-slate-900,#app-shell.night-mode .text-slate-800{color:var(--nm-ink)!important}
+#app-shell.night-mode .text-slate-700,#app-shell.night-mode .text-slate-600{color:var(--nm-ink-2)!important}
+#app-shell.night-mode .text-slate-500,#app-shell.night-mode .text-slate-400{color:var(--nm-muted)!important}
+#app-shell.night-mode .text-white{color:#ffffff!important}
+#app-shell.night-mode .text-slate-950{color:var(--nm-bg)!important}
+/* Yeşil sınıflarını seçili temanın vurgu renklerine eşle (yeşil yok) */
+#app-shell.night-mode .text-emerald-300{color:var(--nm-accent-soft)!important}
+#app-shell.night-mode .text-emerald-400{color:var(--nm-accent)!important}
+#app-shell.night-mode .text-emerald-500,#app-shell.night-mode .text-emerald-600,
+#app-shell.night-mode .text-emerald-700,#app-shell.night-mode .text-emerald-800,
+#app-shell.night-mode .text-emerald-900{color:var(--nm-accent-alt)!important}
+#app-shell.night-mode .bg-emerald-400{background-color:var(--nm-accent)!important}
+#app-shell.night-mode .bg-emerald-400\/15,#app-shell.night-mode .bg-emerald-400\/20{background-color:var(--nm-accent-bg)!important}
+#app-shell.night-mode .bg-emerald-500\/10,#app-shell.night-mode .bg-emerald-500\/15,#app-shell.night-mode .bg-emerald-500\/20,
+#app-shell.night-mode .bg-emerald-50,#app-shell.night-mode .bg-emerald-100,
+#app-shell.night-mode .bg-emerald-50\/40,#app-shell.night-mode .bg-emerald-50\/60,
+#app-shell.night-mode .bg-emerald-50\/70,#app-shell.night-mode .bg-emerald-50\/90{background-color:var(--nm-alt-bg)!important}
+#app-shell.night-mode .border-emerald-200,#app-shell.night-mode .border-emerald-200\/60,
+#app-shell.night-mode .border-emerald-200\/70,#app-shell.night-mode .border-emerald-200\/80,
+#app-shell.night-mode .border-emerald-300,#app-shell.night-mode .border-emerald-400\/30,
+#app-shell.night-mode .border-emerald-500{border-color:var(--nm-line-strong)!important}
+#app-shell.night-mode .bg-emerald-500,#app-shell.night-mode .bg-emerald-600{
+  background:var(--nm-btn-grad)!important;color:var(--nm-btn-ink)!important;
+  border:none!important;box-shadow:0 10px 22px -10px var(--nm-btn-shadow)!important;
+}
+#app-shell.night-mode #budget-bar,#app-shell.night-mode #atm-limit-bar{background:var(--nm-bar-grad)!important}
+#app-shell.night-mode .bg-teal-500\/15{background-color:var(--nm-accent-bg)!important}
+#app-shell.night-mode .text-teal-600{color:var(--nm-accent)!important}
+#app-shell.night-mode #shared-btn-dot{background-color:var(--nm-accent)!important}
+/* Yüzeyler */
+#app-shell.night-mode .bg-white,#app-shell.night-mode .bg-white\/90,
+#app-shell.night-mode .bg-white\/85,#app-shell.night-mode .bg-white\/80{
+  background-color:var(--nm-card)!important;border-color:var(--nm-line-strong)!important;color:var(--nm-ink)!important;
+}
+#app-shell.night-mode .bg-slate-50,#app-shell.night-mode .bg-slate-50\/70,
+#app-shell.night-mode .bg-slate-50\/80,#app-shell.night-mode .bg-slate-50\/60{
+  background-color:var(--nm-surface)!important;border-color:var(--nm-line)!important;
+}
+#app-shell.night-mode .bg-slate-100,#app-shell.night-mode .bg-slate-100\/50,#app-shell.night-mode .bg-slate-100\/70{
+  background-color:var(--nm-surface-2)!important;color:var(--nm-ink)!important;
+}
+#app-shell.night-mode .bg-slate-200,#app-shell.night-mode .bg-slate-200\/80{background-color:var(--nm-surface-2)!important}
+#app-shell.night-mode .bg-slate-900,#app-shell.night-mode .bg-\[\#090d16\]{
+  background:var(--nm-surface-2)!important;color:var(--nm-ink)!important;
+}
+#app-shell.night-mode .divide-slate-100 > :not([hidden]) ~ :not([hidden]){border-color:var(--nm-line)!important}
+#app-shell.night-mode .border-slate-100,#app-shell.night-mode .border-slate-200,
+#app-shell.night-mode .border-slate-200\/60,#app-shell.night-mode .border-slate-200\/70,
+#app-shell.night-mode .border-slate-200\/80,#app-shell.night-mode .border-slate-200\/90{border-color:var(--nm-line)!important}
+/* Formlar */
+#app-shell.night-mode input:not([type=checkbox]):not([type=radio]):not([type=range]),
+#app-shell.night-mode select{
+  background-color:var(--nm-field)!important;border-color:var(--nm-line-strong)!important;color:var(--nm-ink)!important;
+}
+#app-shell.night-mode input:focus,#app-shell.night-mode select:focus{
+  border-color:var(--nm-accent)!important;box-shadow:0 0 0 3px var(--nm-accent-bg)!important;
+}
+#app-shell.night-mode input::placeholder{color:var(--nm-muted)!important;opacity:.8}
+#app-shell.night-mode #tx-pos-box,#app-shell.night-mode #fx-pos-fee-box,
+#app-shell.night-mode #primary-account-box{
+  background-color:var(--nm-surface)!important;border-color:var(--nm-line-strong)!important;
+}
+/* Çipler */
+#app-shell.night-mode .tx-chip-pill,#app-shell.night-mode #tx-currency-pill{
+  background:var(--nm-surface-2)!important;border-color:var(--nm-line-strong)!important;color:var(--nm-ink-2)!important;
+}
+#app-shell.night-mode .tx-chip-slate:checked + .tx-chip-pill,
+#app-shell.night-mode .tx-chip-emerald:checked + .tx-chip-pill{
+  background:var(--nm-accent-bg)!important;border-color:var(--nm-accent)!important;color:var(--nm-accent-soft)!important;
+}
+#app-shell.night-mode #tx-currency-pill.fx-active{
+  background:var(--nm-accent-bg)!important;color:var(--nm-accent-soft)!important;border-color:var(--nm-accent)!important;
+}
+/* Alt pencereler (Bottom Sheets) */
+#app-shell.night-mode #add-sheet-backdrop > div,#app-shell.night-mode #fx-settings-backdrop > div,
+#app-shell.night-mode #bank-fee-backdrop > div,#app-shell.night-mode #home-layout-backdrop > div,
+#app-shell.night-mode #shared-layout-backdrop > div,#app-shell.night-mode #settings-sheet-backdrop > div,
+#app-shell.night-mode #confirm-modal-backdrop > div,#app-shell.night-mode .shared-sheet-panel{
+  background:linear-gradient(180deg,var(--nm-card) 0%,var(--nm-card-2) 100%)!important;
+  color:var(--nm-ink)!important;border-color:var(--nm-line-strong)!important;
+}
+/* Yüzen alt navigasyon barı */
+#app-shell.night-mode nav{
+  background:var(--nm-nav-bg)!important;border-color:var(--nm-line-strong)!important;
+  box-shadow:0 22px 46px -14px rgba(0,0,0,.85),inset 0 1px 0 rgba(255,255,255,.07)!important;
+}
+#app-shell.night-mode nav button:not(.w-12){color:var(--nm-muted)!important}
+#app-shell.night-mode nav button.text-emerald-400{color:var(--nm-accent)!important}
+#app-shell.night-mode nav button.text-emerald-400 i{filter:drop-shadow(0 4px 10px var(--nm-btn-shadow))!important}
+#app-shell.night-mode nav button.w-12{
+  background:var(--nm-fab-grad)!important;color:var(--nm-fab-ink)!important;
+  border-color:var(--nm-bg)!important;box-shadow:0 14px 28px -8px var(--nm-fab-shadow)!important;
+}
+/* Birincil butonlar & anahtar */
+#app-shell.night-mode button.bg-\[\#090d16\]:not(.w-12){
+  background:var(--nm-btn-grad)!important;color:var(--nm-btn-ink)!important;
+  border:none!important;box-shadow:0 12px 24px -12px var(--nm-btn-shadow)!important;
+}
+#app-shell.night-mode .peer-checked\:bg-emerald-500:checked ~ div,
+#app-shell.night-mode .peer:checked ~ .peer-checked\:bg-emerald-500{
+  background:var(--nm-toggle-grad)!important;
+}
+#app-shell.night-mode #toast{
+  background:var(--nm-toast-bg)!important;color:var(--nm-ink)!important;border-color:var(--nm-line-strong)!important;
+}
+#app-shell.night-mode ::-webkit-scrollbar-thumb{background:var(--nm-accent)}
+.night-theme-pill{border:1px solid transparent;transition:all .15s ease}
+.night-theme-pill.active{border-color:var(--nm-accent,#e2a86b)!important;background:var(--nm-accent-bg,rgba(226,168,107,.16))!important;color:var(--nm-ink,#f4f4f6)!important}
+</style>
+<style id="design-v4-studio">
+/* ===== MODERN STÜDYO DİZAYN v24 (Gündüz & Gece yapısal + görsel cilalama) ===== */
+body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+body:has(#app-shell.night-mode[data-night-theme="neo"]){
+  background:radial-gradient(circle at 18% 0%,#181b2e 0%,#090a0f 72%)!important;
+}
+/* Gündüz modu: İnci grisi zemin, saf beyaz kartlar, daha modern kontrast */
+#app-shell:not(.night-mode){
+  --bg:#f4f5f8;
+  --card:#ffffff;
+  --ink:#0b0d14;
+  --muted:#667085;
+  --line:rgba(15,23,42,.065);
+  --field:#f1f3f8;
+  --field-line:rgba(15,23,42,.085);
+  --accent:#6366f1;
+  --accent-ink:#4f46e5;
+  --shadow:0 1px 2px rgba(15,23,42,.03),0 10px 28px -14px rgba(15,23,42,.12);
+  --nav:rgba(255,255,255,.88);
+  --nav-line:rgba(15,23,42,.075);
+}
+#app-shell:not(.night-mode) main{
+  background:
+    radial-gradient(70% 34% at 98% 0%,rgba(99,102,241,.09),transparent 68%),
+    radial-gradient(58% 30% at 2% 16%,rgba(251,113,133,.07),transparent 70%),
+    #f4f5f8!important;
+}
+#app-shell:not(.night-mode)>header div.bg-\[\#090d16\]{
+  background:linear-gradient(135deg,#0f172a 0%,#312e81 100%)!important;
+  color:#ffffff!important;
+  box-shadow:0 8px 18px -8px rgba(49,46,129,.55)!important;
+}
+#app-shell:not(.night-mode) .hero-mesh{
+  background:
+    radial-gradient(115% 95% at 98% 0%,rgba(129,140,248,.38),transparent 56%),
+    radial-gradient(90% 90% at 4% 100%,rgba(251,113,133,.28),transparent 58%),
+    linear-gradient(148deg,#0c0e18 0%,#15182b 58%,#0e1120 100%)!important;
+}
+#app-shell:not(.night-mode) .fx-mesh{
+  background:
+    radial-gradient(100% 95% at 96% 8%,rgba(56,189,248,.32),transparent 56%),
+    radial-gradient(85% 85% at 8% 100%,rgba(168,85,247,.32),transparent 58%),
+    linear-gradient(140deg,#0c1020 0%,#161a32 60%,#0d1122 100%)!important;
+}
+#app-shell:not(.night-mode) nav button.w-12{
+  background:linear-gradient(145deg,#090b12 0%,#181c30 60%,#232846 100%)!important;
+  color:#ffffff!important;
+  border-color:#f4f5f8!important;
+  box-shadow:0 12px 24px -8px rgba(11,13,20,.62),inset 0 1px 0 rgba(255,255,255,.14)!important;
+}
+#app-shell:not(.night-mode) nav button.text-emerald-400{color:#4f46e5!important}
+#app-shell:not(.night-mode) nav button.text-emerald-400 i{filter:drop-shadow(0 4px 8px rgba(99,102,241,.42))!important}
+
+/* Metalik kart yansıma efekti (Hero & Yurt Dışı Kart) */
+#app-shell .hero-mesh,
+#app-shell .fx-mesh{
+  position:relative;
+  isolation:isolate;
+  border-radius:30px!important;
+}
+#app-shell .hero-mesh::before,
+#app-shell .fx-mesh::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(125deg,rgba(255,255,255,.11) 0%,rgba(255,255,255,.02) 28%,transparent 48%,rgba(255,255,255,.04) 100%);
+  pointer-events:none;
+  z-index:0;
+  border-radius:inherit;
+}
+#app-shell .hero-mesh>*,
+#app-shell .fx-mesh>*{position:relative;z-index:1}
+
+/* Tipografi & Rakam Hiyerarşisi */
+#app-shell #header-title{font-size:17px!important;font-weight:800!important;letter-spacing:-.03em!important}
+#app-shell #net-balance{font-size:32px!important;letter-spacing:-.035em!important;line-height:1.02!important}
+#app-shell .neo-card{border-radius:24px!important;transition:transform .18s ease,box-shadow .2s ease,border-color .2s ease}
+
+/* Alt Navigasyon — Yüzen Stüdyo Kapsülü */
+#app-shell nav{
+  border-radius:28px!important;
+  padding:7px 10px!important;
+}
+#app-shell nav button:not(.w-12){
+  position:relative;
+  border-radius:16px;
+  padding:5px 0!important;
+}
+#app-shell nav button.text-emerald-400::after{
+  content:"";
+  position:absolute;
+  bottom:-1px;
+  left:50%;
+  transform:translateX(-50%);
+  width:16px;
+  height:3px;
+  border-radius:99px;
+  background:currentColor;
+  opacity:.85;
+}
+#app-shell nav button.w-12{
+  width:50px!important;
+  height:50px!important;
+  border-radius:18px!important;
+}
+
+/* Stüdyo Gece Teması (neo) İnce Renk Uyumu */
+#app-shell.night-mode[data-night-theme="neo"]>header div.bg-\[\#090d16\]{
+  background:linear-gradient(135deg,#6366f1 0%,#a855f7 100%)!important;
+  color:#ffffff!important;
+  box-shadow:0 10px 22px -8px rgba(99,102,241,.65)!important;
+}
+#app-shell.night-mode[data-night-theme="neo"]>header button.header-btn-active{
+  background:linear-gradient(135deg,#6366f1 0%,#8b5cf6 100%)!important;
+  color:#ffffff!important;
+  box-shadow:0 10px 22px -8px rgba(99,102,241,.55)!important;
+}
+#app-shell.night-mode[data-night-theme="neo"] .bg-emerald-500,
+#app-shell.night-mode[data-night-theme="neo"] .bg-emerald-600{
+  background:linear-gradient(135deg,#6366f1 0%,#8b5cf6 100%)!important;
+  color:#ffffff!important;
+  box-shadow:0 10px 24px -10px rgba(99,102,241,.6)!important;
+}
+#app-shell.night-mode[data-night-theme="neo"] .hero-mesh .bg-emerald-400{
+  background-color:#818cf8!important;
+  box-shadow:0 0 10px rgba(129,140,248,.9);
+}
+#app-shell.night-mode[data-night-theme="neo"] .hero-mesh .text-emerald-300,
+#app-shell.night-mode[data-night-theme="neo"] .fx-mesh .text-emerald-300{
+  color:#c7d2fe!important;
+}
+#app-shell.night-mode[data-night-theme="neo"] .text-rose-300,
+#app-shell.night-mode[data-night-theme="neo"] .text-rose-500,
+#app-shell.night-mode[data-night-theme="neo"] .text-rose-600,
+#app-shell.night-mode[data-night-theme="neo"] .text-rose-700,
+#app-shell.night-mode[data-night-theme="neo"] .text-rose-900{
+  color:#fb7185!important;
+}
+#app-shell.night-mode[data-night-theme="neo"] .bg-rose-400\/20{
+  background-color:rgba(251,113,133,.20)!important;
+}
+#app-shell.night-mode[data-night-theme="neo"] #shared-btn-dot{
+  background-color:#fb7185!important;
+}
+#app-shell.night-mode[data-night-theme="neo"] .bg-white\/\[0\.06\],
+#app-shell.night-mode[data-night-theme="neo"] .bg-white\/\[0\.08\]{
+  background-color:rgba(255,255,255,.055)!important;
+  border-color:rgba(255,255,255,.10)!important;
+}
+
+/* ===== 4 YENİ GECE MODU TEMASI (v25): Safir • Ametist • Espresso • Titanyum ===== */
+#app-shell.night-mode[data-night-theme="sapphire"]{
+  --nm-bg:#060a14;
+  --nm-card:#0e1526;
+  --nm-card-2:#0a101d;
+  --nm-surface:#141f36;
+  --nm-surface-2:#1c2b4a;
+  --nm-field:#080d1a;
+  --nm-ink:#f1f6ff;
+  --nm-ink-2:#c4d4ec;
+  --nm-muted:#7a90b5;
+  --nm-line:rgba(56,189,248,.14);
+  --nm-line-strong:rgba(56,189,248,.28);
+  --nm-accent:#38bdf8;
+  --nm-accent-soft:#e0f2fe;
+  --nm-accent-alt:#60a5fa;
+  --nm-accent-bg:rgba(56,189,248,.16);
+  --nm-alt-bg:rgba(59,130,246,.14);
+  --nm-btn-grad:linear-gradient(135deg,#2563eb 0%,#0284c7 100%);
+  --nm-btn-ink:#ffffff;
+  --nm-btn-shadow:rgba(56,189,248,.38);
+  --nm-fab-grad:linear-gradient(145deg,#0f1d3a 0%,#173261 55%,#1e40af 100%);
+  --nm-fab-ink:#e0f2fe;
+  --nm-fab-shadow:rgba(37,99,235,.48);
+  --nm-toggle-grad:linear-gradient(90deg,#2563eb,#38bdf8);
+  --nm-bar-grad:linear-gradient(90deg,#38bdf8 0%,#3b82f6 60%,#818cf8 100%);
+  --nm-main-bg:radial-gradient(75% 36% at 96% 0%,rgba(56,189,248,.18),transparent 65%),radial-gradient(62% 32% at 4% 16%,rgba(37,99,235,.16),transparent 68%),#060a14;
+  --nm-hero-bg:radial-gradient(110% 90% at 98% 2%,rgba(56,189,248,.34),transparent 55%),radial-gradient(90% 85% at 6% 100%,rgba(37,99,235,.32),transparent 58%),linear-gradient(148deg,#0c1830 0%,#0f2042 55%,#070c18 100%);
+  --nm-fx-bg:radial-gradient(100% 95% at 94% 6%,rgba(125,211,252,.28),transparent 54%),radial-gradient(88% 85% at 8% 100%,rgba(37,99,235,.32),transparent 56%),linear-gradient(140deg,#0e1d3b 0%,#0a152c 58%,#060a14 100%);
+  --nm-nav-bg:rgba(12,19,35,.92);
+  --nm-toast-bg:rgba(16,26,48,.97);
+}
+#app-shell.night-mode[data-night-theme="amethyst"]{
+  --nm-bg:#0c0812;
+  --nm-card:#161021;
+  --nm-card-2:#110c1a;
+  --nm-surface:#1f1630;
+  --nm-surface-2:#2a1f40;
+  --nm-field:#0f0a17;
+  --nm-ink:#f8f3ff;
+  --nm-ink-2:#d9cce8;
+  --nm-muted:#9784ad;
+  --nm-line:rgba(192,132,252,.15);
+  --nm-line-strong:rgba(192,132,252,.28);
+  --nm-accent:#c084fc;
+  --nm-accent-soft:#f3e8ff;
+  --nm-accent-alt:#e879f9;
+  --nm-accent-bg:rgba(192,132,252,.16);
+  --nm-alt-bg:rgba(232,121,249,.13);
+  --nm-btn-grad:linear-gradient(135deg,#9333ea 0%,#c026d3 100%);
+  --nm-btn-ink:#ffffff;
+  --nm-btn-shadow:rgba(192,132,252,.38);
+  --nm-fab-grad:linear-gradient(145deg,#211333 0%,#3d1d5c 55%,#5b2178 100%);
+  --nm-fab-ink:#f3e8ff;
+  --nm-fab-shadow:rgba(147,51,234,.48);
+  --nm-toggle-grad:linear-gradient(90deg,#9333ea,#e879f9);
+  --nm-bar-grad:linear-gradient(90deg,#c084fc 0%,#e879f9 55%,#fb7185 100%);
+  --nm-main-bg:radial-gradient(75% 36% at 96% 0%,rgba(192,132,252,.19),transparent 65%),radial-gradient(62% 32% at 4% 16%,rgba(232,121,249,.13),transparent 68%),#0c0812;
+  --nm-hero-bg:radial-gradient(110% 90% at 98% 2%,rgba(232,121,249,.32),transparent 55%),radial-gradient(90% 85% at 6% 100%,rgba(147,51,234,.36),transparent 58%),linear-gradient(148deg,#1f1333 0%,#26153d 55%,#0e0916 100%);
+  --nm-fx-bg:radial-gradient(100% 95% at 94% 6%,rgba(192,132,252,.32),transparent 54%),radial-gradient(88% 85% at 8% 100%,rgba(244,114,182,.26),transparent 56%),linear-gradient(140deg,#231438 0%,#180f28 58%,#0c0812 100%);
+  --nm-nav-bg:rgba(20,14,31,.92);
+  --nm-toast-bg:rgba(30,20,46,.97);
+}
+#app-shell.night-mode[data-night-theme="espresso"]{
+  --nm-bg:#0f0b09;
+  --nm-card:#1a1411;
+  --nm-card-2:#140f0d;
+  --nm-surface:#241c18;
+  --nm-surface-2:#302520;
+  --nm-field:#120d0b;
+  --nm-ink:#faf5f0;
+  --nm-ink-2:#dfd2c7;
+  --nm-muted:#a38f82;
+  --nm-line:rgba(245,158,11,.15);
+  --nm-line-strong:rgba(245,158,11,.28);
+  --nm-accent:#f59e0b;
+  --nm-accent-soft:#fef3c7;
+  --nm-accent-alt:#fb923c;
+  --nm-accent-bg:rgba(245,158,11,.16);
+  --nm-alt-bg:rgba(251,146,60,.13);
+  --nm-btn-grad:linear-gradient(135deg,#d97706 0%,#ea580c 100%);
+  --nm-btn-ink:#ffffff;
+  --nm-btn-shadow:rgba(245,158,11,.38);
+  --nm-fab-grad:linear-gradient(145deg,#261a14 0%,#4d2e1a 55%,#7c3d12 100%);
+  --nm-fab-ink:#fef3c7;
+  --nm-fab-shadow:rgba(217,119,6,.45);
+  --nm-toggle-grad:linear-gradient(90deg,#d97706,#fb923c);
+  --nm-bar-grad:linear-gradient(90deg,#fde68a 0%,#f59e0b 55%,#ea580c 100%);
+  --nm-main-bg:radial-gradient(75% 36% at 96% 0%,rgba(245,158,11,.16),transparent 65%),radial-gradient(62% 32% at 4% 16%,rgba(234,88,12,.12),transparent 68%),#0f0b09;
+  --nm-hero-bg:radial-gradient(110% 90% at 98% 2%,rgba(245,158,11,.32),transparent 55%),radial-gradient(90% 85% at 6% 100%,rgba(234,88,12,.26),transparent 58%),linear-gradient(148deg,#261a14 0%,#1f1612 55%,#110c0a 100%);
+  --nm-fx-bg:radial-gradient(100% 95% at 94% 6%,rgba(251,191,36,.28),transparent 54%),radial-gradient(88% 85% at 8% 100%,rgba(194,65,12,.28),transparent 56%),linear-gradient(140deg,#241914 0%,#1a130f 58%,#0f0b09 100%);
+  --nm-nav-bg:rgba(24,18,15,.92);
+  --nm-toast-bg:rgba(36,27,22,.97);
+}
+#app-shell.night-mode[data-night-theme="titanium"]{
+  --nm-bg:#090a0c;
+  --nm-card:#131519;
+  --nm-card-2:#0f1114;
+  --nm-surface:#1a1d22;
+  --nm-surface-2:#242830;
+  --nm-field:#0c0e11;
+  --nm-ink:#f8fafc;
+  --nm-ink-2:#cbd5e1;
+  --nm-muted:#858d9b;
+  --nm-line:rgba(255,255,255,.09);
+  --nm-line-strong:rgba(255,255,255,.18);
+  --nm-accent:#e2e8f0;
+  --nm-accent-soft:#ffffff;
+  --nm-accent-alt:#cbd5e1;
+  --nm-accent-bg:rgba(255,255,255,.12);
+  --nm-alt-bg:rgba(255,255,255,.07);
+  --nm-btn-grad:linear-gradient(135deg,#ffffff 0%,#cbd5e1 100%);
+  --nm-btn-ink:#090a0c;
+  --nm-btn-shadow:rgba(255,255,255,.18);
+  --nm-fab-grad:linear-gradient(145deg,#181b21 0%,#2a2f3a 55%,#3b4252 100%);
+  --nm-fab-ink:#ffffff;
+  --nm-fab-shadow:rgba(0,0,0,.65);
+  --nm-toggle-grad:linear-gradient(90deg,#94a3b8,#f8fafc);
+  --nm-bar-grad:linear-gradient(90deg,#94a3b8 0%,#e2e8f0 55%,#ffffff 100%);
+  --nm-main-bg:radial-gradient(74% 34% at 96% 0%,rgba(226,232,240,.09),transparent 65%),radial-gradient(60% 30% at 4% 18%,rgba(148,163,184,.07),transparent 68%),#090a0c;
+  --nm-hero-bg:radial-gradient(110% 90% at 98% 2%,rgba(255,255,255,.16),transparent 55%),radial-gradient(90% 85% at 6% 100%,rgba(148,163,184,.14),transparent 58%),linear-gradient(148deg,#1c1f26 0%,#12141a 55%,#090a0c 100%);
+  --nm-fx-bg:radial-gradient(100% 95% at 94% 6%,rgba(226,232,240,.14),transparent 54%),radial-gradient(88% 85% at 8% 100%,rgba(100,116,139,.18),transparent 56%),linear-gradient(140deg,#1a1d24 0%,#111318 58%,#090a0c 100%);
+  --nm-nav-bg:rgba(17,19,24,.92);
+  --nm-toast-bg:rgba(24,27,34,.97);
+}
+body:has(#app-shell.night-mode[data-night-theme="sapphire"]){background:radial-gradient(circle at 18% 0%,#0f2042 0%,#060a14 72%)!important}
+body:has(#app-shell.night-mode[data-night-theme="amethyst"]){background:radial-gradient(circle at 18% 0%,#26153d 0%,#0c0812 72%)!important}
+body:has(#app-shell.night-mode[data-night-theme="espresso"]){background:radial-gradient(circle at 18% 0%,#281b14 0%,#0f0b09 72%)!important}
+body:has(#app-shell.night-mode[data-night-theme="titanium"]){background:radial-gradient(circle at 18% 0%,#1e222b 0%,#090a0c 72%)!important}
+#app-shell.night-mode nav button.w-12{
+  border-width:2.5px!important;
+  box-shadow:0 12px 26px -8px var(--nm-fab-shadow),inset 0 1px 0 rgba(255,255,255,.18)!important;
+}
+
+/* ===== v27: Artı (+) butonu her modda sol üst logo arka planıyla birebir aynı ===== */
+#app-shell:not(.night-mode) nav button.w-12{
+  background:linear-gradient(135deg,#0f172a 0%,#312e81 100%)!important;
+  color:#ffffff!important;
+  border-color:#f4f5f8!important;
+  box-shadow:0 12px 24px -8px rgba(49,46,129,.55),inset 0 1px 0 rgba(255,255,255,.14)!important;
+}
+#app-shell.night-mode nav button.w-12{
+  background:var(--nm-btn-grad)!important;
+  color:var(--nm-btn-ink)!important;
+  border-color:var(--nm-bg)!important;
+  border-width:2.5px!important;
+  box-shadow:0 12px 24px -8px var(--nm-btn-shadow),inset 0 1px 0 rgba(255,255,255,.16)!important;
+}
+#app-shell.night-mode[data-night-theme="neo"] nav button.w-12{
+  background:linear-gradient(135deg,#6366f1 0%,#a855f7 100%)!important;
+  color:#ffffff!important;
+  box-shadow:0 12px 24px -8px rgba(99,102,241,.65),inset 0 1px 0 rgba(255,255,255,.18)!important;
+}
+#app-shell.night-mode[data-night-theme="petrol"] nav button.w-12{
+  background:linear-gradient(135deg,#0f4c5c 0%,#06d6d0 100%)!important;
+  color:#06090d!important;
+  box-shadow:0 12px 24px -8px rgba(6,214,208,.55),inset 0 1px 0 rgba(255,255,255,.18)!important;
+}
+#app-shell.night-mode[data-night-theme="crimson"] nav button.w-12{
+  background:linear-gradient(135deg,#ef233c,#b91c1c)!important;
+  color:#ffffff!important;
+  box-shadow:0 12px 24px -8px rgba(239,35,60,.65),inset 0 1px 0 rgba(255,255,255,.18)!important;
+}
+</style>
 </head>
 <body class="min-h-[100svh] w-screen overflow-hidden flex items-center justify-center sm:p-4 select-none">
 <div id="app-shell" class="app-shell w-full h-[100svh] sm:max-w-[420px] sm:h-[860px] sm:max-h-[95vh] bg-[#f2f4f7] sm:rounded-[48px] sm:border-[10px] sm:border-[#161f30] shadow-[0_25px_70px_-15px_rgba(0,0,0,0.65)] flex flex-col overflow-hidden relative transition-colors duration-300">
@@ -573,7 +1455,7 @@ Harcama ortalamalarınız ve tasarruf ipuçlarınız burada özetlenir.
 <div class="flex gap-1.5">
 <div class="relative flex-1">
 <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-<input type="text" id="search-input" onkeyup="renderTransactions()" placeholder="İşlemlerde ara..."
+<input type="text" id="search-input" oninput="debouncedRenderTransactions()" placeholder="İşlemlerde ara..."
 class="w-full pl-9 pr-3 py-2.5 bg-white border border-slate-200/90 rounded-2xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-slate-900 shadow-sm">
 </div>
 <div class="relative shrink-0 flex items-center">
@@ -597,16 +1479,17 @@ class="px-2.5 py-2.5 bg-white border border-slate-200/90 rounded-2xl text-[11px]
 
 <!-- 5. SEKME: AYARLAR -->
 <section id="tab-settings" class="tab-content hidden h-full w-full px-4 pt-3 pb-24 flex flex-col justify-between overflow-y-auto">
-<div class="space-y-4">
-<!-- GECE MODU -->
-<div class="neo-card rounded-[24px] p-4 flex items-center justify-between gap-3">
-<div class="flex items-center gap-2.5">
-<div class="w-9 h-9 rounded-2xl bg-indigo-500/15 text-indigo-500 flex items-center justify-center shrink-0">
-<i class="fa-solid fa-moon text-sm"></i>
+<div class="space-y-3">
+<!-- GRUP 1: GÖRÜNÜM & TERCİHLER -->
+<div class="neo-card rounded-[24px] divide-y divide-slate-100 overflow-hidden">
+<div class="px-4 py-3 flex items-center justify-between gap-3">
+<div class="flex items-center gap-2.5 min-w-0">
+<div class="w-8 h-8 rounded-xl bg-indigo-500/15 text-indigo-500 flex items-center justify-center shrink-0">
+<i class="fa-solid fa-moon text-xs"></i>
 </div>
-<div>
+<div class="min-w-0">
 <h3 class="text-xs font-extrabold text-slate-900">Gece Modu</h3>
-<p class="text-[10px] text-slate-400">Göz yormayan yumuşak gece teması</p>
+<p class="text-[10px] text-slate-400 truncate">Yumuşak gece teması</p>
 </div>
 </div>
 <label class="relative inline-flex items-center cursor-pointer shrink-0">
@@ -614,142 +1497,131 @@ class="px-2.5 py-2.5 bg-white border border-slate-200/90 rounded-2xl text-[11px]
 <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
 </label>
 </div>
-<!-- DİL SEÇİMİ (TR / EN / RU) -->
-<div class="neo-card rounded-[24px] p-4 space-y-2.5">
-<div class="flex items-center gap-2.5">
-<div class="w-9 h-9 rounded-2xl bg-sky-500/15 text-sky-600 flex items-center justify-center shrink-0">
-<i class="fa-solid fa-language text-sm"></i>
+<div id="night-theme-picker" class="hidden px-4 py-2.5 grid grid-cols-4 gap-1.5" data-no-i18n="1">
+<button type="button" data-nt="neo" onclick="setNightTheme('neo')" class="night-theme-pill py-1.5 px-1 rounded-xl bg-slate-50 text-[9.5px] font-extrabold text-slate-600 flex items-center justify-center gap-1 active:scale-95">
+<span class="w-2.5 h-2.5 rounded-full shrink-0" style="background:linear-gradient(135deg,#6366f1 0%,#a855f7 55%,#fb7185 100%)"></span>Stüdyo
+</button>
+<button type="button" data-nt="petrol" onclick="setNightTheme('petrol')" class="night-theme-pill py-1.5 px-1 rounded-xl bg-slate-50 text-[9.5px] font-extrabold text-slate-600 flex items-center justify-center gap-1 active:scale-95">
+<span class="w-2.5 h-2.5 rounded-full shrink-0" style="background:linear-gradient(135deg,#06d6d0 0%,#0f4c5c 52%,#ef233c 100%)"></span>Petrol
+</button>
+<button type="button" data-nt="crimson" onclick="setNightTheme('crimson')" class="night-theme-pill py-1.5 px-1 rounded-xl bg-slate-50 text-[9.5px] font-extrabold text-slate-600 flex items-center justify-center gap-1 active:scale-95">
+<span class="w-2.5 h-2.5 rounded-full shrink-0" style="background:linear-gradient(135deg,#ffffff 0%,#ef233c 55%,#070709 100%)"></span>Kızıl
+</button>
+<button type="button" data-nt="copper" onclick="setNightTheme('copper')" class="night-theme-pill py-1.5 px-1 rounded-xl bg-slate-50 text-[9.5px] font-extrabold text-slate-600 flex items-center justify-center gap-1 active:scale-95">
+<span class="w-2.5 h-2.5 rounded-full shrink-0" style="background:linear-gradient(135deg,#f5d0a9,#b87333)"></span>Karbon
+</button>
+<button type="button" data-nt="sapphire" onclick="setNightTheme('sapphire')" class="night-theme-pill py-1.5 px-1 rounded-xl bg-slate-50 text-[9.5px] font-extrabold text-slate-600 flex items-center justify-center gap-1 active:scale-95">
+<span class="w-2.5 h-2.5 rounded-full shrink-0" style="background:linear-gradient(135deg,#38bdf8 0%,#2563eb 100%)"></span>Safir
+</button>
+<button type="button" data-nt="amethyst" onclick="setNightTheme('amethyst')" class="night-theme-pill py-1.5 px-1 rounded-xl bg-slate-50 text-[9.5px] font-extrabold text-slate-600 flex items-center justify-center gap-1 active:scale-95">
+<span class="w-2.5 h-2.5 rounded-full shrink-0" style="background:linear-gradient(135deg,#e879f9 0%,#7e22ce 100%)"></span>Ametist
+</button>
+<button type="button" data-nt="espresso" onclick="setNightTheme('espresso')" class="night-theme-pill py-1.5 px-1 rounded-xl bg-slate-50 text-[9.5px] font-extrabold text-slate-600 flex items-center justify-center gap-1 active:scale-95">
+<span class="w-2.5 h-2.5 rounded-full shrink-0" style="background:linear-gradient(135deg,#fbbf24 0%,#9a3412 100%)"></span>Espresso
+</button>
+<button type="button" data-nt="titanium" onclick="setNightTheme('titanium')" class="night-theme-pill py-1.5 px-1 rounded-xl bg-slate-50 text-[9.5px] font-extrabold text-slate-600 flex items-center justify-center gap-1 active:scale-95">
+<span class="w-2.5 h-2.5 rounded-full shrink-0" style="background:linear-gradient(135deg,#ffffff 0%,#64748b 60%,#0f1114 100%)"></span>Titanyum
+</button>
 </div>
-<div>
-<h3 class="text-xs font-extrabold text-slate-900">Uygulama Dili</h3>
-<p class="text-[10px] text-slate-400">Türkçe, English veya Русский</p>
-</div>
-</div>
-<div class="grid grid-cols-3 gap-1.5" data-no-i18n="1">
-<button type="button" id="lang-btn-tr" onclick="setAppLanguage('tr')" class="py-2 px-2 rounded-xl text-[11px] font-extrabold bg-[#090d16] text-emerald-400 border border-transparent transition active:scale-95">🇹🇷 Türkçe</button>
-<button type="button" id="lang-btn-en" onclick="setAppLanguage('en')" class="py-2 px-2 rounded-xl text-[11px] font-extrabold bg-slate-50 text-slate-700 border border-slate-200 transition active:scale-95">🇬🇧 English</button>
-<button type="button" id="lang-btn-ru" onclick="setAppLanguage('ru')" class="py-2 px-2 rounded-xl text-[11px] font-extrabold bg-slate-50 text-slate-700 border border-slate-200 transition active:scale-95">🇷🇺 Русский</button>
-</div>
-</div>
-<!-- ÖZET EKRANI SIRASI -->
-<div class="neo-card rounded-[24px] p-4 flex items-center justify-between gap-3">
+<div class="px-4 py-3 flex items-center justify-between gap-2">
 <div class="flex items-center gap-2.5 min-w-0">
-<div class="w-9 h-9 rounded-2xl bg-emerald-500/15 text-emerald-600 flex items-center justify-center shrink-0">
-<i class="fa-solid fa-arrows-up-down text-sm"></i>
+<div class="w-8 h-8 rounded-xl bg-sky-500/15 text-sky-600 flex items-center justify-center shrink-0">
+<i class="fa-solid fa-language text-xs"></i>
+</div>
+<h3 class="text-xs font-extrabold text-slate-900 truncate">Uygulama Dili</h3>
+</div>
+<div class="flex items-center gap-1 shrink-0" data-no-i18n="1">
+<button type="button" id="lang-btn-tr" onclick="setAppLanguage('tr')" class="py-1.5 px-2.5 rounded-xl text-[10.5px] font-extrabold bg-[#090d16] text-emerald-400 border border-transparent transition active:scale-95">🇹🇷 TR</button>
+<button type="button" id="lang-btn-en" onclick="setAppLanguage('en')" class="py-1.5 px-2.5 rounded-xl text-[10.5px] font-extrabold bg-slate-50 text-slate-700 border border-slate-200 transition active:scale-95">🇬🇧 EN</button>
+<button type="button" id="lang-btn-ru" onclick="setAppLanguage('ru')" class="py-1.5 px-2.5 rounded-xl text-[10.5px] font-extrabold bg-slate-50 text-slate-700 border border-slate-200 transition active:scale-95">🇷🇺 RU</button>
+</div>
+</div>
+<button type="button" onclick="openHomeLayoutModal()" class="w-full px-4 py-3 flex items-center justify-between gap-3 text-left hover:bg-slate-50/70 transition active:scale-[0.99]">
+<div class="flex items-center gap-2.5 min-w-0">
+<div class="w-8 h-8 rounded-xl bg-emerald-500/15 text-emerald-600 flex items-center justify-center shrink-0">
+<i class="fa-solid fa-arrows-up-down text-xs"></i>
 </div>
 <div class="min-w-0">
 <h3 class="text-xs font-extrabold text-slate-900">Özet Arayüzü Sırası</h3>
-<p class="text-[10px] text-slate-400">Ana ekrandaki kartları sırala veya gizle</p>
+<p class="text-[10px] text-slate-400 truncate">Ana ekrandaki kartları sırala veya gizle</p>
 </div>
 </div>
-<button type="button" onclick="openHomeLayoutModal()" class="px-3 py-1.5 rounded-xl bg-[#090d16] text-emerald-400 text-[11px] font-extrabold shrink-0 flex items-center gap-1.5 active:scale-95 transition">
-<i class="fa-solid fa-bars-staggered text-[10px]"></i> Düzenle
+<i class="fa-solid fa-chevron-right text-[11px] text-slate-400 shrink-0"></i>
 </button>
 </div>
-<div class="neo-card rounded-[24px] p-4 space-y-3">
-<div class="flex items-center justify-between">
+
+<!-- GRUP 2: FİNANS & YÖNETİM (ALT PENCERELERDE AÇILIR) -->
+<div class="neo-card rounded-[24px] divide-y divide-slate-100 overflow-hidden">
+<button type="button" onclick="openSettingsSheet('accounts')" class="w-full px-4 py-3 flex items-center justify-between gap-3 text-left hover:bg-slate-50/70 transition active:scale-[0.99]">
+<div class="flex items-center gap-2.5 min-w-0">
+<div class="w-8 h-8 rounded-xl bg-emerald-500/15 text-emerald-600 flex items-center justify-center shrink-0">
+<i class="fa-solid fa-wallet text-xs"></i>
+</div>
+<div class="min-w-0">
+<h3 class="text-xs font-extrabold text-slate-900">Hesaplar & Kartlar</h3>
+<p id="set-badge-accounts" class="text-[10px] text-slate-400 truncate">Hesap bakiyeleri, birincil hesap, kartlar</p>
+</div>
+</div>
+<i class="fa-solid fa-chevron-right text-[11px] text-slate-400 shrink-0"></i>
+</button>
+<button type="button" onclick="openSettingsSheet('budget')" class="w-full px-4 py-3 flex items-center justify-between gap-3 text-left hover:bg-slate-50/70 transition active:scale-[0.99]">
+<div class="flex items-center gap-2.5 min-w-0">
+<div class="w-8 h-8 rounded-xl bg-amber-500/15 text-amber-600 flex items-center justify-center shrink-0">
+<i class="fa-solid fa-bullseye text-xs"></i>
+</div>
+<div class="min-w-0">
+<h3 class="text-xs font-extrabold text-slate-900">Bütçe & Kategoriler</h3>
+<p id="set-badge-budget" class="text-[10px] text-slate-400 truncate">Aylık hedef, özel kategoriler ve limitler</p>
+</div>
+</div>
+<i class="fa-solid fa-chevron-right text-[11px] text-slate-400 shrink-0"></i>
+</button>
+<button type="button" onclick="openSettingsSheet('goals')" class="w-full px-4 py-3 flex items-center justify-between gap-3 text-left hover:bg-slate-50/70 transition active:scale-[0.99]">
+<div class="flex items-center gap-2.5 min-w-0">
+<div class="w-8 h-8 rounded-xl bg-teal-500/15 text-teal-600 flex items-center justify-center shrink-0">
+<i class="fa-solid fa-piggy-bank text-xs"></i>
+</div>
+<div class="min-w-0">
+<h3 class="text-xs font-extrabold text-slate-900">Birikim Hedefleri</h3>
+<p id="set-badge-goals" class="text-[10px] text-slate-400 truncate">Hedef ve ilerleme takibi</p>
+</div>
+</div>
+<i class="fa-solid fa-chevron-right text-[11px] text-slate-400 shrink-0"></i>
+</button>
+<button type="button" onclick="openSettingsSheet('recurring')" class="w-full px-4 py-3 flex items-center justify-between gap-3 text-left hover:bg-slate-50/70 transition active:scale-[0.99]">
+<div class="flex items-center gap-2.5 min-w-0">
+<div class="w-8 h-8 rounded-xl bg-violet-500/15 text-violet-600 flex items-center justify-center shrink-0">
+<i class="fa-solid fa-calendar-check text-xs"></i>
+</div>
+<div class="min-w-0">
+<h3 class="text-xs font-extrabold text-slate-900">Düzenli Ödemeler & Abonelikler</h3>
+<p id="set-badge-recurring" class="text-[10px] text-slate-400 truncate">Hatırlatmalar ve sabit giderler</p>
+</div>
+</div>
+<i class="fa-solid fa-chevron-right text-[11px] text-slate-400 shrink-0"></i>
+</button>
+</div>
+
+<!-- GRUP 3: YEDEK & VERİ -->
+<div class="neo-card rounded-[24px] p-3.5 space-y-2.5">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-xl bg-slate-900 text-emerald-400 flex items-center justify-center shrink-0">
+<i class="fa-solid fa-file-shield text-[11px]"></i>
+</div>
 <div>
-<h3 class="text-xs font-extrabold text-slate-900 flex items-center gap-2">
-<i class="fa-solid fa-credit-card text-emerald-600"></i> Kartlar
-</h3>
+<h3 class="text-xs font-extrabold text-slate-900">Cihaz Yedeği & Veri</h3>
+<p class="text-[10px] text-slate-400">Veriler yalnızca bu cihazda saklanır</p>
 </div>
-<button onclick="openNewCardModal()" class="px-3 py-1.5 rounded-xl bg-[#090d16] text-white text-xs font-bold flex items-center gap-1.5 transition">
-<i class="fa-solid fa-plus"></i> Kart Ekle
-</button>
-</div>
-<div id="settings-cards-list" class="space-y-2"></div>
-</div>
-<div class="neo-card rounded-[24px] p-4 space-y-3">
-<h3 class="text-xs font-extrabold text-slate-900"><i class="fa-solid fa-wallet text-emerald-600 mr-1.5"></i>Hesaplar & Başlangıç Bakiyeleri</h3>
-<div class="grid grid-cols-3 gap-2">
-<input id="account-name" placeholder="Hesap adı (Örn: Ziraat TL)" class="col-span-3 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium">
-<select id="account-currency" class="px-2 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold"><option>TRY</option><option>USD</option><option>EUR</option></select>
-<input id="account-rate" type="number" inputmode="decimal" min="0.0001" step="0.0001" value="1" placeholder="Kur (₺)" class="col-span-1 px-2 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs">
-<input id="account-balance" type="number" step="0.01" inputmode="decimal" placeholder="Güncel bakiye" class="col-span-1 px-2 py-2 bg-emerald-50 border border-emerald-200 rounded-xl text-xs font-bold">
-<button onclick="addAccount()" class="col-span-3 py-2.5 bg-[#090d16] text-white rounded-xl text-xs font-bold">Hesap Ekle</button>
-</div>
-<p class="text-[10px] text-slate-400"><i class="fa-solid fa-circle-info mr-1"></i>Güncel bakiye, hesapta şu an bulunan mevcut paranızdır.</p>
-<div id="primary-account-box" class="p-2.5 bg-emerald-50/60 border border-emerald-200/70 rounded-xl space-y-1.5">
-<label class="flex items-center gap-1.5 text-[10px] font-extrabold text-slate-600 uppercase"><i class="fa-solid fa-star text-amber-500"></i> Birincil Hesap</label>
-<select id="primary-account-select" onchange="setPrimaryAccount(this.value)" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold"></select>
-<p class="text-[10px] text-slate-400">Yeni işlem eklerken bu hesap otomatik seçili gelir. Gerekirse formdan tek seferlik değiştirebilirsin.</p>
-</div>
-<div id="accounts-list" class="space-y-2"></div>
-</div>
-<div class="neo-card rounded-[24px] p-4">
-<h3 class="text-xs font-extrabold text-slate-900 mb-1 flex items-center gap-2">
-<i class="fa-solid fa-bullseye text-emerald-600"></i> Aylık Bütçe Limiti
-</h3>
-<p class="text-[11px] text-slate-400 mb-3">Aylık maksimum harcama hedefini belirle.</p>
-<div class="flex gap-2">
-<input type="number" inputmode="decimal" id="monthly-budget-input" min="500" step="250"
-class="flex-1 px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-extrabold focus:outline-none focus:ring-2 focus:ring-slate-900">
-<button onclick="saveBudgetLimit()" class="px-4 py-2 bg-[#090d16] text-white text-xs font-bold rounded-xl transition">
-Güncelle
-</button>
-</div>
-</div>
-<div class="neo-card rounded-[24px] p-4 space-y-2.5">
-<h3 class="text-xs font-extrabold text-slate-900"><i class="fa-solid fa-tags text-amber-500 mr-1.5"></i>Özel Gider Kategorileri</h3>
-<div class="flex gap-2">
-<input id="custom-category-name" placeholder="Yeni gider kategorisi adı" class="flex-1 min-w-0 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs">
-<button onclick="addCustomExpenseCategory()" class="px-3.5 py-2 bg-amber-500 text-white rounded-xl text-xs font-bold">Ekle</button>
-</div>
-<div id="custom-category-list" class="flex flex-wrap gap-1.5"></div>
-</div>
-<div class="neo-card rounded-[24px] p-4 space-y-3">
-<h3 class="text-xs font-extrabold text-slate-900"><i class="fa-solid fa-sliders text-rose-500 mr-1.5"></i>Kategori Harcama Limitleri</h3>
-<div class="grid grid-cols-2 gap-2">
-<select id="category-budget-select" class="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium"></select>
-<input id="category-budget-amount" type="number" inputmode="decimal" min="1" step="1" placeholder="Aylık limit (₺)" class="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold">
-</div>
-<button onclick="saveCategoryBudget()" class="w-full py-2.5 bg-rose-500 text-white rounded-xl text-xs font-bold">Kategori Limitini Kaydet</button>
-<div id="category-budget-status" class="space-y-2"></div>
-</div>
-<div class="neo-card rounded-[24px] p-4 space-y-3">
-<div class="flex items-center justify-between">
-<h3 class="text-xs font-extrabold text-slate-900"><i class="fa-solid fa-piggy-bank text-emerald-600 mr-1.5"></i>Birikim Hedefleri</h3>
-<span class="text-[10px] text-slate-400">Hedef ve ilerleme</span>
 </div>
 <div class="grid grid-cols-2 gap-2">
-<input id="goal-name" placeholder="Hedef adı" class="min-w-0 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs">
-<input id="goal-target" type="number" inputmode="decimal" min="1" step="0.01" placeholder="Hedef tutar (₺)" class="min-w-0 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs">
-<input id="goal-current" type="number" inputmode="decimal" min="0" step="0.01" placeholder="Mevcut birikim (₺)" class="min-w-0 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs">
-<button onclick="addSavingsGoal()" class="px-3 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold">Hedef Ekle</button>
-</div>
-<div id="savings-goals-list" class="space-y-2"></div>
-</div>
-<div class="neo-card rounded-[24px] p-4 space-y-3">
-<h3 class="text-xs font-extrabold text-slate-900"><i class="fa-solid fa-calendar-check text-violet-600 mr-1.5"></i>Düzenli Ödemeler & Hatırlatmalar</h3>
-<div class="grid grid-cols-2 gap-2">
-<input id="recurring-name" placeholder="Ödeme adı" class="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs">
-<input id="recurring-amount" type="number" inputmode="decimal" min="0.01" step="0.01" placeholder="Tutar (₺)" class="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs">
-<input id="recurring-day" type="number" inputmode="numeric" min="1" max="31" value="1" placeholder="Ayın günü" class="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs">
-<select id="recurring-frequency" class="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs"><option value="monthly">Her ay</option><option value="weekly">Her hafta</option></select>
-</div>
-<button onclick="addRecurringPayment()" class="w-full py-2.5 bg-violet-600 text-white rounded-xl text-xs font-bold">Düzenli Ödeme Ekle</button>
-<div id="recurring-plans-list" class="space-y-2"></div>
-</div>
-<div class="neo-card rounded-[24px] p-4 space-y-2.5">
-<h3 class="text-xs font-extrabold text-slate-900"><i class="fa-solid fa-file-shield text-emerald-600 mr-1.5"></i>Cihaz Yedeği İndir / Yükle</h3>
-<p class="text-[10px] text-slate-400">Verilerin yalnızca bu cihazda tutulduğu için telefon değiştirirken JSON yedeği alabilirsin.</p>
-<button onclick="exportWalletBackup()" class="w-full py-2.5 bg-[#090d16] text-white rounded-xl text-xs font-bold"><i class="fa-solid fa-download mr-1"></i>Yedek Dosyası İndir (.json)</button>
-<label class="block w-full text-center py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold cursor-pointer transition">
-<i class="fa-solid fa-upload mr-1"></i>Yedekten Geri Yükle
+<button onclick="exportWalletBackup()" class="py-2.5 px-3 bg-[#090d16] text-white rounded-xl text-[11px] font-bold flex items-center justify-center gap-1.5 active:scale-95 transition"><i class="fa-solid fa-download text-[10px]"></i>Yedek İndir</button>
+<label class="py-2.5 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-[11px] font-bold cursor-pointer flex items-center justify-center gap-1.5 transition active:scale-95">
+<i class="fa-solid fa-upload text-[10px]"></i>Yedek Yükle
 <input type="file" id="backup-file" accept="application/json,.json" onchange="importWalletBackup(event)" class="hidden">
 </label>
 </div>
-<div class="neo-card rounded-[24px] p-4">
-<h3 class="text-xs font-extrabold text-slate-900 mb-1 flex items-center gap-2">
-<i class="fa-solid fa-repeat text-violet-600"></i> Aktif Abonelik & Sabit Giderler
-</h3>
-<p class="text-[10px] text-slate-400 mb-2.5">Her ay düzenli tekrarlayan ödemelerin.</p>
-<div id="recurring-list" class="space-y-2 max-h-40 overflow-y-auto"></div>
-</div>
-<div class="neo-card rounded-[24px] p-4 space-y-2.5">
-<h3 class="text-xs font-extrabold text-slate-900 mb-1">Veri Yönetimi</h3>
-<button onclick="clearAllData()" class="w-full py-2.5 px-4 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold rounded-xl transition flex items-center justify-center gap-2">
-<i class="fa-solid fa-trash-can"></i> Bu Cihazdaki Tüm Verileri Sıfırla
+<button onclick="clearAllData()" class="w-full py-2 px-3 bg-rose-50 hover:bg-rose-100 text-rose-600 text-[11px] font-bold rounded-xl transition flex items-center justify-center gap-1.5 active:scale-95">
+<i class="fa-solid fa-trash-can text-[10px]"></i> Bu Cihazdaki Tüm Verileri Sıfırla
 </button>
 </div>
 </div>
@@ -799,7 +1671,7 @@ Güncelle
 </div>
 
 <!-- İŞLEM & TRANSFER ÇEKMECESİ -->
-<div id="add-sheet-backdrop" class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm z-40 hidden flex flex-col justify-end">
+<div id="add-sheet-backdrop" class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm z-[45] hidden flex flex-col justify-end">
 <div class="bg-white rounded-t-[32px] p-5 shadow-2xl sheet-enter max-h-[92%] overflow-y-auto">
 <div class="w-10 h-1 bg-slate-200 rounded-full mx-auto mb-3"></div>
 <div class="flex items-center justify-between mb-4">
@@ -910,7 +1782,7 @@ class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs
 <div class="flex flex-wrap gap-1.5">
 <label id="tx-split-pay-wrapper" class="tx-chip-wrap">
 <input type="checkbox" id="tx-is-split-pay" onchange="toggleSplitPayFields()" class="sr-only tx-chip-amber">
-<span class="tx-chip-pill"><i class="fa-solid fa-code-branch text-amber-500 text-[10px]"></i> Kart + Nakit</span>
+<span class="tx-chip-pill"><i class="fa-solid fa-code-branch text-amber-500 text-[10px]"></i> Parçalı Ödeme</span>
 </label>
 <label id="tx-desc-wrapper" class="tx-chip-wrap">
 <input type="checkbox" id="tx-desc-toggle" onchange="toggleDescField()" class="sr-only tx-chip-slate">
@@ -934,26 +1806,30 @@ class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs
 <div id="tx-split-pay-fields" class="hidden bg-amber-50/70 border border-amber-200/80 rounded-2xl p-3 space-y-2">
 <div class="grid grid-cols-12 gap-1.5 items-end">
 <div class="col-span-7">
-<label class="block text-[9px] font-extrabold text-slate-500 uppercase mb-1">1. Ödeme Payı (<span id="tx-split-acc1-name">Hesap 1</span>)</label>
-<input type="number" inputmode="decimal" step="0.01" min="0" id="tx-split-amt1" placeholder="0.00" oninput="handleSplitPayInput(1)" class="w-full px-2.5 py-2 bg-white border border-slate-200 rounded-xl text-xs font-extrabold focus:outline-none focus:ring-2 focus:ring-amber-500">
+<label class="block text-[9px] font-extrabold text-slate-500 uppercase mb-1">1. Ödeme Hesabı / Kart</label>
+<select id="tx-split-account1" onchange="handleSplitAccount1Change()" class="w-full px-2.5 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:ring-2 focus:ring-amber-500"></select>
 </div>
 <div class="col-span-5">
-<button type="button" onclick="splitPaymentHalf()" class="w-full py-2 px-2 bg-amber-500 hover:bg-amber-600 text-white text-[10px] font-extrabold rounded-xl transition flex items-center justify-center gap-1 active:scale-95">
-<i class="fa-solid fa-divide"></i> Yarı Yarıya (50/50)
-</button>
+<label class="block text-[9px] font-extrabold text-slate-500 uppercase mb-1">1. Pay Tutarı</label>
+<input type="number" inputmode="decimal" step="0.01" min="0" id="tx-split-amt1" placeholder="0.00" oninput="handleSplitPayInput(1)" class="w-full px-2.5 py-2 bg-white border border-slate-200 rounded-xl text-xs font-extrabold focus:outline-none focus:ring-2 focus:ring-amber-500">
 </div>
 </div>
 <div class="grid grid-cols-12 gap-1.5 items-end">
 <div class="col-span-7">
 <label class="block text-[9px] font-extrabold text-slate-500 uppercase mb-1">2. Ödeme Hesabı / Kart</label>
-<select id="tx-split-account2" onchange="updateSplitPayPreview()" class="w-full px-2.5 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:ring-2 focus:ring-amber-500"></select>
+<select id="tx-split-account2" onchange="updateSplitPayLabelsAndPreview()" class="w-full px-2.5 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:ring-2 focus:ring-amber-500"></select>
 </div>
 <div class="col-span-5">
 <label class="block text-[9px] font-extrabold text-slate-500 uppercase mb-1">2. Pay Tutarı</label>
 <input type="number" inputmode="decimal" step="0.01" min="0" id="tx-split-amt2" placeholder="0.00" oninput="handleSplitPayInput(2)" class="w-full px-2.5 py-2 bg-white border border-slate-200 rounded-xl text-xs font-extrabold focus:outline-none focus:ring-2 focus:ring-amber-500">
 </div>
 </div>
-<div id="tx-split-pay-preview" class="text-[10px] font-semibold text-amber-900 bg-white/90 px-2.5 py-1.5 rounded-lg border border-amber-200/70"></div>
+<div class="flex items-center gap-1.5">
+<div id="tx-split-pay-preview" class="flex-1 min-w-0 text-[10px] font-semibold text-amber-900 bg-white/90 px-2.5 py-1.5 rounded-lg border border-amber-200/70 truncate"></div>
+<button type="button" onclick="splitPaymentHalf()" class="py-1.5 px-2.5 bg-amber-500 hover:bg-amber-600 text-white text-[10px] font-extrabold rounded-lg transition flex items-center justify-center gap-1 shrink-0 active:scale-95">
+<i class="fa-solid fa-divide"></i> Yarı Yarıya (50/50)
+</button>
+</div>
 </div>
 <div id="tx-shared-debt-fields" class="hidden bg-emerald-50/70 border border-emerald-200/80 rounded-2xl p-3 space-y-2">
 <div class="flex items-center justify-between gap-1.5 flex-wrap">
@@ -999,7 +1875,7 @@ class="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs 
 </div>
 
 <!-- KART AYARLARI -->
-<div id="fx-settings-backdrop" class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm z-40 hidden flex flex-col justify-end">
+<div id="fx-settings-backdrop" class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm z-[45] hidden flex flex-col justify-end">
 <div class="bg-white rounded-t-[32px] p-5 shadow-2xl sheet-enter max-h-[88%] overflow-y-auto space-y-4">
 <div class="w-10 h-1 bg-slate-200 rounded-full mx-auto"></div>
 <div class="flex items-center justify-between">
@@ -1080,7 +1956,7 @@ Ayarları Kaydet
 </div>
 
 <!-- BANKA KOMİSYON -->
-<div id="bank-fee-backdrop" class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm z-40 hidden flex flex-col justify-end">
+<div id="bank-fee-backdrop" class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm z-[45] hidden flex flex-col justify-end">
 <div class="bg-white rounded-t-[32px] p-5 shadow-2xl sheet-enter max-h-[85%] flex flex-col">
 <div class="w-10 h-1 bg-slate-200 rounded-full mx-auto mb-3 shrink-0"></div>
 <div class="flex items-center justify-between mb-2 shrink-0">
@@ -1106,7 +1982,7 @@ ATM'de <strong>"DCC / Dönüşümlü Kur"</strong> sorulursa reddedip <strong>TL
 </div>
 
 <!-- ORTAK ALAN MODALLARI (Ödeme/Kısmi/Dekont, IBAN, Kayıt Düzenle, Anket, Grup Ekle, Fiş Lightbox) -->
-<div id="shared-pay-backdrop" class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm z-40 hidden flex flex-col justify-end">
+<div id="shared-pay-backdrop" class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm z-[45] hidden flex flex-col justify-end">
 <div class="shared-sheet-panel bg-white p-5 shadow-2xl sheet-enter max-h-[88%] overflow-y-auto space-y-3.5">
 <div class="w-10 h-1 bg-slate-200 rounded-full mx-auto"></div>
 <div class="flex items-center justify-between">
@@ -1143,7 +2019,7 @@ ATM'de <strong>"DCC / Dönüşümlü Kur"</strong> sorulursa reddedip <strong>TL
 </div>
 </div>
 
-<div id="shared-iban-backdrop" class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm z-40 hidden flex flex-col justify-end">
+<div id="shared-iban-backdrop" class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm z-[45] hidden flex flex-col justify-end">
 <div class="shared-sheet-panel bg-white p-5 shadow-2xl sheet-enter space-y-3.5">
 <div class="w-10 h-1 bg-slate-200 rounded-full mx-auto"></div>
 <div class="flex items-center justify-between">
@@ -1163,7 +2039,7 @@ ATM'de <strong>"DCC / Dönüşümlü Kur"</strong> sorulursa reddedip <strong>TL
 </div>
 </div>
 
-<div id="shared-edit-backdrop" class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm z-40 hidden flex flex-col justify-end">
+<div id="shared-edit-backdrop" class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm z-[45] hidden flex flex-col justify-end">
 <div class="shared-sheet-panel bg-white p-5 shadow-2xl sheet-enter max-h-[88%] overflow-y-auto space-y-3.5">
 <div class="w-10 h-1 bg-slate-200 rounded-full mx-auto"></div>
 <div class="flex items-center justify-between">
@@ -1203,7 +2079,7 @@ ATM'de <strong>"DCC / Dönüşümlü Kur"</strong> sorulursa reddedip <strong>TL
 </div>
 </div>
 
-<div id="shared-shop-convert-backdrop" onclick="if(event.target===this) closeConvertShoppingModal()" class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm z-40 hidden flex flex-col justify-end">
+<div id="shared-shop-convert-backdrop" onclick="if(event.target===this) closeConvertShoppingModal()" class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm z-[45] hidden flex flex-col justify-end">
 <div class="shared-sheet-panel bg-white p-5 shadow-2xl sheet-enter max-h-[90%] overflow-y-auto space-y-3.5">
 <div class="w-10 h-1 bg-slate-200 rounded-full mx-auto"></div>
 <div class="flex items-center justify-between">
@@ -1254,7 +2130,7 @@ ATM'de <strong>"DCC / Dönüşümlü Kur"</strong> sorulursa reddedip <strong>TL
 </div>
 </div>
 
-<div id="shared-poll-backdrop" class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm z-40 hidden flex flex-col justify-end">
+<div id="shared-poll-backdrop" class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm z-[45] hidden flex flex-col justify-end">
 <div class="shared-sheet-panel bg-white p-5 shadow-2xl sheet-enter max-h-[88%] overflow-y-auto space-y-3.5">
 <div class="w-10 h-1 bg-slate-200 rounded-full mx-auto"></div>
 <div class="flex items-center justify-between">
@@ -1276,7 +2152,7 @@ ATM'de <strong>"DCC / Dönüşümlü Kur"</strong> sorulursa reddedip <strong>TL
 </div>
 </div>
 
-<div id="shared-addgroup-backdrop" class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm z-40 hidden flex flex-col justify-end">
+<div id="shared-addgroup-backdrop" class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm z-[45] hidden flex flex-col justify-end">
 <div class="shared-sheet-panel bg-white p-5 shadow-2xl sheet-enter max-h-[88%] overflow-y-auto space-y-3">
 <div class="w-10 h-1 bg-slate-200 rounded-full mx-auto"></div>
 <div class="flex items-center justify-between">
@@ -1323,7 +2199,7 @@ ATM'de <strong>"DCC / Dönüşümlü Kur"</strong> sorulursa reddedip <strong>TL
 </div>
 
 <!-- ORTAK ALAN ARAYÜZÜ SIRALAMA MODALI -->
-<div id="shared-layout-backdrop" onclick="if(event.target===this) closeSharedLayoutModal()" class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm z-40 hidden flex flex-col justify-end">
+<div id="shared-layout-backdrop" onclick="if(event.target===this) closeSharedLayoutModal()" class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm z-[45] hidden flex flex-col justify-end">
 <div class="bg-white rounded-t-[32px] p-5 shadow-2xl sheet-enter max-h-[86%] flex flex-col space-y-3.5">
 <div class="w-10 h-1 bg-slate-200 rounded-full mx-auto shrink-0"></div>
 <div class="flex items-center justify-between shrink-0">
@@ -1368,7 +2244,7 @@ Tamam
 </div>
 
 <!-- ÖZET ARAYÜZÜ SIRALAMA MODALI -->
-<div id="home-layout-backdrop" onclick="if(event.target===this) closeHomeLayoutModal()" class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm z-40 hidden flex flex-col justify-end">
+<div id="home-layout-backdrop" onclick="if(event.target===this) closeHomeLayoutModal()" class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm z-[45] hidden flex flex-col justify-end">
 <div class="bg-white rounded-t-[32px] p-5 shadow-2xl sheet-enter max-h-[86%] flex flex-col space-y-3.5">
 <div class="w-10 h-1 bg-slate-200 rounded-full mx-auto shrink-0"></div>
 <div class="flex items-center justify-between shrink-0">
@@ -1394,6 +2270,110 @@ Tamam
 </div>
 </div>
 
+<!-- AYARLAR ALT PENCERESİ (HESAPLAR / BÜTÇE / HEDEFLER / ABONELİKLER) -->
+<div id="settings-sheet-backdrop" onclick="if(event.target===this) closeSettingsSheet()" class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm z-40 hidden flex flex-col justify-end">
+<div class="shared-sheet-panel bg-white p-5 shadow-2xl sheet-enter max-h-[90%] flex flex-col space-y-3">
+<div class="w-10 h-1 bg-slate-200 rounded-full mx-auto shrink-0"></div>
+<div class="flex items-center justify-between gap-2 shrink-0">
+<h3 id="settings-sheet-title" class="text-sm font-extrabold text-slate-900 flex items-center gap-2"></h3>
+<button type="button" onclick="closeSettingsSheet()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center shrink-0"><i class="fa-solid fa-xmark text-sm"></i></button>
+</div>
+<div class="overflow-y-auto pr-0.5 flex-1 space-y-3.5 pb-2">
+
+<!-- BÖLÜM: HESAPLAR & KARTLAR -->
+<div data-settings-section="accounts" class="hidden space-y-3.5">
+<div class="bg-slate-50/70 rounded-[22px] p-3.5 border border-slate-200/70 space-y-2.5">
+<div class="flex items-center justify-between">
+<h4 class="text-xs font-extrabold text-slate-900 flex items-center gap-2"><i class="fa-solid fa-credit-card text-emerald-600"></i> Yurt Dışı Kartlar</h4>
+<button onclick="openNewCardModal()" class="px-3 py-1.5 rounded-xl bg-[#090d16] text-white text-[11px] font-bold flex items-center gap-1.5 transition active:scale-95"><i class="fa-solid fa-plus text-[10px]"></i> Kart Ekle</button>
+</div>
+<div id="settings-cards-list" class="space-y-2"></div>
+</div>
+<div class="bg-slate-50/70 rounded-[22px] p-3.5 border border-slate-200/70 space-y-3">
+<h4 class="text-xs font-extrabold text-slate-900"><i class="fa-solid fa-wallet text-emerald-600 mr-1.5"></i>Hesaplar & Başlangıç Bakiyeleri</h4>
+<div id="primary-account-box" class="p-2.5 bg-emerald-50/60 border border-emerald-200/70 rounded-xl space-y-1.5">
+<label class="flex items-center gap-1.5 text-[10px] font-extrabold text-slate-600 uppercase"><i class="fa-solid fa-star text-amber-500"></i> Birincil Hesap</label>
+<select id="primary-account-select" onchange="setPrimaryAccount(this.value)" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold"></select>
+<p class="text-[10px] text-slate-400">Yeni işlem eklerken bu hesap otomatik seçili gelir.</p>
+</div>
+<div class="grid grid-cols-3 gap-2">
+<input id="account-name" placeholder="Hesap adı (Örn: Ziraat TL)" class="col-span-3 px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium">
+<select id="account-currency" class="px-2 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold"><option>TRY</option><option>USD</option><option>EUR</option></select>
+<input id="account-rate" type="number" inputmode="decimal" min="0.0001" step="0.0001" value="1" placeholder="Kur (₺)" class="col-span-1 px-2 py-2 bg-white border border-slate-200 rounded-xl text-xs">
+<input id="account-balance" type="number" step="0.01" inputmode="decimal" placeholder="Güncel bakiye" class="col-span-1 px-2 py-2 bg-emerald-50 border border-emerald-200 rounded-xl text-xs font-bold">
+<button onclick="addAccount()" class="col-span-3 py-2.5 bg-[#090d16] text-white rounded-xl text-xs font-bold">Hesap Ekle</button>
+</div>
+<p class="text-[10px] text-slate-400"><i class="fa-solid fa-circle-info mr-1"></i>Güncel bakiye, hesapta şu an bulunan mevcut paranızdır.</p>
+<div id="accounts-list" class="space-y-2"></div>
+</div>
+</div>
+
+<!-- BÖLÜM: BÜTÇE & KATEGORİLER -->
+<div data-settings-section="budget" class="hidden space-y-3.5">
+<div class="bg-slate-50/70 rounded-[22px] p-3.5 border border-slate-200/70 space-y-2">
+<h4 class="text-xs font-extrabold text-slate-900 flex items-center gap-2"><i class="fa-solid fa-bullseye text-emerald-600"></i> Aylık Bütçe Limiti</h4>
+<p class="text-[10px] text-slate-400">Aylık maksimum harcama hedefini belirle.</p>
+<div class="flex gap-2">
+<input type="number" inputmode="decimal" id="monthly-budget-input" min="500" step="250" class="flex-1 px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-sm font-extrabold focus:outline-none focus:ring-2 focus:ring-slate-900">
+<button onclick="saveBudgetLimit()" class="px-4 py-2 bg-[#090d16] text-white text-xs font-bold rounded-xl transition">Güncelle</button>
+</div>
+</div>
+<div class="bg-slate-50/70 rounded-[22px] p-3.5 border border-slate-200/70 space-y-2.5">
+<h4 class="text-xs font-extrabold text-slate-900"><i class="fa-solid fa-tags text-amber-500 mr-1.5"></i>Özel Gider Kategorileri</h4>
+<div class="flex gap-2">
+<input id="custom-category-name" placeholder="Yeni gider kategorisi adı" class="flex-1 min-w-0 px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs">
+<button onclick="addCustomExpenseCategory()" class="px-3.5 py-2 bg-amber-500 text-white rounded-xl text-xs font-bold">Ekle</button>
+</div>
+<div id="custom-category-list" class="flex flex-wrap gap-1.5"></div>
+</div>
+<div class="bg-slate-50/70 rounded-[22px] p-3.5 border border-slate-200/70 space-y-2.5">
+<h4 class="text-xs font-extrabold text-slate-900"><i class="fa-solid fa-sliders text-rose-500 mr-1.5"></i>Kategori Harcama Limitleri</h4>
+<div class="grid grid-cols-2 gap-2">
+<select id="category-budget-select" class="px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium"></select>
+<input id="category-budget-amount" type="number" inputmode="decimal" min="1" step="1" placeholder="Aylık limit (₺)" class="px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold">
+</div>
+<button onclick="saveCategoryBudget()" class="w-full py-2.5 bg-rose-500 text-white rounded-xl text-xs font-bold">Kategori Limitini Kaydet</button>
+<div id="category-budget-status" class="space-y-2"></div>
+</div>
+</div>
+
+<!-- BÖLÜM: BİRİKİM HEDEFLERİ -->
+<div data-settings-section="goals" class="hidden space-y-3">
+<div class="bg-slate-50/70 rounded-[22px] p-3.5 border border-slate-200/70 space-y-3">
+<div class="grid grid-cols-2 gap-2">
+<input id="goal-name" placeholder="Hedef adı" class="min-w-0 px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs">
+<input id="goal-target" type="number" inputmode="decimal" min="1" step="0.01" placeholder="Hedef tutar (₺)" class="min-w-0 px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs">
+<input id="goal-current" type="number" inputmode="decimal" min="0" step="0.01" placeholder="Mevcut birikim (₺)" class="min-w-0 px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs">
+<button onclick="addSavingsGoal()" class="px-3 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold">Hedef Ekle</button>
+</div>
+<div id="savings-goals-list" class="space-y-2"></div>
+</div>
+</div>
+
+<!-- BÖLÜM: DÜZENLİ ÖDEMELER & ABONELİKLER -->
+<div data-settings-section="recurring" class="hidden space-y-3.5">
+<div class="bg-slate-50/70 rounded-[22px] p-3.5 border border-slate-200/70 space-y-3">
+<h4 class="text-xs font-extrabold text-slate-900"><i class="fa-solid fa-calendar-check text-violet-600 mr-1.5"></i>Düzenli Ödeme Planı Ekle</h4>
+<div class="grid grid-cols-2 gap-2">
+<input id="recurring-name" placeholder="Ödeme adı" class="px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs">
+<input id="recurring-amount" type="number" inputmode="decimal" min="0.01" step="0.01" placeholder="Tutar (₺)" class="px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs">
+<input id="recurring-day" type="number" inputmode="numeric" min="1" max="31" value="1" placeholder="Ayın günü" class="px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs">
+<select id="recurring-frequency" class="px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs"><option value="monthly">Her ay</option><option value="weekly">Her hafta</option></select>
+</div>
+<button onclick="addRecurringPayment()" class="w-full py-2.5 bg-violet-600 text-white rounded-xl text-xs font-bold">Düzenli Ödeme Ekle</button>
+<div id="recurring-plans-list" class="space-y-2"></div>
+</div>
+<div class="bg-slate-50/70 rounded-[22px] p-3.5 border border-slate-200/70 space-y-2">
+<h4 class="text-xs font-extrabold text-slate-900 flex items-center gap-2"><i class="fa-solid fa-repeat text-violet-600"></i> Aktif Abonelik & Sabit Giderler</h4>
+<p class="text-[10px] text-slate-400">Her ay düzenli tekrarlayan ödemelerin.</p>
+<div id="recurring-list" class="space-y-2 max-h-48 overflow-y-auto"></div>
+</div>
+</div>
+
+</div>
+</div>
+</div>
+
 <!-- ONAY -->
 <div id="confirm-modal-backdrop" class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-5">
 <div class="bg-white rounded-[28px] p-5 shadow-2xl w-full max-w-xs space-y-4">
@@ -1412,7 +2392,7 @@ Tamam
 </div>
 
 <!-- TOAST -->
-<div id="toast" class="absolute top-14 left-1/2 -translate-x-1/2 bg-[#090d16] text-white px-4 py-2 rounded-full shadow-lg text-xs font-bold flex items-center gap-2 opacity-0 pointer-events-none transition-all duration-300 z-50 border border-white/10 max-w-[92%]">
+<div id="toast" class="absolute top-14 left-1/2 -translate-x-1/2 bg-[#090d16] text-white px-4 py-2 rounded-full shadow-lg text-xs font-bold flex items-center gap-2 opacity-0 pointer-events-none transition-all duration-300 z-[60] border border-white/10 max-w-[92%]">
 <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400 shrink-0"></i>
 <span id="toast-message" class="truncate">Kaydedildi!</span>
 <button type="button" id="toast-undo-btn" onclick="executeUndo()" class="hidden ml-1 px-2 py-0.5 rounded-full bg-emerald-400 text-slate-950 text-[10px] font-extrabold shrink-0 active:scale-95 transition">Geri Al</button>
@@ -1550,7 +2530,8 @@ const defaultTransactions = [
 ];
 let transactions = [];
 
-function formatCurrency(val) { return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY', maximumFractionDigits: 0 }).format(val); }
+const TRY_CURRENCY_FMT = new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY', maximumFractionDigits: 0 });
+function formatCurrency(val) { return TRY_CURRENCY_FMT.format(val); }
 function formatUsd(val) { return '$' + Number(val).toFixed(2); }
 function getCategoryDetails(type, catId) {
 if (type === 'transfer') return { name: 'Transfer', icon: 'fa-right-left', color: '#6366f1' };
@@ -1618,6 +2599,7 @@ document.getElementById('header-title').textContent = titles[tabName] || 'Cüzda
 if (tabName !== 'shared') stopSharedPolling();
 if (tabName === 'stats') updateStatsAndChart();
 else if (tabName === 'fxcard') { updateFxCardUI(); scrollToActiveFxCard(false); }
+else if (tabName === 'transactions') renderTransactions();
 else if (tabName === 'settings') {
 renderSettingsCardsList();
 renderAccounts(); renderSavingsGoals(); renderRecurringPlans(); renderCustomCategories(); populateCategoryBudgetSelect(); renderCategoryBudgets();
@@ -1839,8 +2821,10 @@ const liveRate = parseFloat(data.rates.TRY.toFixed(2));
 fxState.usdRate = liveRate;
 const defaultUsdAccount = accounts.find(a => a.id === 'usd-account');
 if (defaultUsdAccount) defaultUsdAccount.rate = liveRate;
-document.getElementById('fx-rate-input').value = liveRate;
-previewAtmCalc(); updateFxCardUI();
+const fxRateInp = document.getElementById('fx-rate-input');
+const fxSettingsOpen = !document.getElementById('fx-settings-backdrop')?.classList.contains('hidden');
+if (fxRateInp && document.activeElement !== fxRateInp && !fxSettingsOpen) fxRateInp.value = liveRate;
+if (!isUserTypingInInput()) { previewAtmCalc(); updateFxCardUI(); }
 }
 } catch (e) {}
 }
@@ -2010,7 +2994,7 @@ const recEl = document.getElementById('debt-total-receivable');
 const payEl = document.getElementById('debt-total-payable');
 if (!listEl) return;
 const accountSelect = document.getElementById('debt-account');
-if (accountSelect) {
+if (accountSelect && document.activeElement !== accountSelect) {
 const selected = accountSelect.value || 'cash-try';
 accountSelect.innerHTML = accounts.map(a => `<option value="${a.id}">${a.name} (${a.currency})</option>`).join('');
 accountSelect.value = accounts.some(a => a.id === selected) ? selected : (accounts[0]?.id || '');
@@ -2150,6 +3134,49 @@ histEl.innerHTML = card.withdrawals.map(w => `
 }
 function updateFxCardUI() { renderFxCardsCarousel(); updateFxCardDetailsOnly(); }
 
+
+const SETTINGS_SHEET_META = {
+accounts: '<i class="fa-solid fa-wallet text-emerald-600"></i> Hesaplar & Kartlar',
+budget: '<i class="fa-solid fa-bullseye text-amber-500"></i> Bütçe & Kategoriler',
+goals: '<i class="fa-solid fa-piggy-bank text-teal-600"></i> Birikim Hedefleri',
+recurring: '<i class="fa-solid fa-calendar-check text-violet-600"></i> Düzenli Ödemeler & Abonelikler'
+};
+function openSettingsSheet(sectionKey) {
+const backdrop = document.getElementById('settings-sheet-backdrop');
+const titleEl = document.getElementById('settings-sheet-title');
+if (!backdrop || !SETTINGS_SHEET_META[sectionKey]) return;
+titleEl.innerHTML = SETTINGS_SHEET_META[sectionKey];
+backdrop.querySelectorAll('[data-settings-section]').forEach(el => {
+el.classList.toggle('hidden', el.getAttribute('data-settings-section') !== sectionKey);
+});
+if (sectionKey === 'accounts') { renderSettingsCardsList(); renderAccounts(); }
+else if (sectionKey === 'budget') { renderCustomCategories(); populateCategoryBudgetSelect(); renderCategoryBudgets(); }
+else if (sectionKey === 'goals') { renderSavingsGoals(); }
+else if (sectionKey === 'recurring') { renderRecurringPlans(); renderRecurringSettings(); }
+backdrop.classList.remove('hidden');
+}
+function closeSettingsSheet() {
+const backdrop = document.getElementById('settings-sheet-backdrop');
+if (backdrop) backdrop.classList.add('hidden');
+}
+function updateSettingsSummaryBadges() {
+const accEl = document.getElementById('set-badge-accounts');
+if (accEl) accEl.textContent = `${accounts.length} hesap • ${fxState.cards.length} kart`;
+const budEl = document.getElementById('set-badge-budget');
+if (budEl) {
+const catLimitCnt = Object.keys(categoryBudgets || {}).length;
+budEl.textContent = `Aylık hedef: ${formatCurrency(monthlyBudgetLimit)}${catLimitCnt ? ` • ${catLimitCnt} kategori limiti` : ''}`;
+}
+const goalEl = document.getElementById('set-badge-goals');
+if (goalEl) goalEl.textContent = savingsGoals.length ? `${savingsGoals.length} aktif hedef` : 'Henüz hedef eklenmedi';
+const recEl = document.getElementById('set-badge-recurring');
+if (recEl) {
+const recTxCnt = transactions.filter(t => t.recurring && t.type === 'expense').length;
+const totalRec = recurringPlans.length + recTxCnt;
+recEl.textContent = totalRec ? `${recurringPlans.length} plan • ${recTxCnt} abonelik` : 'Planlı ödeme veya abonelik yok';
+}
+}
+
 // --- KATEGORİ / HESAP / TRANSFER / HEDEF ---
 function addCustomExpenseCategory() {
 const name = document.getElementById('custom-category-name').value.trim();
@@ -2201,6 +3228,7 @@ const cardOpts = typeVal === 'expense' ? fxState.cards.map(c => `<option value="
 select.innerHTML = cardOpts ? `<optgroup label="Hesaplar">${accOpts}</optgroup><optgroup label="Yurt Dışı Kartlar">${cardOpts}</optgroup>` : accOpts;
 if (Array.from(select.options).some(o => o.value === previous)) select.value = previous;
 syncTransactionCurrency();
+populateSplitPayAccount1();
 populateSplitPayAccount2();
 populateTransferDropdowns();
 }
@@ -2546,6 +3574,7 @@ syncAccountDropdown(); renderAccounts(); renderSavingsGoals(); renderRecurringPl
 
 // --- İŞLEM ÇEKMECESİ ---
 function openAddSheet(initialType = 'expense') {
+closeSharedSubview();
 editingTransactionId = null;
 document.getElementById('transaction-sheet-title').textContent = initialType === 'transfer' ? 'Hesaplar Arası Transfer' : 'Yeni İşlem Ekle';
 document.getElementById('tx-title').value = '';
@@ -3515,7 +4544,7 @@ return `
 function renderHomeTransfers() {
 const container = document.getElementById('home-transfers-list');
 if (!container) return;
-const transferList = transactions.filter(t => t.type === 'transfer').sort((a, b) => new Date(b.date) - new Date(a.date));
+const transferList = transactions.filter(t => t.type === 'transfer').sort((a, b) => (b.date || '').localeCompare(a.date || ''));
 if (transferList.length === 0) {
 container.innerHTML = `<p class="text-[11px] text-slate-400 text-center py-2.5">Henüz hesaplar veya yurt dışı kartlar arasında transfer yapılmadı.</p>`;
 return;
@@ -3579,11 +4608,21 @@ bar.className = rawPct >= 90 ? "bg-rose-500 h-1.5 rounded-full transition-all" :
 document.getElementById('budget-alert').classList.toggle('hidden', rawPct < 100);
 document.getElementById('budget-alert').textContent = rawPct >= 100 ? 'Aylık harcama limitini aştın.' : '';
 renderUpcomingSubscriptionsBanner();
-renderHomeTransfers(); renderRecentTransactions(); renderTransactions(); renderCardHistory(); renderRecurringSettings(); renderSettingsCardsList(); renderDebts(); renderAccounts(); renderSavingsGoals(); renderRecurringPlans(); populateCategoryBudgetSelect(); renderCategoryBudgets(); updateStatsAndChart();
+renderHomeTransfers();
+renderRecentTransactions();
+renderDebts();
+updateSettingsSummaryBadges();
+const settingsSheetOpen = !document.getElementById('settings-sheet-backdrop')?.classList.contains('hidden');
+if (currentTabName === 'transactions') renderTransactions();
+else if (currentTabName === 'fxcard') renderCardHistory();
+else if (currentTabName === 'stats') updateStatsAndChart();
+if (currentTabName === 'settings' || settingsSheetOpen) {
+renderRecurringSettings(); renderSettingsCardsList(); renderAccounts(); renderSavingsGoals(); renderRecurringPlans(); populateCategoryBudgetSelect(); renderCategoryBudgets();
+}
 }
 function renderRecentTransactions() {
 const container = document.getElementById('recent-transactions-list');
-const recent = [...transactions].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 3);
+const recent = [...transactions].sort((a, b) => (b.date || '').localeCompare(a.date || '')).slice(0, 3);
 if (recent.length === 0) {
 container.innerHTML = `<p class="text-xs text-slate-400 text-center py-3">Henüz işlem eklenmedi. Alt ortadaki <strong>+</strong> butonundan ilk işlemini ekleyebilirsin.</p>`;
 return;
@@ -3607,6 +4646,11 @@ return `
 </div>`;
 }).join('');
 }
+let txSearchTimer = null;
+function debouncedRenderTransactions() {
+if (txSearchTimer) clearTimeout(txSearchTimer);
+txSearchTimer = setTimeout(() => { txSearchTimer = null; renderTransactions(); }, 100);
+}
 function renderTransactions() {
 const listEl = document.getElementById('transaction-list');
 const q = document.getElementById('search-input').value.toLowerCase();
@@ -3623,7 +4667,7 @@ if (currentFilter === 'income') return t.type === 'income';
 if (currentFilter === 'transfer') return t.type === 'transfer';
 if (currentFilter === 'recurring') return t.recurring;
 return true;
-}).sort((a, b) => new Date(b.date) - new Date(a.date));
+}).sort((a, b) => (b.date || '').localeCompare(a.date || ''));
 if (filtered.length === 0) { listEl.innerHTML = `<div class="p-8 text-center text-slate-400 text-xs">Bu filtrede işlem bulunamadı.</div>`; return; }
 listEl.innerHTML = filtered.map(tx => {
 const cat = getCategoryDetails(tx.type, tx.category);
@@ -3703,10 +4747,11 @@ if (totals[cid] > topCat.val) topCat = { name: c.name, val: totals[cid] };
 const topPct = Math.round((topCat.val / totalExp) * 100);
 document.getElementById('top-category-badge').textContent = `En çok: ${topCat.name} (%${topPct})`;
 document.getElementById('insight-text').innerHTML = `Bu ay işlem başına ortalama <strong>${formatCurrency(txAvg)}</strong> harcadın. En yoğun gider kalemin <strong>%${topPct}</strong> ile <strong>${topCat.name}</strong>.`;
+if (typeof Chart === 'undefined') return;
 if (chartInstance) chartInstance.destroy();
 chartInstance = new Chart(canvas.getContext('2d'), {
 type: 'doughnut',
-data: { labels, datasets: [{ data, backgroundColor: colors, borderWidth: 2, borderColor: '#fff' }] },
+data: { labels, datasets: [{ data, backgroundColor: colors, borderWidth: 2, borderColor: document.getElementById('app-shell')?.classList.contains('night-mode') ? getActiveNightMeta().card : '#fff' }] },
 options: {
 responsive: true,
 maintainAspectRatio: false,
@@ -3771,23 +4816,73 @@ t.classList.add('opacity-0', 'pointer-events-none');
 // YENİ EKLENEN ÖZELLİKLER (GECE MODU, GERİ AL, HESAP MAKİNESİ, YAKLAŞAN ABONELİK)
 // =====================================================================
 const NIGHT_MODE_KEY = 'cuzdanim_night_mode_v1';
+const NIGHT_THEME_KEY = 'cuzdanim_night_theme_v4';
+const NIGHT_THEME_META = {
+neo: { bg: '#090a0f', card: '#12141e', muted: '#7e869c', label: 'Stüdyo • Grafit & İris' },
+petrol: { bg: '#06090d', card: '#0e151d', muted: '#7d96a6', label: 'Petrol • Turkuaz • Kızıl' },
+crimson: { bg: '#070709', card: '#111115', muted: '#8a8a98', label: 'Siyah • Beyaz • Kızıl' },
+copper: { bg: '#0b0c10', card: '#14161d', muted: '#8b90a0', label: 'Karbon & Bakır' },
+sapphire: { bg: '#060a14', card: '#0e1526', muted: '#7a90b5', label: 'Safir • Gece Mavisi' },
+amethyst: { bg: '#0c0812', card: '#161021', muted: '#9784ad', label: 'Ametist • Kadife Mor' },
+espresso: { bg: '#0f0b09', card: '#1a1411', muted: '#a38f82', label: 'Espresso • Sıcak Kehribar' },
+titanium: { bg: '#090a0c', card: '#131519', muted: '#858d9b', label: 'Titanyum • Mat Monokrom' }
+};
+let currentNightTheme = 'neo';
 let pendingUndoCallback = null;
 let toastHideTimer = null;
 
+function getActiveNightMeta() {
+return NIGHT_THEME_META[currentNightTheme] || NIGHT_THEME_META.neo;
+}
+function updateNightThemePickerUI(enabled) {
+const picker = document.getElementById('night-theme-picker');
+if (!picker) return;
+picker.classList.toggle('hidden', !enabled);
+picker.querySelectorAll('[data-nt]').forEach(btn => {
+btn.classList.toggle('active', btn.getAttribute('data-nt') === currentNightTheme);
+});
+}
+function setNightTheme(themeId, silent = false) {
+if (!NIGHT_THEME_META[themeId]) themeId = 'neo';
+currentNightTheme = themeId;
+const shell = document.getElementById('app-shell');
+if (shell) shell.setAttribute('data-night-theme', themeId);
+try { localStorage.setItem(NIGHT_THEME_KEY, themeId); } catch (e) {}
+const isNight = !!(shell && shell.classList.contains('night-mode'));
+updateNightThemePickerUI(isNight);
+if (isNight) {
+const m = getActiveNightMeta();
+const tc = document.querySelector('meta[name="theme-color"]');
+if (tc) tc.setAttribute('content', m.bg);
+try {
+if (window.Chart && window.Chart.defaults) window.Chart.defaults.color = m.muted;
+if (chartInstance && typeof updateStatsAndChart === 'function') updateStatsAndChart();
+if (currentTabName === 'shared' && typeof renderSharedSpace === 'function') renderSharedSpace();
+} catch (e) {}
+if (!silent) showToast(`Gece teması: ${m.label}`);
+}
+}
 function toggleNightMode(enabled) {
 const shell = document.getElementById('app-shell');
-if (shell) shell.classList.toggle('night-mode', !!enabled);
+if (shell) {
+shell.classList.toggle('night-mode', !!enabled);
+shell.setAttribute('data-night-theme', currentNightTheme);
+}
 try { localStorage.setItem(NIGHT_MODE_KEY, enabled ? '1' : '0'); } catch (e) {}
+updateNightThemePickerUI(!!enabled);
+const m = getActiveNightMeta();
 const tc = document.querySelector('meta[name="theme-color"]');
-if (tc) tc.setAttribute('content', enabled ? '#141c2b' : '#eef2f8');
+if (tc) tc.setAttribute('content', enabled ? m.bg : '#eef2f8');
 try {
-if (window.Chart && window.Chart.defaults) window.Chart.defaults.color = enabled ? '#9aa9c0' : '#64748b';
+if (window.Chart && window.Chart.defaults) window.Chart.defaults.color = enabled ? m.muted : '#64748b';
 if (chartInstance && typeof updateStatsAndChart === 'function') updateStatsAndChart();
 if (currentTabName === 'shared' && typeof renderSharedSpace === 'function') renderSharedSpace();
 } catch (e) {}
 }
 function restoreNightMode() {
 try {
+const savedTheme = localStorage.getItem(NIGHT_THEME_KEY);
+if (savedTheme && NIGHT_THEME_META[savedTheme]) currentNightTheme = savedTheme;
 const saved = localStorage.getItem(NIGHT_MODE_KEY) === '1';
 const toggle = document.getElementById('night-mode-toggle');
 if (toggle) toggle.checked = saved;
@@ -3879,6 +4974,8 @@ badge.classList.add('hidden');
 }
 }
 updateTransferPreview();
+syncSplitPayOnTotalChange();
+updateSharedSplitSummary();
 }
 function appendCalcToken(tok) {
 const inp = document.getElementById('tx-amount');
@@ -4130,13 +5227,13 @@ sharedState.polls = (!pollRes.error && Array.isArray(pollRes.data)) ? pollRes.da
 sharedState.simplifiedDebts = (!simpRes.error && Array.isArray(simpRes.data)) ? simpRes.data : [];
 sharedState.shoppingError = shopRes.error ? shopRes.error.message : null;
 sharedState.shoppingItems = (!shopRes.error && Array.isArray(shopRes.data)) ? shopRes.data : [];
-await refreshPersonalDebts();
+await refreshPersonalDebts(true);
 renderSharedSpace();
 updateSharedIndicators();
 const sheetOpen = !document.getElementById('add-sheet-backdrop').classList.contains('hidden');
-if (sheetOpen) refreshSplitControls();
+if (sheetOpen && !isUserTypingInInput()) refreshSplitControls();
 }
-async function refreshPersonalDebts() {
+async function refreshPersonalDebts(skipSharedRender = false) {
 const client = getSharedClient();
 if (!client || !sharedState.userId) return;
 const { data, error } = await client.from('shared_personal_debts').select('*').order('created_at', { ascending: false }).limit(300);
@@ -4146,8 +5243,10 @@ detectPersonalNotifications(rows);
 sharedState.personalDebts = rows;
 savePersonalCache();
 renderDebts();
+if (!skipSharedRender) {
 updateSharedIndicators();
 renderSharedSpace();
+}
 }
 function detectPersonalNotifications(rows) {
 const uid = sharedState.userId;
@@ -4263,7 +5362,10 @@ async function enterSharedTab() {
 renderSharedSpace();
 stopSharedPolling();
 sharedState.pollTimer = setInterval(() => {
-if (currentTabName === 'shared' && sharedState.userId) refreshSharedData().catch(() => {});
+if (currentTabName === 'shared' && sharedState.userId) {
+if (isUserTypingInInput()) { sharedState._deferredRefresh = true; return; }
+refreshSharedData().catch(() => {});
+}
 }, 8000);
 if (!isSharedConfigured()) return;
 try {
@@ -4342,6 +5444,7 @@ setSharedBusy(false);
 renderSharedSpace();
 }
 function openAddGroupModal() {
+closeSharedSubview();
 document.getElementById('addgrp-name-input').value = sharedState.displayName || '';
 document.getElementById('addgrp-title-input').value = '';
 document.getElementById('addgrp-code-input').value = '';
@@ -4412,6 +5515,7 @@ const raw = inp.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 26);
 inp.value = raw.replace(/(.{4})/g, '$1 ').trim();
 }
 function openIbanModal() {
+closeSharedSubview();
 const me = (sharedState.members || []).find(m => m.user_id === sharedState.userId);
 document.getElementById('iban-bank-input').value = me?.bank_name || '';
 document.getElementById('iban-number-input').value = me?.iban || '';
@@ -4517,6 +5621,7 @@ refreshSharedData().catch(() => {});
 .catch(err => showToast('Ortak Alan senkronu başarısız: ' + sharedErrText(err)));
 }
 function openSharedEditModal(recordId) {
+closeSharedSubview();
 const rec = (sharedState.records || []).find(r => r.id === recordId);
 if (!rec) return;
 if (rec.created_by !== sharedState.userId) return showToast('Bu kaydı yalnızca oluşturan kişi düzeltebilir');
@@ -4628,6 +5733,7 @@ amount: Number(r.amount), type: iAmDebtor ? 'payable' : 'receivable', source: 'p
 });
 }
 function openSharedPayModal(pdId, mode = 'pay') {
+closeSharedSubview();
 const r = (sharedState.personalDebts || []).find(x => x.id === pdId);
 if (!r) return;
 activePayModal = { pdId, mode, maxAmount: Number(r.amount), receiptUrl: '', iban: '' };
@@ -4931,6 +6037,7 @@ const single = allItems.find(x => x.id === target);
 if (single) itemsToConvert = [single];
 }
 if (!itemsToConvert.length) return showToast('Listede henüz ürün yok');
+closeSharedSubview();
 activeConvertShoppingIds = itemsToConvert.map(x => x.id);
 const names = itemsToConvert.map(x => x.note ? `${x.item_name} (${x.note})` : x.item_name);
 const summaryEl = document.getElementById('sconv-items-summary');
@@ -5145,6 +6252,7 @@ showToast(sharedErrText(err));
 }
 
 function openPollModal() {
+closeSharedSubview();
 document.getElementById('poll-question-input').value = '';
 const cont = document.getElementById('poll-options-container');
 cont.innerHTML = '';
@@ -5349,6 +6457,7 @@ showToast(sharedErrText(err));
 });
 }
 function openSharedLayoutModal() {
+closeSharedSubview();
 renderSharedLayoutList();
 const panel = document.getElementById('shared-creator-members-panel');
 const btn = document.getElementById('shared-creator-toggle-btn');
@@ -5477,6 +6586,8 @@ item.classList.remove('is-dragging');
 window.removeEventListener('pointermove', onMove);
 window.removeEventListener('pointerup', onUp);
 window.removeEventListener('pointercancel', onUp);
+saveSharedLayoutLocal();
+triggerCloudSave();
 renderSharedLayoutList();
 };
 window.addEventListener('pointermove', onMove);
@@ -5491,8 +6602,6 @@ if (!listEl) return;
 const newOrder = [...listEl.querySelectorAll('.home-layout-item')].map(el => el.dataset.sharedLayoutId).filter(Boolean);
 if (newOrder.length === SHARED_WIDGET_DEFS.length) {
 sharedLayoutState.order = newOrder;
-saveSharedLayoutLocal();
-triggerCloudSave();
 renderSharedSpace();
 }
 }
@@ -5519,13 +6628,16 @@ if (!key || !SHARED_SUBVIEW_META[key]) return;
 const titleEl = document.getElementById('shared-subview-title');
 const bodyEl = document.getElementById('shared-subview-body');
 if (!titleEl || !bodyEl) return;
+if (isTypingInside(bodyEl)) {
+sharedState._deferredRender = true;
+return;
+}
 titleEl.innerHTML = SHARED_SUBVIEW_META[key].title;
 const prevInputVal = key === 'shopping' ? (document.getElementById('shop-item-input')?.value || '') : '';
-const wasFocused = key === 'shopping' && document.activeElement && document.activeElement.id === 'shop-item-input';
 bodyEl.innerHTML = (sharedState._subviewHtml && sharedState._subviewHtml[key]) || '';
 if (key === 'shopping' && prevInputVal) {
 const inp = document.getElementById('shop-item-input');
-if (inp) { inp.value = prevInputVal; if (wasFocused) inp.focus(); }
+if (inp) inp.value = prevInputVal;
 }
 if (key === 'analytics') {
 setTimeout(() => renderSharedExpenseChart(sharedState._chartPayload), 30);
@@ -5550,7 +6662,7 @@ datasets: [{
 data: payload.data,
 backgroundColor: payload.colors,
 borderWidth: 2,
-borderColor: isNight ? '#1c2638' : '#ffffff'
+borderColor: isNight ? getActiveNightMeta().card : '#ffffff'
 }]
 },
 options: {
@@ -5562,7 +6674,7 @@ legend: {
 position: 'right',
 labels: {
 boxWidth: 10,
-color: isNight ? '#cbd5e1' : '#475569',
+color: isNight ? getActiveNightMeta().muted : '#475569',
 font: { size: 10, family: 'Plus Jakarta Sans', weight: '600' }
 }
 }
@@ -5575,6 +6687,10 @@ font: { size: 10, family: 'Plus Jakarta Sans', weight: '600' }
 function renderSharedSpace() {
 const body = document.getElementById('shared-space-body');
 if (!body) return;
+if (isTypingInside(body)) {
+sharedState._deferredRender = true;
+return;
+}
 if (!isSharedConfigured()) {
 body.innerHTML = `<div class="neo-card rounded-[24px] p-4 space-y-2"><p class="text-xs font-extrabold text-slate-900">Supabase bağlantısı gerekli</p></div>`;
 return;
@@ -6214,9 +7330,39 @@ const feeUsd = baseUsd * feePct / 100;
 const totalUsd = baseUsd + feeUsd;
 return { entered: enteredAmt, baseTry, baseUsd, feePct, feeUsd, totalUsd, totalTry: totalUsd * usdRate, usdRate };
 }
+function populateSplitPayAccount1(preferredId) {
+const sel1Split = document.getElementById('tx-split-account1');
+const selMain = document.getElementById('tx-account');
+if (!sel1Split) return;
+const targetVal = preferredId || (selMain && selMain.value) || getPrimaryAccountValue();
+const accOpts = accounts.map(a => `<option value="${a.id}">${escHtml(a.name)} (${a.currency})</option>`).join('');
+const cardOpts = fxState.cards.map(c => `<option value="fx-card-${c.id}">💳 ${escHtml(c.name)} (USD)</option>`).join('');
+sel1Split.innerHTML = cardOpts ? `<optgroup label="Hesaplar">${accOpts}</optgroup><optgroup label="Yurt Dışı Kartlar">${cardOpts}</optgroup>` : accOpts;
+if (targetVal && Array.from(sel1Split.options).some(o => o.value === targetVal)) {
+sel1Split.value = targetVal;
+}
+}
+function handleSplitAccount1Change() {
+const sel1Split = document.getElementById('tx-split-account1');
+const selMain = document.getElementById('tx-account');
+const sel2 = document.getElementById('tx-split-account2');
+if (!sel1Split) return;
+const prevMain = selMain ? selMain.value : '';
+if (selMain && Array.from(selMain.options).some(o => o.value === sel1Split.value)) {
+selMain.value = sel1Split.value;
+}
+if (sel2 && sel2.value === sel1Split.value) {
+if (prevMain && prevMain !== sel1Split.value && Array.from(sel2.options).some(o => o.value === prevMain)) {
+sel2.value = prevMain;
+} else {
+populateSplitPayAccount2();
+}
+}
+syncTransactionCurrency();
+}
 function populateSplitPayAccount2(preferredId) {
 const sel2 = document.getElementById('tx-split-account2');
-const sel1 = document.getElementById('tx-account');
+const sel1 = document.getElementById('tx-split-account1') || document.getElementById('tx-account');
 if (!sel2 || !sel1) return;
 const prev = preferredId || sel2.value;
 const accOpts = accounts.map(a => `<option value="${a.id}">${escHtml(a.name)} (${a.currency})</option>`).join('');
@@ -6238,6 +7384,8 @@ const active = !!cb.checked;
 fields.classList.toggle('hidden', !active);
 if (accLabel) accLabel.textContent = active ? '1. Ödeme Hesabı / Kart' : 'Hesap';
 if (active) {
+const selMain = document.getElementById('tx-account');
+populateSplitPayAccount1(selMain ? selMain.value : getPrimaryAccountValue());
 populateSplitPayAccount2();
 splitPaymentHalf(true);
 }
@@ -6259,6 +7407,7 @@ const half2 = Math.round((total - half1) * 100) / 100;
 inp1.value = half1;
 inp2.value = half2;
 updateSplitPayPreview();
+updatePosPreview();
 }
 function handleSplitPayInput(which) {
 const total = parseMathAmount(document.getElementById('tx-amount').value);
@@ -6279,6 +7428,7 @@ inp1.value = Math.round((total - v2) * 100) / 100;
 }
 }
 updateSplitPayPreview();
+updatePosPreview();
 }
 function syncSplitPayOnTotalChange() {
 const cb = document.getElementById('tx-is-split-pay');
@@ -6298,6 +7448,7 @@ splitPaymentHalf(true);
 } else {
 inp2.value = Math.round((total - v1) * 100) / 100;
 updateSplitPayPreview();
+updatePosPreview();
 }
 }
 function getEndpointDisplayName(val) {
@@ -6308,18 +7459,14 @@ return acc ? acc.name : 'Hesap';
 }
 function updateSplitPayLabelsAndPreview() {
 const sel1 = document.getElementById('tx-account');
-const lbl1 = document.getElementById('tx-split-acc1-name');
-if (sel1 && lbl1) lbl1.textContent = getEndpointDisplayName(sel1.value);
+const sel1Split = document.getElementById('tx-split-account1');
+if (sel1 && sel1Split && Array.from(sel1Split.options).some(o => o.value === sel1.value)) {
+sel1Split.value = sel1.value;
+}
 const sel2 = document.getElementById('tx-split-account2');
 if (sel1 && sel2 && sel2.value === sel1.value) populateSplitPayAccount2();
-const posBox = document.getElementById('tx-pos-box');
-const spCb = document.getElementById('tx-is-split-pay');
-if (posBox && spCb && spCb.checked) {
-const c1 = getCardFromAccountValue(sel1?.value);
-const c2 = getCardFromAccountValue(sel2?.value);
-posBox.classList.toggle('hidden', !(c1 || c2));
-}
 updateSplitPayPreview();
+updatePosPreview();
 }
 function updateSplitPayPreview() {
 const prev = document.getElementById('tx-split-pay-preview');
@@ -6356,6 +7503,36 @@ const box = document.getElementById('tx-pos-box');
 if (!box) return;
 const typeEl = document.getElementById('tx-type');
 const accEl = document.getElementById('tx-account');
+const isSplit = typeEl && typeEl.value === 'expense' && !!document.getElementById('tx-is-split-pay')?.checked;
+if (isSplit) {
+const sel2 = document.getElementById('tx-split-account2');
+const c1 = getCardFromAccountValue(accEl?.value);
+const c2 = getCardFromAccountValue(sel2?.value);
+const cardLegs = [];
+if (c1) cardLegs.push({ card: c1, amt: parseFloat(String(document.getElementById('tx-split-amt1')?.value || 0).replace(',', '.')) || 0 });
+if (c2) cardLegs.push({ card: c2, amt: parseFloat(String(document.getElementById('tx-split-amt2')?.value || 0).replace(',', '.')) || 0 });
+box.classList.toggle('hidden', cardLegs.length === 0);
+if (cardLegs.length === 0) return;
+const out = document.getElementById('tx-pos-preview');
+if (!out) return;
+const cur = document.getElementById('tx-currency').value;
+const usdRate = Number(fxState.usdRate) || 34.5;
+const exRate = cur === 'TRY' ? 1 : (Number(document.getElementById('tx-rate').value) || (cur === 'USD' ? usdRate : 1));
+const row = (l, v, cls = '') => `<div class="flex items-center justify-between gap-2"><span class="text-slate-500">${l}</span><span class="font-extrabold ${cls}">${v}</span></div>`;
+out.innerHTML = cardLegs.map((leg, i) => {
+const ch = computePosChargeForAmount(leg.card, leg.amt, cur, exRate);
+const rem = getCardStats(leg.card).remainingUsd;
+const after = rem - ch.totalUsd;
+const divider = i > 0 ? '<div class="border-t border-sky-200/80 my-2 pt-2"></div>' : '';
+return divider +
+`<p class="text-[10px] font-extrabold text-sky-700">${escHtml(leg.card.name)}</p>` +
+(ch.totalUsd > 0
+? row('Karttan düşecek', `${formatUsd(ch.totalUsd)} (kom. %${ch.feePct})`, 'text-rose-600') +
+row('Kalan bakiye', `${formatUsd(rem)} → ${formatUsd(Math.max(0, after))}`, after < 0 ? 'text-rose-600' : 'text-emerald-600')
+: row('Kart bakiyesi', formatUsd(rem), 'text-emerald-600'));
+}).join('');
+return;
+}
 const card = (typeEl && typeEl.value === 'expense' && accEl) ? getCardFromAccountValue(accEl.value) : null;
 box.classList.toggle('hidden', !card);
 if (!card) return;
@@ -6433,16 +7610,102 @@ listEl.innerHTML = items.map(it => `
 </div>
 </div>`).join('');
 }
-// Uygulamadan çıkıp girince / klavye kapanınca sayfanın yukarı kaymasını sıfırla
-function resetPageScroll() {
+// Aktif metin girişi / klavye koruması + iOS ekran kayma (bottom gap) düzeltmesi
+function isUserTypingInInput() {
+const el = document.activeElement;
+if (!el) return false;
+const tag = el.tagName;
+if (tag === 'TEXTAREA' || tag === 'SELECT' || el.isContentEditable) return true;
+if (tag === 'INPUT') {
+const t = String(el.type || 'text').toLowerCase();
+return !['checkbox', 'radio', 'button', 'submit', 'reset', 'file', 'range', 'color'].includes(t);
+}
+return false;
+}
+function isTypingInside(container) {
+if (!container || !isUserTypingInInput()) return false;
+return container.contains(document.activeElement);
+}
+function syncAppViewportHeight() {
 try {
-window.scrollTo(0, 0);
-[document.documentElement, document.body, document.getElementById('app-shell'), document.querySelector('#app-shell main')].forEach(el => { if (el) el.scrollTop = 0; });
+if (window.innerWidth > 639) {
+document.documentElement.style.removeProperty('--app-vh');
+return;
+}
+if (isUserTypingInInput()) return;
+const vv = window.visualViewport;
+const h = Math.max(window.innerHeight || 0, vv ? Math.round(vv.height + vv.offsetTop) : 0);
+if (h > 300) {
+document.documentElement.style.setProperty('--app-vh', h + 'px');
+}
 } catch (e) {}
 }
-['pageshow', 'focus', 'orientationchange'].forEach(ev => window.addEventListener(ev, () => { resetPageScroll(); setTimeout(resetPageScroll, 150); }));
-document.addEventListener('visibilitychange', () => { if (!document.hidden) { resetPageScroll(); setTimeout(resetPageScroll, 150); } });
-document.addEventListener('focusout', () => setTimeout(resetPageScroll, 100));
+function resetPageScroll(force = false) {
+try {
+if (!force && isUserTypingInInput()) return;
+window.scrollTo(0, 0);
+document.documentElement.scrollTop = 0;
+document.body.scrollTop = 0;
+const shell = document.getElementById('app-shell');
+if (shell) shell.scrollTop = 0;
+const mainEl = document.querySelector('#app-shell main');
+if (mainEl) mainEl.scrollTop = 0;
+syncAppViewportHeight();
+} catch (e) {}
+}
+function flushDeferredUpdatesAfterTyping() {
+if (isUserTypingInInput()) return;
+if (sharedState._deferredRefresh && currentTabName === 'shared' && sharedState.userId) {
+sharedState._deferredRefresh = false;
+sharedState._deferredRender = false;
+refreshSharedData().catch(() => {});
+} else if (sharedState._deferredRender) {
+sharedState._deferredRender = false;
+renderSharedSpace();
+}
+if (typeof appLang !== 'undefined' && appLang !== 'tr' && typeof applyAppLanguage === 'function') {
+applyAppLanguage();
+}
+}
+['pageshow', 'orientationchange'].forEach(ev => window.addEventListener(ev, () => {
+resetPageScroll(true);
+setTimeout(() => resetPageScroll(true), 180);
+setTimeout(() => resetPageScroll(true), 420);
+}));
+window.addEventListener('resize', () => {
+if (!isUserTypingInInput()) { resetPageScroll(); }
+});
+if (window.visualViewport) {
+window.visualViewport.addEventListener('resize', () => {
+if (!isUserTypingInInput()) {
+resetPageScroll();
+setTimeout(resetPageScroll, 160);
+}
+});
+window.visualViewport.addEventListener('scroll', () => {
+if (!isUserTypingInInput() && (window.visualViewport.offsetTop > 0 || window.scrollY > 0)) {
+resetPageScroll();
+}
+});
+}
+document.addEventListener('visibilitychange', () => {
+if (!document.hidden && !isUserTypingInInput()) {
+resetPageScroll(true);
+setTimeout(() => resetPageScroll(true), 200);
+}
+});
+document.addEventListener('focusout', () => {
+setTimeout(() => {
+if (!isUserTypingInInput()) {
+resetPageScroll(true);
+flushDeferredUpdatesAfterTyping();
+}
+}, 140);
+setTimeout(() => { if (!isUserTypingInInput()) resetPageScroll(true); }, 360);
+setTimeout(() => { if (!isUserTypingInInput()) resetPageScroll(true); }, 620);
+});
+// Başlangıçta mobil yüksekliği sabitle
+syncAppViewportHeight();
 
 // =====================================================================
 // ÖZET ARAYÜZÜ SIRALAMA VE GÖRÜNÜRLÜK YÖNETİMİ
@@ -6499,6 +7762,7 @@ el.classList.toggle('hidden', hiddenSet.has(id));
 });
 }
 function openHomeLayoutModal() {
+closeSharedSubview();
 renderHomeLayoutList();
 document.getElementById('home-layout-backdrop').classList.remove('hidden');
 }
@@ -6803,6 +8067,14 @@ const I18N_EXACT = {
 'Göz yormayan yumuşak gece teması': { en: 'Soft eye-friendly dark theme', ru: 'Мягкая тёмная тема для глаз' },
 'Uygulama Dili': { en: 'App Language', ru: 'Язык приложения' },
 'Türkçe, English veya Русский': { en: 'Turkish, English or Russian', ru: 'Турецкий, английский или русский' },
+'Hesaplar & Kartlar': { en: 'Accounts & Cards', ru: 'Счета и карты' },
+'Bütçe & Kategoriler': { en: 'Budget & Categories', ru: 'Бюджет и категории' },
+'Düzenli Ödemeler & Abonelikler': { en: 'Recurring & Subscriptions', ru: 'Регулярные и подписки' },
+'Cihaz Yedeği & Veri': { en: 'Device Backup & Data', ru: 'Резервная копия и данные' },
+'Veriler yalnızca bu cihazda saklanır': { en: 'Data is stored only on this device', ru: 'Данные хранятся только на этом устройстве' },
+'Yedek İndir': { en: 'Export Backup', ru: 'Скачать копию' },
+'Yedek Yükle': { en: 'Import Backup', ru: 'Загрузить' },
+'Yumuşak gece teması': { en: 'Soft dark theme', ru: 'Мягкая тёмная тема' },
 'Özet Arayüzü Sırası': { en: 'Home Layout Order', ru: 'Порядок блоков обзора' },
 'Ana ekrandaki kartları sırala veya gizle': { en: 'Reorder or hide home screen cards', ru: 'Сортируйте или скрывайте карточки на главном экране' },
 'Düzenle': { en: 'Edit', ru: 'Изменить' },
@@ -6853,7 +8125,7 @@ const I18N_EXACT = {
 'Kategori': { en: 'Category', ru: 'Категория' },
 'Hesap': { en: 'Account', ru: 'Счёт' },
 'Ek Seçenekler': { en: 'Extra Options', ru: 'Доп. опции' },
-'Kart + Nakit': { en: 'Card + Cash', ru: 'Карта + Нал.' },
+'Parçalı Ödeme': { en: 'Split Payment', ru: 'Раздельная оплата' },
 'Açıklama': { en: 'Note', ru: 'Описание' },
 'Bölüştür': { en: 'Split', ru: 'Разделить' },
 'Kişi Ekle': { en: 'Add Person', ru: 'Добавить' },
@@ -6869,6 +8141,10 @@ const I18N_EXACT = {
 'Transferi Kaydet': { en: 'Save Transfer', ru: 'Сохранить перевод' },
 'Değişiklikleri Kaydet': { en: 'Save Changes', ru: 'Сохранить изменения' },
 'Yarı Yarıya (50/50)': { en: 'Split 50/50', ru: 'Пополам (50/50)' },
+'1. Ödeme Hesabı / Kart': { en: '1st Account / Card', ru: '1-й счёт / карта' },
+'1. Pay Tutarı': { en: '1st Share', ru: '1-я часть' },
+'2. Ödeme Hesabı / Kart': { en: '2nd Account / Card', ru: '2-й счёт / карта' },
+'2. Pay Tutarı': { en: '2nd Share', ru: '2-я часть' },
 'Gönderen (Çıkış Hesabı / Kart)': { en: 'From (Source Account / Card)', ru: 'Откуда (Счёт / Карта)' },
 'Alıcı (Giriş Hesabı / Kart)': { en: 'To (Destination Account / Card)', ru: 'Куда (Счёт / Карта)' },
 'Özete Dön': { en: 'Back to Home', ru: 'На главную' },
@@ -7114,9 +8390,27 @@ const btn = document.getElementById('lang-btn-' + code);
 if (!btn) return;
 const active = appLang === code;
 btn.className = active
-? 'py-2 px-2 rounded-xl text-[11px] font-extrabold bg-[#090d16] text-emerald-400 border border-transparent shadow-sm transition active:scale-95'
-: 'py-2 px-2 rounded-xl text-[11px] font-extrabold bg-slate-50 text-slate-700 border border-slate-200 transition active:scale-95';
+? 'py-1.5 px-2.5 rounded-xl text-[10.5px] font-extrabold bg-[#090d16] text-emerald-400 border border-transparent shadow-sm transition active:scale-95'
+: 'py-1.5 px-2.5 rounded-xl text-[10.5px] font-extrabold bg-slate-50 text-slate-700 border border-slate-200 transition active:scale-95';
 });
+}
+
+function syncI18nObserver() {
+const shell = document.getElementById('app-shell');
+if (!shell || typeof MutationObserver === 'undefined') return;
+if (appLang === 'tr') {
+if (i18nObserver) i18nObserver.disconnect();
+return;
+}
+if (!i18nObserver) {
+i18nObserver = new MutationObserver(() => {
+if (i18nApplying || appLang === 'tr' || isUserTypingInInput()) return;
+if (i18nRaf) cancelAnimationFrame(i18nRaf);
+i18nRaf = requestAnimationFrame(() => { if (!isUserTypingInInput()) applyAppLanguage(); });
+});
+}
+i18nObserver.disconnect();
+i18nObserver.observe(shell, { childList: true, subtree: true, characterData: true });
 }
 
 function setAppLanguage(lang) {
@@ -7124,6 +8418,7 @@ if (!['tr', 'en', 'ru'].includes(lang)) lang = 'tr';
 appLang = lang;
 try { localStorage.setItem(APP_LANG_KEY, lang); } catch (e) {}
 applyAppLanguage();
+syncI18nObserver();
 triggerCloudSave();
 const confirmMsgs = { tr: 'Dil: Türkçe', en: 'Language: English', ru: 'Язык: Русский' };
 showToast(confirmMsgs[lang]);
@@ -7135,20 +8430,144 @@ const saved = localStorage.getItem(APP_LANG_KEY);
 if (saved && ['tr', 'en', 'ru'].includes(saved)) appLang = saved;
 } catch (e) {}
 updateLangButtonsUI();
-if (!i18nObserver) {
-const shell = document.getElementById('app-shell');
-if (shell && typeof MutationObserver !== 'undefined') {
-i18nObserver = new MutationObserver(() => {
-if (i18nApplying || appLang === 'tr') return;
-if (i18nRaf) cancelAnimationFrame(i18nRaf);
-i18nRaf = requestAnimationFrame(() => applyAppLanguage());
-});
-i18nObserver.observe(shell, { childList: true, subtree: true, characterData: true });
-}
-}
+syncI18nObserver();
 if (appLang !== 'tr') applyAppLanguage();
 }
 // =====================================================================
+
+// =====================================================================
+// TÜM BOTTOM SHEET PENCERELER İÇİN SWIPE-TO-DISMISS & BACKDROP KAPATMA
+// =====================================================================
+function initBottomSheetSwipeDismiss() {
+const sheets = [
+['add-sheet-backdrop', closeAddSheet],
+['fx-settings-backdrop', closeFxCardSettings],
+['bank-fee-backdrop', closeBankFeeModal],
+['shared-pay-backdrop', closeSharedPayModal],
+['shared-iban-backdrop', closeIbanModal],
+['shared-edit-backdrop', closeSharedEditModal],
+['shared-shop-convert-backdrop', closeConvertShoppingModal],
+['shared-poll-backdrop', closePollModal],
+['shared-addgroup-backdrop', closeAddGroupModal],
+['shared-subview-backdrop', closeSharedSubview],
+['shared-layout-backdrop', closeSharedLayoutModal],
+['home-layout-backdrop', closeHomeLayoutModal],
+['settings-sheet-backdrop', closeSettingsSheet]
+];
+
+function findScrollableParent(target, stopAt) {
+let el = target;
+while (el && el !== stopAt) {
+const style = window.getComputedStyle(el);
+if ((style.overflowY === 'auto' || style.overflowY === 'scroll') && el.scrollHeight > el.clientHeight + 2) {
+return el;
+}
+el = el.parentElement;
+}
+return stopAt;
+}
+
+sheets.forEach(([id, closeFn]) => {
+const backdrop = document.getElementById(id);
+if (!backdrop || typeof closeFn !== 'function') return;
+const panel = backdrop.firstElementChild;
+if (!panel) return;
+
+if (!backdrop.getAttribute('onclick')) {
+backdrop.addEventListener('click', (e) => {
+if (e.target === backdrop) closeFn();
+});
+}
+
+let startY = 0;
+let startX = 0;
+let startTime = 0;
+let currentDy = 0;
+let tracking = false;
+let dragging = false;
+
+panel.addEventListener('touchstart', (e) => {
+if (e.touches.length !== 1) return;
+const target = e.target;
+if (target.closest('.home-layout-handle, .shared-layout-handle, input[type="range"]')) return;
+
+const panelRect = panel.getBoundingClientRect();
+const touchY = e.touches[0].clientY;
+const inTopHandleZone = (touchY - panelRect.top) <= 64;
+const scrollable = findScrollableParent(target, panel);
+const atTop = !scrollable || scrollable.scrollTop <= 2;
+
+if (!inTopHandleZone && !atTop) return;
+
+startY = touchY;
+startX = e.touches[0].clientX;
+startTime = Date.now();
+currentDy = 0;
+tracking = true;
+dragging = false;
+}, { passive: true });
+
+panel.addEventListener('touchmove', (e) => {
+if (!tracking || e.touches.length !== 1) return;
+const dy = e.touches[0].clientY - startY;
+const dx = Math.abs(e.touches[0].clientX - startX);
+
+if (!dragging) {
+if (dy < 8) {
+if (dy < -8) tracking = false;
+return;
+}
+if (dx > dy) {
+tracking = false;
+return;
+}
+dragging = true;
+panel.style.transition = 'none';
+}
+
+if (dragging) {
+currentDy = Math.max(0, dy);
+panel.style.transform = `translateY(${currentDy}px)`;
+backdrop.style.backgroundColor = `rgba(2, 6, 23, ${Math.max(0.08, 0.6 * (1 - currentDy / 420))})`;
+e.preventDefault();
+}
+}, { passive: false });
+
+function endSwipe() {
+if (!tracking) return;
+tracking = false;
+if (!dragging) return;
+dragging = false;
+
+const elapsed = Math.max(1, Date.now() - startTime);
+const velocity = currentDy / elapsed;
+const shouldClose = currentDy > 95 || (velocity > 0.45 && currentDy > 35);
+
+if (shouldClose) {
+panel.style.transition = 'transform 0.2s cubic-bezier(0.16, 1, 0.3, 1)';
+panel.style.transform = 'translateY(100%)';
+backdrop.style.backgroundColor = 'rgba(2, 6, 23, 0)';
+setTimeout(() => {
+closeFn();
+panel.style.transition = '';
+panel.style.transform = '';
+backdrop.style.backgroundColor = '';
+}, 190);
+} else {
+panel.style.transition = 'transform 0.22s cubic-bezier(0.16, 1, 0.3, 1)';
+panel.style.transform = 'translateY(0)';
+backdrop.style.backgroundColor = '';
+setTimeout(() => {
+panel.style.transition = '';
+panel.style.transform = '';
+}, 220);
+}
+}
+
+panel.addEventListener('touchend', endSwipe, { passive: true });
+panel.addEventListener('touchcancel', endSwipe, { passive: true });
+});
+}
 
 window.onload = function() {
 ensureDeviceVaultId();
@@ -7169,8 +8588,9 @@ updateFxCardUI();
 fetchLiveUsdRate();
 refreshShareToggleState();
 restoreSharedSession();
+initBottomSheetSwipeDismiss();
 document.addEventListener('visibilitychange', () => {
-if (!document.hidden && sharedState.userId) {
+if (!document.hidden && sharedState.userId && !isUserTypingInInput()) {
 refreshSharedData().catch(() => {});
 }
 });
