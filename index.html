@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Cüzdanım v34 — Kişisel Finans & Kart Asistanı</title>
+<title>Cüzdanım v35 — Kişisel Finans & Kart Asistanı</title>
 <meta name="theme-color" content="#eef2f8">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -5200,7 +5200,7 @@ const PD_CACHE_KEY = 'cuzdanim_pd_cache_v1';
 const PD_SEEN_KEY = 'cuzdanim_pd_seen_v1';
 let sharedState = {
 client: null, userId: null, groupId: null, groupName: 'Ortak Alan', inviteCode: '', displayName: '',
-groups: [], members: [], records: [], personalDebts: [], polls: [], shoppingItems: [], shoppingError: null, simplifiedDebts: [],
+groups: [], members: [], records: [], personalDebts: [], polls: [], shoppingItems: [], shoppingError: null, simplifiedDebts: [], simplifiedDebtsLoaded: false, directDebts: [], directDebtsLoaded: false, directDebtsSqlNeeded: false, simplifiedMode: 'direct',
 analyticsPeriod: 'month', activeSubview: null, _subviewHtml: {}, _chartPayload: null, groupCreatorId: null,
 historyFilterPerson: 'ALL',
 channel: null, personalChannel: null, busy: false, loading: false, pollTimer: null
@@ -5284,6 +5284,10 @@ sharedState.polls = [];
 sharedState.shoppingItems = [];
 sharedState.shoppingError = null;
 sharedState.simplifiedDebts = [];
+sharedState.simplifiedDebtsLoaded = false;
+sharedState.directDebts = [];
+sharedState.directDebtsLoaded = false;
+sharedState.directDebtsSqlNeeded = false;
 sharedState.groupCreatorId = null;
 saveSharedMeta();
 }
@@ -5350,11 +5354,12 @@ async function refreshSharedData() {
 const client = getSharedClient();
 if (!client || !sharedState.groupId) { await refreshPersonalDebts(); return; }
 const gid = sharedState.groupId;
-const [memRes, recRes, pollRes, simpRes, shopRes, grpMetaRes] = await Promise.all([
+const [memRes, recRes, pollRes, simpRes, dirRes, shopRes, grpMetaRes] = await Promise.all([
 client.from('shared_members').select('*').eq('group_id', gid).order('joined_at', { ascending: true }),
 client.from('shared_records').select('*').eq('group_id', gid).order('record_date', { ascending: false }).order('created_at', { ascending: false }).limit(200),
 client.from('shared_polls').select('*').eq('group_id', gid).order('created_at', { ascending: false }).limit(30),
 client.rpc('get_group_simplified_debts', { p_group_id: gid }),
+client.rpc('get_group_direct_debts', { p_group_id: gid }),
 client.from('shared_shopping_items').select('*').eq('group_id', gid).order('is_checked', { ascending: true }).order('created_at', { ascending: false }).limit(150),
 client.from('shared_groups').select('created_by').eq('id', gid).maybeSingle()
 ]);
@@ -5366,7 +5371,11 @@ sharedState.groupCreatorId = (grpMetaRes && !grpMetaRes.error && grpMetaRes.data
 : (sharedState.members.length > 0 ? sharedState.members[0].user_id : null);
 sharedState.records = recRes.data || [];
 sharedState.polls = (!pollRes.error && Array.isArray(pollRes.data)) ? pollRes.data : [];
-sharedState.simplifiedDebts = (!simpRes.error && Array.isArray(simpRes.data)) ? simpRes.data : [];
+sharedState.simplifiedDebtsLoaded = (!simpRes.error && Array.isArray(simpRes.data));
+sharedState.simplifiedDebts = sharedState.simplifiedDebtsLoaded ? simpRes.data : [];
+sharedState.directDebtsLoaded = (!dirRes.error && Array.isArray(dirRes.data));
+sharedState.directDebts = sharedState.directDebtsLoaded ? dirRes.data : [];
+sharedState.directDebtsSqlNeeded = !!(dirRes.error && /does not exist|schema cache/i.test(dirRes.error.message || ''));
 sharedState.shoppingError = shopRes.error ? shopRes.error.message : null;
 sharedState.shoppingItems = (!shopRes.error && Array.isArray(shopRes.data)) ? shopRes.data : [];
 await refreshPersonalDebts(true);
@@ -6123,12 +6132,17 @@ showToast(sharedErrText(err));
 });
 }
 function setHistoryFilterPerson(val) { sharedState.historyFilterPerson = val || 'ALL'; renderSharedSpace(); }
+function setNetPlanMode(mode) {
+sharedState.simplifiedMode = mode === 'cross' ? 'cross' : 'direct';
+renderSharedSpace();
+}
 function copySimplifiedSettlementSummary() {
 const list = getSimplifiedSettlementList();
 if (!list.length) return showToast('Ödenecek net borç yok');
-const lines = [`📊 ${sharedState.groupName} — Net Hesaplaşma Planı:`];
+const isCross = sharedState.simplifiedMode === 'cross';
+const lines = [`📊 ${sharedState.groupName} — ${isCross ? 'Çaprazlaştırılmış Net Plan' : 'Ortak Borç Özeti'}:`];
 list.forEach(s => lines.push(`• ${s.from_name} → ${s.to_name}: ${formatCurrency(s.amount)}`));
-copyTextToClipboard(lines.join('\n'), 'Net hesaplaşma özeti kopyalandı');
+copyTextToClipboard(lines.join('\n'), isCross ? 'Çaprazlaştırılmış özet kopyalandı' : 'Ortak borç özeti kopyalandı');
 }
 const PRIVATE_DEBT_SQL_SNIPPET = `alter table public.shared_personal_debts
   add column if not exists is_private boolean not null default false,
@@ -6342,6 +6356,71 @@ begin
 end;
 $$;
 grant execute on function public.add_private_member_debt(uuid, uuid, text, text, numeric, text, date) to authenticated, anon;
+
+drop function if exists public.get_group_direct_debts(uuid);
+create or replace function public.get_group_direct_debts(
+  p_group_id uuid
+) returns table (
+  from_user_id uuid,
+  from_name text,
+  to_user_id uuid,
+  to_name text,
+  amount numeric
+)
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if auth.uid() is null then
+    return;
+  end if;
+  if not exists (
+    select 1 from public.shared_members m
+    where m.group_id = p_group_id and m.user_id = auth.uid()
+  ) then
+    return;
+  end if;
+
+  return query
+  with pair_rows as (
+    select
+      case when d.debtor_id < d.creditor_id then d.debtor_id else d.creditor_id end as u1,
+      case when d.debtor_id < d.creditor_id then d.creditor_id else d.debtor_id end as u2,
+      case when d.debtor_id < d.creditor_id then d.debtor_name else d.creditor_name end as u1_name,
+      case when d.debtor_id < d.creditor_id then d.creditor_name else d.debtor_name end as u2_name,
+      case when d.debtor_id < d.creditor_id then d.amount::numeric else -d.amount::numeric end as u1_owes_u2
+    from public.shared_personal_debts d
+    where d.group_id = p_group_id
+      and d.status = 'open'
+      and coalesce(d.is_private, false) = false
+      and coalesce(d.expense_source, '') not like 'priv-%'
+      and d.debtor_id is distinct from d.creditor_id
+  ),
+  pair_nets as (
+    select
+      p.u1,
+      p.u2,
+      coalesce(max(m1.display_name), max(p.u1_name), 'Üye') as name1,
+      coalesce(max(m2.display_name), max(p.u2_name), 'Üye') as name2,
+      round(sum(p.u1_owes_u2), 2) as net_u1_owes_u2
+    from pair_rows p
+    left join public.shared_members m1 on m1.group_id = p_group_id and m1.user_id = p.u1
+    left join public.shared_members m2 on m2.group_id = p_group_id and m2.user_id = p.u2
+    group by p.u1, p.u2
+  )
+  select
+    case when pn.net_u1_owes_u2 > 0 then pn.u1 else pn.u2 end as from_user_id,
+    case when pn.net_u1_owes_u2 > 0 then pn.name1 else pn.name2 end as from_name,
+    case when pn.net_u1_owes_u2 > 0 then pn.u2 else pn.u1 end as to_user_id,
+    case when pn.net_u1_owes_u2 > 0 then pn.name2 else pn.name1 end as to_name,
+    abs(pn.net_u1_owes_u2) as amount
+  from pair_nets pn
+  where abs(pn.net_u1_owes_u2) > 0.01
+  order by abs(pn.net_u1_owes_u2) desc, from_name asc;
+end;
+$$;
+grant execute on function public.get_group_direct_debts(uuid) to authenticated, anon;
 notify pgrst, 'reload schema';`;
 
 function copyPrivateDebtSql() {
@@ -6424,25 +6503,36 @@ note.textContent = `"${sharedState.groupName}" ortak listesine düşer; borç pa
 note.className = 'text-[10px] text-sky-700';
 }
 }
-function getSimplifiedSettlementList() {
-if (Array.isArray(sharedState.simplifiedDebts) && sharedState.simplifiedDebts.length > 0) return sharedState.simplifiedDebts;
+function getDirectFallbackList() {
 const uid = sharedState.userId;
+const gid = sharedState.groupId;
 if (!uid) return [];
 const map = {};
-(sharedState.personalDebts || []).filter(r => r.status === 'open' && !isPrivatePersonalDebt(r)).forEach(r => {
+(sharedState.personalDebts || []).filter(r => r.status === 'open' && !isPrivatePersonalDebt(r) && (!gid || !r.group_id || r.group_id === gid)).forEach(r => {
 const iAmDebtor = r.debtor_id === uid;
+const iAmCreditor = r.creditor_id === uid;
+if (!iAmDebtor && !iAmCreditor) return;
 const otherId = iAmDebtor ? r.creditor_id : r.debtor_id;
 const otherName = iAmDebtor ? r.creditor_name : r.debtor_name;
 if (!map[otherId]) map[otherId] = { otherId, otherName, net: 0 };
 map[otherId].net += iAmDebtor ? -Number(r.amount) : Number(r.amount);
 });
-return Object.values(map).filter(x => Math.abs(x.net) > 0.01).map(x => ({
+return Object.values(map).filter(x => Math.abs(x.net) > 0.01).sort((a, b) => Math.abs(b.net) - Math.abs(a.net)).map(x => ({
 from_user_id: x.net < 0 ? uid : x.otherId,
 to_user_id: x.net < 0 ? x.otherId : uid,
 from_name: x.net < 0 ? (sharedState.displayName || 'Sen') : x.otherName,
 to_name: x.net < 0 ? x.otherName : (sharedState.displayName || 'Sen'),
-amount: Math.abs(x.net)
+amount: Math.round(Math.abs(x.net) * 100) / 100
 }));
+}
+function getSimplifiedSettlementList() {
+const isCross = sharedState.simplifiedMode === 'cross';
+if (isCross) {
+if (sharedState.simplifiedDebtsLoaded) return sharedState.simplifiedDebts || [];
+return getDirectFallbackList();
+}
+if (sharedState.directDebtsLoaded) return sharedState.directDebts || [];
+return getDirectFallbackList();
 }
 function getLocalPrivateDebtMap() {
 const map = {};
@@ -7519,15 +7609,30 @@ ${extraGroupPrivateDebts.map(x => `
 const privateNoteHtml = hasAnyPrivateOverlay
 ? `<p class="text-[9.5px] text-slate-400"><i class="fa-solid fa-shield-halved text-emerald-500 mr-1"></i>Özel borçlar yalnızca ilgili 2 kişinin ekranında görünür; gruptaki 3. kişiler göremez ve "Özeti Kopyala" metnine eklenmez.</p>`
 : '';
+const isCrossMode = sharedState.simplifiedMode === 'cross';
+const directSqlHintHtml = (!isCrossMode && sharedState.directDebtsSqlNeeded) ? `
+<div class="flex items-center justify-between gap-2 bg-sky-50/80 border border-sky-200/80 rounded-xl px-2.5 py-1.5">
+<span class="text-[9.5px] font-semibold text-sky-800">Tüm grubun çaprazlaştırmasız borçlarını görmek için yeni SQL kodunu çalıştır.</span>
+<button type="button" onclick="copyPrivateDebtSql()" class="px-2 py-1 rounded-lg bg-sky-600 text-white text-[9.5px] font-extrabold shrink-0 active:scale-95">SQL Kopyala</button>
+</div>` : '';
 const simplifiedHtml = `
 <div class="neo-card rounded-[24px] p-4 space-y-2.5">
-<div class="flex items-center justify-between">
-<div>
-<h4 class="text-xs font-extrabold text-slate-900"><i class="fa-solid fa-wand-magic-sparkles text-emerald-600 mr-1.5"></i>Net Hesaplaşma Planı</h4>
-<p class="text-[10px] text-slate-400">En az transferle sadeleştirilmiş özet</p>
+<div class="flex items-center justify-between gap-2">
+<div class="min-w-0">
+<h4 class="text-xs font-extrabold text-slate-900"><i class="fa-solid ${isCrossMode ? 'fa-wand-magic-sparkles' : 'fa-people-arrows'} text-emerald-600 mr-1.5"></i>Net Hesaplaşma Planı</h4>
+<p class="text-[10px] text-slate-400">${isCrossMode ? 'En az transferle çaprazlaştırılmış özet' : 'Çaprazlaştırmadan kişi bazlı ortak borçlar'}</p>
 </div>
-${simpList.length ? `<button type="button" onclick="copySimplifiedSettlementSummary()" class="px-2.5 py-1 rounded-xl bg-slate-100 text-slate-700 text-[10px] font-bold active:scale-95"><i class="fa-solid fa-copy mr-1"></i>Özeti Kopyala</button>` : ''}
+${simpList.length ? `<button type="button" onclick="copySimplifiedSettlementSummary()" class="px-2.5 py-1 rounded-xl bg-slate-100 text-slate-700 text-[10px] font-bold shrink-0 active:scale-95"><i class="fa-solid fa-copy mr-1"></i>Özeti Kopyala</button>` : ''}
 </div>
+<div class="grid grid-cols-2 gap-1.5 p-1 bg-slate-100 rounded-xl">
+<button type="button" onclick="setNetPlanMode('direct')" class="py-1.5 px-2 rounded-lg text-[10.5px] font-extrabold transition flex items-center justify-center gap-1 ${!isCrossMode ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500'}">
+<i class="fa-solid fa-people-arrows text-[9.5px] ${!isCrossMode ? 'text-emerald-600' : ''}"></i> Normal (Kişi Bazlı)
+</button>
+<button type="button" onclick="setNetPlanMode('cross')" class="py-1.5 px-2 rounded-lg text-[10.5px] font-extrabold transition flex items-center justify-center gap-1 ${isCrossMode ? 'bg-[#090d16] text-emerald-400 shadow-sm' : 'text-slate-500'}">
+<i class="fa-solid fa-wand-magic-sparkles text-[9.5px]"></i> Çaprazlaştır
+</button>
+</div>
+${directSqlHintHtml}
 ${simpList.length === 0
 ? `<p class="text-[11px] text-slate-400 text-center py-2">Herkes hesaplaşmış görünüyor 🎉</p>`
 : `<div class="space-y-1.5">${simpRowsHtml}</div>`}
