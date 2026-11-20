@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Cüzdanım v31 — Kişisel Finans & Kart Asistanı</title>
+<title>Cüzdanım v33 — Kişisel Finans & Kart Asistanı</title>
 <meta name="theme-color" content="#eef2f8">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1274,7 +1274,7 @@ body:has(#app-shell.night-mode[data-night-theme="titanium"]){background:radial-g
 </div>
 <div class="bg-slate-50 rounded-2xl p-2.5 border border-slate-200/70 space-y-2">
 <div class="grid grid-cols-12 gap-1.5">
-<input type="text" id="debt-person" placeholder="Kişi adı" class="col-span-5 px-2.5 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-slate-900">
+<input type="text" id="debt-person" placeholder="Kişi adı" oninput="syncDebtPrivateHint()" class="col-span-5 px-2.5 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-slate-900">
 <input type="number" inputmode="decimal" step="0.01" id="debt-amount" placeholder="Tutar ₺" class="col-span-3 px-2.5 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:ring-2 focus:ring-slate-900">
 <select id="debt-type" class="col-span-4 px-2 py-2 bg-white border border-slate-200 rounded-xl text-[10px] font-bold">
 <option value="receivable">Alacağım (+)</option>
@@ -1286,6 +1286,20 @@ body:has(#app-shell.night-mode[data-night-theme="titanium"]){background:radial-g
 <button onclick="addDebtRecord()" class="col-span-4 py-2 bg-[#090d16] hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition flex items-center justify-center gap-1 active:scale-95">
 <i class="fa-solid fa-plus text-[10px]"></i> Kaydet
 </button>
+</div>
+<div id="debt-private-sync-row" class="hidden pt-1.5 border-t border-slate-200/70 space-y-1.5">
+<label class="flex items-center gap-2 cursor-pointer select-none">
+<input type="checkbox" id="debt-private-sync-cb" onchange="toggleDebtPrivateMemberSelect()" class="w-3.5 h-3.5 accent-amber-600 rounded shrink-0">
+<span id="debt-private-sync-label" class="text-[10px] font-extrabold text-amber-800"><i class="fa-solid fa-lock text-[9px] mr-1"></i>Grup üyesine özel gönder (sadece 2 kişi görür, 3. kişiler görmez)</span>
+</label>
+<div id="debt-private-member-wrap" class="hidden grid grid-cols-12 gap-1.5">
+<select id="debt-private-member" onchange="applyDebtPrivateMemberSelection()" class="col-span-7 px-2.5 py-1.5 bg-white border border-amber-200 rounded-xl text-[11px] font-bold"></select>
+<input type="text" id="debt-private-note" maxlength="50" placeholder="Not (isteğe bağlı)" class="col-span-5 px-2.5 py-1.5 bg-white border border-slate-200 rounded-xl text-[11px] font-medium">
+</div>
+<div id="debt-private-sql-hint" class="hidden flex items-center justify-between gap-2 bg-rose-50/80 border border-rose-200/80 rounded-xl px-2.5 py-1.5">
+<span class="text-[9.5px] font-semibold text-rose-700">2 kişilik özel borç için Supabase SQL kodu gerekli.</span>
+<button type="button" onclick="copyPrivateDebtSql()" class="px-2 py-1 rounded-lg bg-rose-600 text-white text-[9.5px] font-extrabold shrink-0 active:scale-95">SQL Kopyala</button>
+</div>
 </div>
 </div>
 <div id="debt-list" class="space-y-2 max-h-64 overflow-y-auto pr-0.5"></div>
@@ -1856,6 +1870,10 @@ class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs
 </div>
 <div id="tx-share-group-panel" class="hidden bg-sky-50/70 border border-sky-200/80 rounded-2xl p-3 space-y-2">
 <div id="tx-share-group-tabs" class="space-y-1.5"></div>
+<label id="tx-share-private-wrap" class="flex items-center gap-2 bg-white/85 border border-amber-200/80 rounded-xl px-2.5 py-1.5 cursor-pointer">
+<input type="checkbox" id="tx-share-private-only" onchange="updateSharePrivateNote()" class="w-3.5 h-3.5 accent-amber-600 rounded shrink-0">
+<span class="text-[10px] font-extrabold text-amber-800"><i class="fa-solid fa-lock text-[9px] mr-1"></i>Sadece seçili kişilere özel (Ortak Kayıtlar & 3. kişiler görmez)</span>
+</label>
 <p id="tx-share-group-note" class="text-[10px] text-sky-700">Gider herkesin ortak listesine düşer; borç payları SADECE ilgili kişinin defterine görünür.</p>
 <div id="tx-receipt-box" class="hidden pt-2 border-t border-sky-200/70 flex items-center justify-between gap-2">
 <label class="px-2.5 py-1.5 rounded-lg bg-white border border-sky-200 text-sky-700 text-[10px] font-bold cursor-pointer flex items-center gap-1.5 active:scale-95 transition">
@@ -2956,7 +2974,17 @@ function addDebtRecord() {
 const personEl = document.getElementById('debt-person');
 const amountEl = document.getElementById('debt-amount');
 const typeEl = document.getElementById('debt-type');
-const person = personEl.value.trim();
+const privCb = document.getElementById('debt-private-sync-cb');
+const privSel = document.getElementById('debt-private-member');
+const privNoteEl = document.getElementById('debt-private-note');
+const wantPrivateSync = !!(privCb && privCb.checked && sharedState.groupId && privSel && privSel.value);
+let person = personEl.value.trim();
+let targetMember = null;
+if (wantPrivateSync) {
+targetMember = getMemberByUserId(privSel.value);
+if (!targetMember) { showToast('Geçerli bir grup üyesi seçin'); return; }
+if (!person) person = targetMember.display_name || '';
+}
 const amount = parseFloat(amountEl.value);
 const type = typeEl.value;
 if (!person || isNaN(amount) || amount <= 0) { showToast('İsim ve geçerli bir tutar girin'); return; }
@@ -2967,6 +2995,31 @@ if (type === 'receivable') {
 transactions.unshift({ id: recordId + 1, type: 'expense', title: `Verilen Borç: ${person}`, amount, category: 'other_exp', paymentMethod: account?.name || 'Nakit Cüzdan', accountId: account?.id || null, currency: 'TRY', originalAmount: amount, exchangeRate: 1, date: getTodayOffset(0), recurring: false, debtRecordId: recordId });
 } else {
 transactions.unshift({ id: recordId + 1, type: 'income', title: `Alınan Borç: ${person}`, amount, category: 'other_inc', paymentMethod: account?.name || 'Nakit Cüzdan', accountId: account?.id || null, currency: 'TRY', originalAmount: amount, exchangeRate: 1, date: getTodayOffset(0), recurring: false, debtRecordId: recordId });
+}
+if (wantPrivateSync && targetMember) {
+const privNote = (privNoteEl && privNoteEl.value.trim()) || (type === 'receivable' ? 'Özel Alacak' : 'Özel Borç');
+personEl.value = ''; amountEl.value = '';
+if (privNoteEl) privNoteEl.value = '';
+privCb.checked = false;
+toggleDebtPrivateMemberSelect();
+updateUI(); triggerCloudSave();
+addPrivateMemberDebtRemote(targetMember.user_id, targetMember.display_name || person, type, amount, privNote)
+.then(() => {
+showToast(`🔒 ${targetMember.display_name} ile özel borç kaydedildi (3. kişiler görmez)`);
+return refreshSharedData();
+})
+.catch(err => {
+debts.unshift({ id: recordId, person: privNote ? `${person} (${privNote})` : person, amount, type, source: type === 'receivable' ? 'loan' : 'borrowed', accountId: account?.id || null });
+if (/does not exist|schema cache/i.test((err && err.message) || '')) {
+const hint = document.getElementById('debt-private-sql-hint');
+if (hint) hint.classList.remove('hidden');
+showToast('Yerel deftere eklendi • 2 kişilik senkron için SQL kodunu çalıştır');
+} else {
+showToast('Yerel deftere eklendi • Senkron hatası: ' + sharedErrText(err));
+}
+renderDebts(); updateUI(); triggerCloudSave();
+});
+return;
 }
 debts.unshift({ id: recordId, person, amount, type, source: type === 'receivable' ? 'loan' : 'borrowed', accountId: account?.id || null });
 personEl.value = ''; amountEl.value = '';
@@ -3047,6 +3100,7 @@ const selected = accountSelect.value || 'cash-try';
 accountSelect.innerHTML = accounts.map(a => `<option value="${a.id}">${a.name} (${a.currency})</option>`).join('');
 accountSelect.value = accounts.some(a => a.id === selected) ? selected : (accounts[0]?.id || '');
 }
+refreshDebtPrivateSyncUI();
 const remoteItems = getPersonalLedgerItems();
 let totalRec = 0, totalPay = 0;
 debts.forEach(d => { if (d.type === 'receivable') totalRec += d.amount; else totalPay += d.amount; });
@@ -3106,8 +3160,8 @@ actionHtml = `<button onclick="settlePersonalDebtAction('${item.pdId}')" class="
 return `
 <div class="flex items-center justify-between bg-white px-2.5 py-2 rounded-xl border ${!item.iAmDebtor && item.pdStatus === 'paid_pending' ? 'border-emerald-300 bg-emerald-50/40' : 'border-slate-200/70'}">
 <div class="min-w-0 pr-2">
-<p class="text-[11px] font-bold text-slate-700 truncate"><i class="fa-solid fa-link text-[8px] text-sky-500 mr-1" title="Ortak Alan"></i>${escHtml(item.note || 'Ortak harcama')}</p>
-<p class="text-[10px] ${isRec ? 'text-emerald-600' : 'text-rose-600'} font-semibold">${isRec ? 'Gelecek' : 'Verecek'}: ${formatCurrency(item.amount)} • Ortak 🔗</p>
+<p class="text-[11px] font-bold text-slate-700 truncate">${item.isPrivate ? '<i class="fa-solid fa-lock text-[8px] text-amber-600 mr-1" title="Sadece 2 Kişiye Özel"></i>' : '<i class="fa-solid fa-link text-[8px] text-sky-500 mr-1" title="Ortak Alan"></i>'}${escHtml(item.note || (item.isPrivate ? 'Özel borç' : 'Ortak harcama'))}</p>
+<p class="text-[10px] ${isRec ? 'text-emerald-600' : 'text-rose-600'} font-semibold">${isRec ? 'Gelecek' : 'Verecek'}: ${formatCurrency(item.amount)} • ${item.isPrivate ? '2 Kişi Özel 🔒' : 'Ortak 🔗'}</p>
 </div>
 <div class="flex items-center gap-1.5 shrink-0">${statusHtml}${actionHtml}</div>
 </div>`;
@@ -3665,6 +3719,8 @@ document.getElementById('tx-is-shared-debt').checked = false;
 const spCheck = document.getElementById('tx-is-split-pay');
 if (spCheck) { spCheck.checked = false; toggleSplitPayFields(); }
 document.getElementById('tx-share-to-group').checked = false;
+const privOnlyOpen = document.getElementById('tx-share-private-only');
+if (privOnlyOpen) privOnlyOpen.checked = false;
 clearTxReceipt();
 const rbReset = document.getElementById('tx-receipt-box'); if (rbReset) rbReset.classList.add('hidden');
 const sgPanelReset = document.getElementById('tx-share-group-panel'); if (sgPanelReset) sgPanelReset.classList.add('hidden');
@@ -4347,6 +4403,7 @@ if (!(posCharge.totalUsd > 0)) { showToast('İşlem bilgilerini kontrol edin'); 
 const recurring = document.getElementById('tx-recurring').checked;
 const isSharedDebt = type === 'expense' && document.getElementById('tx-is-shared-debt').checked;
 const shareChecked = type === 'expense' && document.getElementById('tx-share-to-group').checked;
+const sharePrivateOnly = shareChecked && !!(document.getElementById('tx-share-private-only')?.checked);
 if (shareChecked && !sharedState.groupId) {
 showToast('Henüz ortak grubun yok — önce Ortak Alan\'dan grup oluştur veya katıl');
 return;
@@ -4355,6 +4412,10 @@ let sharedEntries = [];
 if (isSharedDebt) {
 sharedEntries = collectSplitEntries();
 if (!sharedEntries) return;
+}
+if (sharePrivateOnly && !sharedEntries.some(en => en.debtorId)) {
+showToast('2 kişilik özel borç için Bölüştür kısmından en az 1 grup üyesi seç');
+return;
 }
 if (isSplitPay) {
 const acc2Id = document.getElementById('tx-split-account2').value;
@@ -4438,7 +4499,7 @@ showToast(`Parçalı ödeme kaydedildi (${builtRecords[0].paymentMethod} + ${bui
 if (shareChecked) {
 const totalCombinedTry = builtRecords.reduce((s, r) => s + r.amount, 0);
 const combinedForShare = { ...primarySavedTx, title, amount: totalCombinedTry, originalAmount: enteredAmount, paymentMethod: `${builtRecords[0].paymentMethod} + ${builtRecords[1].paymentMethod}` };
-handleGroupShareAfterSave(combinedForShare, true, sharedEntries);
+handleGroupShareAfterSave(combinedForShare, true, sharedEntries, sharePrivateOnly);
 }
 return;
 }
@@ -4488,7 +4549,7 @@ showToast('POS harcaması geri alındı');
 } else {
 showToast(isSharedDebt ? `Gider kaydedildi • ${sharedEntries.length} kişiye bölüştürüldü` : (posCharge ? `${posCard.name}: -${formatUsd(posCharge.totalUsd)} (kom. dahil)` : 'İşlem kaydedildi'));
 }
-if (type === 'expense' && savedTx) handleGroupShareAfterSave(savedTx, shareChecked, sharedEntries);
+if (type === 'expense' && savedTx) handleGroupShareAfterSave(savedTx, shareChecked, sharedEntries, sharePrivateOnly);
 });
 
 function editTransaction(id) {
@@ -4536,6 +4597,8 @@ document.getElementById('tx-category').value = tx.category || '';
 if (tx.type === 'expense') {
 const splits = Array.isArray(tx.splits) ? tx.splits : [];
 document.getElementById('tx-share-to-group').checked = !!tx.sharedToGroup;
+const privOnlyEdit = document.getElementById('tx-share-private-only');
+if (privOnlyEdit) privOnlyEdit.checked = !!tx.sharedPrivateOnly;
 document.getElementById('tx-is-shared-debt').checked = splits.length > 0;
 const listEl = document.getElementById('tx-shared-people-list');
 if (listEl) listEl.innerHTML = '';
@@ -4572,7 +4635,7 @@ transactions = transactions.filter(t => t.id !== id);
 debts = debts.filter(d => d.sharedTxId !== id);
 if (tx && tx.sharedToGroup && sharedState.groupId) {
 removeSharedRecordsForTx(id).catch(() => {});
-cancelPersonalDebtsRemote(id).catch(() => {});
+cancelPersonalDebtsRemote(id, !!tx.sharedPrivateOnly).catch(() => {});
 setTimeout(() => { refreshSharedData().catch(() => {}); }, 600);
 }
 updateUI(); updateFxCardUI(); triggerCloudSave();
@@ -5636,12 +5699,13 @@ const { error } = await client.from('shared_records').upsert([row], { onConflict
 if (error) throw error;
 clearTxReceipt();
 }
-async function syncPersonalDebtsRemote(tx, memberSplits) {
+async function syncPersonalDebtsRemote(tx, memberSplits, isPrivate = false) {
 const client = getSharedClient();
 if (!client || !sharedState.groupId) return;
 await ensureSharedAuth();
+const srcPrefix = isPrivate ? 'priv-tx-' : 'tx-';
 const params = {
-p_expense_source: 'tx-' + tx.id,
+p_expense_source: srcPrefix + tx.id,
 p_title: tx.title,
 p_category: tx.category || null,
 p_expense_date: tx.date,
@@ -5655,10 +5719,13 @@ res = await client.rpc('sync_personal_debts', params);
 }
 if (res.error) throw res.error;
 }
-async function cancelPersonalDebtsRemote(txId) {
+async function cancelPersonalDebtsRemote(txId, isPrivate = false) {
 const client = getSharedClient();
 if (!client || !sharedState.userId) return;
-await client.rpc('cancel_personal_debts', { p_expense_source: 'tx-' + txId });
+await client.rpc('cancel_personal_debts', { p_expense_source: (isPrivate ? 'priv-tx-' : 'tx-') + txId });
+if (isPrivate) {
+await client.rpc('cancel_personal_debts', { p_expense_source: 'tx-' + txId }).catch(() => {});
+}
 }
 async function removeSharedRecordsForTx(txId) {
 const client = getSharedClient();
@@ -5667,15 +5734,17 @@ const base = 'tx-' + txId;
 await client.from('shared_records').delete().eq('group_id', sharedState.groupId).eq('created_by', sharedState.userId).eq('source_local_id', base);
 await client.from('shared_records').delete().eq('group_id', sharedState.groupId).eq('created_by', sharedState.userId).like('source_local_id', base + '-d%');
 }
-function handleGroupShareAfterSave(tx, wantShare, entries) {
+function handleGroupShareAfterSave(tx, wantShare, entries, isPrivateOnly = false) {
 if (!wantShare) {
 if (tx.sharedToGroup) {
+const wasPriv = !!tx.sharedPrivateOnly;
 tx.sharedToGroup = false;
+tx.sharedPrivateOnly = false;
 tx.splits = (entries || []).map(en => ({ person: en.person, debtorId: null, amount: en.amount }));
 triggerCloudSave();
 if (sharedState.groupId) {
 removeSharedRecordsForTx(tx.id).catch(() => {});
-cancelPersonalDebtsRemote(tx.id).catch(() => {});
+cancelPersonalDebtsRemote(tx.id, wasPriv).catch(() => {});
 setTimeout(() => refreshPersonalDebts().catch(() => {}), 600);
 }
 } else if (entries && entries.length) {
@@ -5686,11 +5755,24 @@ return;
 }
 if (!sharedState.groupId) return;
 tx.sharedToGroup = true;
+tx.sharedPrivateOnly = !!isPrivateOnly;
 tx.splits = (entries || []).map(en => ({ person: en.person, debtorId: en.debtorId || null, amount: en.amount }));
 triggerCloudSave();
 const memberSplits = (entries || []).filter(en => en.debtorId);
+if (isPrivateOnly) {
+removeSharedRecordsForTx(tx.id).catch(() => {});
+cancelPersonalDebtsRemote(tx.id, false).catch(() => {});
+syncPersonalDebtsRemote(tx, memberSplits, true)
+.then(() => {
+showToast(`🔒 ${memberSplits.length} kişiye özel borç yazıldı (3. kişiler görmez)`);
+refreshSharedData().catch(() => {});
+})
+.catch(err => showToast('Özel borç senkronu başarısız: ' + sharedErrText(err)));
+return;
+}
+cancelPersonalDebtsRemote(tx.id, true).catch(() => {});
 shareExpenseToGroup(tx, entries || [])
-.then(() => syncPersonalDebtsRemote(tx, memberSplits))
+.then(() => syncPersonalDebtsRemote(tx, memberSplits, false))
 .then(() => {
 showToast(memberSplits.length ? `Ortak Alan'a paylaşıldı • ${memberSplits.length} üyeye borç yazıldı` : "Ortak Alan'a paylaşıldı");
 refreshSharedData().catch(() => {});
@@ -5803,7 +5885,7 @@ return (sharedState.personalDebts || [])
 .map(r => {
 const iAmDebtor = r.debtor_id === uid;
 return {
-id: 'pd:' + r.id, remote: true, pdId: r.id, pdStatus: r.status, iAmDebtor,
+id: 'pd:' + r.id, remote: true, pdId: r.id, pdStatus: r.status, iAmDebtor, isPrivate: isPrivatePersonalDebt(r),
 person: iAmDebtor ? r.creditor_name : r.debtor_name, note: r.title,
 amount: Number(r.amount), type: iAmDebtor ? 'payable' : 'receivable', source: 'personal'
 };
@@ -6047,23 +6129,372 @@ const lines = [`📊 ${sharedState.groupName} — Net Hesaplaşma Planı:`];
 list.forEach(s => lines.push(`• ${s.from_name} → ${s.to_name}: ${formatCurrency(s.amount)}`));
 copyTextToClipboard(lines.join('\n'), 'Net hesaplaşma özeti kopyalandı');
 }
+const PRIVATE_DEBT_SQL_SNIPPET = `alter table public.shared_personal_debts
+  add column if not exists is_private boolean not null default false;
+
+drop function if exists public.get_group_simplified_debts(uuid);
+create or replace function public.get_group_simplified_debts(
+  p_group_id uuid
+) returns table (
+  from_user_id uuid,
+  from_name text,
+  to_user_id uuid,
+  to_name text,
+  amount numeric
+)
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_d_ids uuid[] := array[]::uuid[];
+  v_d_names text[] := array[]::text[];
+  v_d_amts numeric[] := array[]::numeric[];
+  v_c_ids uuid[] := array[]::uuid[];
+  v_c_names text[] := array[]::text[];
+  v_c_amts numeric[] := array[]::numeric[];
+  r record;
+  i int := 1;
+  j int := 1;
+  v_pay numeric;
+  v_guard int := 0;
+begin
+  if auth.uid() is null then
+    return;
+  end if;
+  if not exists (
+    select 1 from public.shared_members m
+    where m.group_id = p_group_id and m.user_id = auth.uid()
+  ) then
+    return;
+  end if;
+
+  for r in
+    with raw_edges as (
+      select d.debtor_id as uid, d.debtor_name as uname, -d.amount::numeric as delta
+      from public.shared_personal_debts d
+      where d.group_id = p_group_id
+        and d.status = 'open'
+        and coalesce(d.is_private, false) = false
+        and coalesce(d.expense_source, '') not like 'priv-%'
+      union all
+      select d.creditor_id as uid, d.creditor_name as uname, d.amount::numeric as delta
+      from public.shared_personal_debts d
+      where d.group_id = p_group_id
+        and d.status = 'open'
+        and coalesce(d.is_private, false) = false
+        and coalesce(d.expense_source, '') not like 'priv-%'
+    ),
+    nets as (
+      select
+        e.uid,
+        coalesce(max(m.display_name), max(e.uname), 'Üye') as display_name,
+        round(sum(e.delta), 2) as net_amt
+      from raw_edges e
+      left join public.shared_members m
+        on m.group_id = p_group_id and m.user_id = e.uid
+      group by e.uid
+    )
+    select uid, display_name, net_amt
+    from nets
+    where abs(net_amt) > 0.01
+    order by abs(net_amt) desc, display_name asc
+  loop
+    if r.net_amt < -0.01 then
+      v_d_ids := array_append(v_d_ids, r.uid);
+      v_d_names := array_append(v_d_names, r.display_name);
+      v_d_amts := array_append(v_d_amts, abs(r.net_amt));
+    elsif r.net_amt > 0.01 then
+      v_c_ids := array_append(v_c_ids, r.uid);
+      v_c_names := array_append(v_c_names, r.display_name);
+      v_c_amts := array_append(v_c_amts, r.net_amt);
+    end if;
+  end loop;
+
+  while i <= coalesce(array_length(v_d_ids, 1), 0)
+    and j <= coalesce(array_length(v_c_ids, 1), 0)
+  loop
+    v_guard := v_guard + 1;
+    exit when v_guard > 200;
+    v_pay := least(v_d_amts[i], v_c_amts[j]);
+    if v_pay > 0.01 then
+      from_user_id := v_d_ids[i];
+      from_name := v_d_names[i];
+      to_user_id := v_c_ids[j];
+      to_name := v_c_names[j];
+      amount := round(v_pay, 2);
+      return next;
+    end if;
+    v_d_amts[i] := v_d_amts[i] - v_pay;
+    v_c_amts[j] := v_c_amts[j] - v_pay;
+    if v_d_amts[i] <= 0.01 then i := i + 1; end if;
+    if v_c_amts[j] <= 0.01 then j := j + 1; end if;
+  end loop;
+end;
+$$;
+grant execute on function public.get_group_simplified_debts(uuid) to authenticated, anon;
+
+create or replace function public.add_private_member_debt(
+  p_group_id uuid,
+  p_other_user_id uuid,
+  p_other_name text,
+  p_direction text,
+  p_amount numeric,
+  p_title text default 'Özel Borç',
+  p_expense_date date default current_date
+) returns uuid
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_me uuid := auth.uid();
+  v_my_name text;
+  v_other_name text;
+  v_creditor_id uuid;
+  v_creditor_name text;
+  v_debtor_id uuid;
+  v_debtor_name text;
+  v_new_id uuid;
+begin
+  if v_me is null then
+    raise exception 'Oturum gerekli';
+  end if;
+  if p_other_user_id is null or p_other_user_id = v_me then
+    raise exception 'Geçerli bir karşı kişi seçin';
+  end if;
+  if p_amount is null or p_amount <= 0 then
+    raise exception 'Tutar 0''dan büyük olmalı';
+  end if;
+  if not exists (
+    select 1 from public.shared_members m
+    where m.group_id = p_group_id and m.user_id = v_me
+  ) then
+    raise exception 'Bu grubun üyesi değilsin';
+  end if;
+  if not exists (
+    select 1 from public.shared_members m
+    where m.group_id = p_group_id and m.user_id = p_other_user_id
+  ) then
+    raise exception 'Seçilen kişi bu grupta değil';
+  end if;
+
+  select display_name into v_my_name
+  from public.shared_members
+  where group_id = p_group_id and user_id = v_me
+  limit 1;
+
+  select display_name into v_other_name
+  from public.shared_members
+  where group_id = p_group_id and user_id = p_other_user_id
+  limit 1;
+
+  v_my_name := coalesce(nullif(trim(v_my_name), ''), 'Üye');
+  v_other_name := coalesce(nullif(trim(v_other_name), ''), nullif(trim(p_other_name), ''), 'Üye');
+
+  if p_direction = 'payable' then
+    v_creditor_id := p_other_user_id;
+    v_creditor_name := v_other_name;
+    v_debtor_id := v_me;
+    v_debtor_name := v_my_name;
+  else
+    v_creditor_id := v_me;
+    v_creditor_name := v_my_name;
+    v_debtor_id := p_other_user_id;
+    v_debtor_name := v_other_name;
+  end if;
+
+  insert into public.shared_personal_debts (
+    group_id,
+    expense_source,
+    creditor_id,
+    creditor_name,
+    debtor_id,
+    debtor_name,
+    title,
+    category,
+    amount,
+    expense_date,
+    status,
+    is_private
+  ) values (
+    p_group_id,
+    'priv-debt-' || gen_random_uuid()::text,
+    v_creditor_id,
+    v_creditor_name,
+    v_debtor_id,
+    v_debtor_name,
+    coalesce(nullif(trim(p_title), ''), 'Özel Borç'),
+    case when p_direction = 'payable' then 'other_inc' else 'other_exp' end,
+    round(p_amount, 2),
+    coalesce(p_expense_date, current_date),
+    'open',
+    true
+  )
+  returning id into v_new_id;
+
+  return v_new_id;
+end;
+$$;
+grant execute on function public.add_private_member_debt(uuid, uuid, text, text, numeric, text, date) to authenticated, anon;
+notify pgrst, 'reload schema';`;
+
+function copyPrivateDebtSql() {
+copyTextToClipboard(PRIVATE_DEBT_SQL_SNIPPET, '2 kişilik özel borç SQL kodu panoya kopyalandı!');
+}
+function isPrivatePersonalDebt(r) {
+return !!(r && (r.is_private === true || String(r.expense_source || '').startsWith('priv-')));
+}
+async function addPrivateMemberDebtRemote(otherUserId, otherName, direction, amount, title) {
+const client = getSharedClient();
+if (!client || !sharedState.groupId) throw new Error('Ortak alan yok');
+await ensureSharedAuth();
+const { error } = await client.rpc('add_private_member_debt', {
+p_group_id: sharedState.groupId,
+p_other_user_id: otherUserId,
+p_other_name: otherName || 'Üye',
+p_direction: direction === 'payable' ? 'payable' : 'receivable',
+p_amount: Number(amount),
+p_title: title || 'Özel Borç',
+p_expense_date: getTodayOffset(0)
+});
+if (error) throw error;
+}
+function refreshDebtPrivateSyncUI() {
+const row = document.getElementById('debt-private-sync-row');
+const sel = document.getElementById('debt-private-member');
+if (!row || !sel) return;
+const others = getOtherMembers();
+const show = !!(sharedState.groupId && others.length > 0);
+row.classList.toggle('hidden', !show);
+if (!show) return;
+if (document.activeElement !== sel) {
+const prev = sel.value;
+sel.innerHTML = others.map(m => `<option value="${m.user_id}">${escHtml(m.display_name || 'Üye')}</option>`).join('');
+if (prev && others.some(m => m.user_id === prev)) sel.value = prev;
+}
+syncDebtPrivateHint();
+}
+function syncDebtPrivateHint() {
+const inp = document.getElementById('debt-person');
+const sel = document.getElementById('debt-private-member');
+const lbl = document.getElementById('debt-private-sync-label');
+if (!lbl) return;
+const others = getOtherMembers();
+const typed = String(inp ? inp.value : '').trim().toLocaleLowerCase('tr-TR');
+const matched = typed ? others.find(m => String(m.display_name || '').trim().toLocaleLowerCase('tr-TR') === typed) : null;
+if (matched && sel) {
+sel.value = matched.user_id;
+lbl.innerHTML = `<i class="fa-solid fa-lock text-[9px] mr-1"></i><strong>${escHtml(matched.display_name)}</strong> ile özel senkronla (3. kişiler görmez)`;
+} else {
+lbl.innerHTML = `<i class="fa-solid fa-lock text-[9px] mr-1"></i>Grup üyesine özel gönder (sadece 2 kişi görür, 3. kişiler görmez)`;
+}
+}
+function toggleDebtPrivateMemberSelect() {
+const cb = document.getElementById('debt-private-sync-cb');
+const wrap = document.getElementById('debt-private-member-wrap');
+if (!cb || !wrap) return;
+wrap.classList.toggle('hidden', !cb.checked);
+if (cb.checked) applyDebtPrivateMemberSelection();
+}
+function applyDebtPrivateMemberSelection() {
+const sel = document.getElementById('debt-private-member');
+const inp = document.getElementById('debt-person');
+if (!sel || !inp) return;
+const m = getMemberByUserId(sel.value);
+if (m && m.display_name) {
+inp.value = m.display_name;
+syncDebtPrivateHint();
+}
+}
+function updateSharePrivateNote() {
+const cb = document.getElementById('tx-share-private-only');
+const note = document.getElementById('tx-share-group-note');
+if (!note) return;
+if (cb && cb.checked) {
+note.textContent = '🔒 Ortak Kayıtlar'a ve 3. kişilerin Net Planına düşmez; yalnızca sen ve seçtiğin kişi(ler) arasında görünür.';
+note.className = 'text-[10px] font-semibold text-amber-700';
+} else {
+note.textContent = `"${sharedState.groupName}" ortak listesine düşer; borç payları SADECE ilgili kişinin defterine görünür.`;
+note.className = 'text-[10px] text-sky-700';
+}
+}
 function getSimplifiedSettlementList() {
 if (Array.isArray(sharedState.simplifiedDebts) && sharedState.simplifiedDebts.length > 0) return sharedState.simplifiedDebts;
 const uid = sharedState.userId;
 if (!uid) return [];
 const map = {};
-(sharedState.personalDebts || []).filter(r => r.status === 'open').forEach(r => {
+(sharedState.personalDebts || []).filter(r => r.status === 'open' && !isPrivatePersonalDebt(r)).forEach(r => {
 const iAmDebtor = r.debtor_id === uid;
 const otherId = iAmDebtor ? r.creditor_id : r.debtor_id;
 const otherName = iAmDebtor ? r.creditor_name : r.debtor_name;
-if (!map[otherId]) map[otherId] = { otherName, net: 0 };
+if (!map[otherId]) map[otherId] = { otherId, otherName, net: 0 };
 map[otherId].net += iAmDebtor ? -Number(r.amount) : Number(r.amount);
 });
 return Object.values(map).filter(x => Math.abs(x.net) > 0.01).map(x => ({
+from_user_id: x.net < 0 ? uid : x.otherId,
+to_user_id: x.net < 0 ? x.otherId : uid,
 from_name: x.net < 0 ? (sharedState.displayName || 'Sen') : x.otherName,
 to_name: x.net < 0 ? x.otherName : (sharedState.displayName || 'Sen'),
 amount: Math.abs(x.net)
 }));
+}
+function getLocalPrivateDebtMap() {
+const map = {};
+(debts || []).forEach(d => {
+const parsed = parseDebtPersonAndNote(d.person || '');
+const baseName = (parsed.baseName || '').trim();
+if (!baseName) return;
+const key = baseName.toLocaleLowerCase('tr-TR');
+const amt = Number(d.amount || 0);
+if (!Number.isFinite(amt) || amt <= 0) return;
+if (!map[key]) map[key] = { key, displayName: baseName, net: 0, count: 0 };
+map[key].net += d.type === 'receivable' ? amt : -amt;
+map[key].count += 1;
+});
+return map;
+}
+function getMyPrivateDebtsForNetPlan() {
+const byId = {};
+const byName = {};
+const uid = sharedState.userId;
+const gid = sharedState.groupId;
+const upsert = (otherId, displayName, delta, isSynced) => {
+const nameKey = String(displayName || '').trim().toLocaleLowerCase('tr-TR');
+let entry = (otherId && byId[otherId]) || (nameKey && byName[nameKey]) || null;
+if (!entry) {
+entry = { otherId: otherId || null, key: nameKey, displayName: displayName || 'Üye', net: 0, syncedNet: 0, localNet: 0 };
+if (otherId) byId[otherId] = entry;
+if (nameKey) byName[nameKey] = entry;
+} else {
+if (otherId && !entry.otherId) { entry.otherId = otherId; byId[otherId] = entry; }
+if (nameKey && !entry.key) { entry.key = nameKey; byName[nameKey] = entry; }
+}
+entry.net = Math.round((entry.net + delta) * 100) / 100;
+if (isSynced) entry.syncedNet = Math.round((entry.syncedNet + delta) * 100) / 100;
+else entry.localNet = Math.round((entry.localNet + delta) * 100) / 100;
+};
+// 1) 2 kişi arasında senkronlu özel borçlar (RLS gereği sadece bu 2 kişi okuyabilir)
+(sharedState.personalDebts || []).forEach(r => {
+if (r.status !== 'open' || !isPrivatePersonalDebt(r)) return;
+if (gid && r.group_id && r.group_id !== gid) return;
+const iAmDebtor = r.debtor_id === uid;
+const iAmCreditor = r.creditor_id === uid;
+if (!iAmDebtor && !iAmCreditor) return;
+const otherId = iAmDebtor ? r.creditor_id : r.debtor_id;
+const member = getMemberByUserId(otherId);
+const otherName = (member && member.display_name) || (iAmDebtor ? r.creditor_name : r.debtor_name) || 'Üye';
+const amt = Number(r.amount || 0);
+if (!Number.isFinite(amt) || amt <= 0) return;
+upsert(otherId, otherName, iAmDebtor ? -amt : amt, true);
+});
+// 2) Cihazdaki yerel özel borçlar (mevcut defterle tam uyumlu)
+const localMap = getLocalPrivateDebtMap();
+Object.values(localMap).forEach(loc => {
+const matchedMember = (sharedState.members || []).find(m => m.user_id !== uid && String(m.display_name || '').trim().toLocaleLowerCase('tr-TR') === loc.key);
+upsert(matchedMember ? matchedMember.user_id : null, (matchedMember && matchedMember.display_name) || loc.displayName, loc.net, false);
+});
+return { byId, byName };
 }
 
 // --- HIZLI GRUP OYLAMASI / ANKET (Alışveriş Liste 4) ---
@@ -6960,7 +7391,10 @@ action = `<button onclick="openSharedPayModal('${r.id}','settle')" class="px-2 p
 return `
 <div class="flex items-center justify-between gap-2 bg-slate-50 px-3 py-2 rounded-2xl border border-slate-200/70">
 <div class="min-w-0">
+<div class="flex items-center gap-1">
 <p class="text-xs font-extrabold text-slate-900 truncate">${escHtml(r.title)}</p>
+${isPrivatePersonalDebt(r) ? '<span class="text-[8px] font-extrabold px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 shrink-0"><i class="fa-solid fa-lock text-[7px] mr-0.5"></i>Özel</span>' : ''}
+</div>
 <p class="text-[10px] font-medium text-slate-400 truncate">${iAmDebtor ? `<span class="text-rose-600 font-bold">${escHtml(other)}</span> kişisine borçlusun` : `<span class="text-emerald-600 font-bold">${escHtml(other)}</span> sana borçlu`} • ${escHtml(r.expense_date)}</p>
 </div>
 <div class="flex items-center gap-1 shrink-0">
@@ -7003,8 +7437,83 @@ ${sharedState.historyDeleteSqlNeeded ? `<div class="flex items-center justify-be
 <p class="text-[9px] text-slate-400">Geçmiş kayıtlarını yalnızca işlemi ekleyen kişi silebilir.</p>
 </div>` : '';
 
-// 4) Otomatik Borç Sadeleştirme / Net Hesaplaşma Planı (Hesaplaşma 1)
+// 4) Otomatik Borç Sadeleştirme / Net Hesaplaşma Planı (Grup Planı + Sadece İlgili 2 Kişinin Gördüğü Özel Borçlar)
 const simpList = getSimplifiedSettlementList();
+const privMaps = getMyPrivateDebtsForNetPlan();
+const meMemberForSimp = (sharedState.members || []).find(m => m.user_id === uid);
+const mySimpNameKey = String((meMemberForSimp && meMemberForSimp.display_name) || sharedState.displayName || '').trim().toLocaleLowerCase('tr-TR');
+const isMeSimpParticipant = (name, idVal) => {
+if (idVal && uid && idVal === uid) return true;
+const k = String(name || '').trim().toLocaleLowerCase('tr-TR');
+return (mySimpNameKey && k === mySimpNameKey) || k === 'sen';
+};
+const matchedPrivateEntries = new Set();
+let hasAnyPrivateOverlay = false;
+const simpRowsHtml = simpList.map(s => {
+const fromId = s.from_user_id || s.from_id || null;
+const toId = s.to_user_id || s.to_id || null;
+const fromIsMe = isMeSimpParticipant(s.from_name, fromId);
+const toIsMe = isMeSimpParticipant(s.to_name, toId);
+let privateSubHtml = '';
+if ((fromIsMe && !toIsMe) || (toIsMe && !fromIsMe)) {
+const otherId = fromIsMe ? toId : fromId;
+const otherKey = String(fromIsMe ? s.to_name : s.from_name || '').trim().toLocaleLowerCase('tr-TR');
+const privRec = (otherId && privMaps.byId[otherId]) || (otherKey && privMaps.byName[otherKey]) || null;
+if (privRec && Math.abs(privRec.net) > 0.009) {
+matchedPrivateEntries.add(privRec);
+hasAnyPrivateOverlay = true;
+const groupNet = fromIsMe ? -Number(s.amount || 0) : Number(s.amount || 0);
+const privNet = Number(privRec.net);
+const totalNet = Math.round((groupNet + privNet) * 100) / 100;
+const privSign = privNet > 0 ? '+' : '-';
+const privLabel = privNet > 0 ? 'alacak' : 'borç';
+const totalCls = Math.abs(totalNet) < 0.01 ? 'text-slate-500' : (totalNet > 0 ? 'text-emerald-600' : 'text-rose-600');
+const totalTxt = Math.abs(totalNet) < 0.01 ? '₺0 (denk)' : (totalNet > 0 ? `+${formatCurrency(totalNet)} alacağın` : `-${formatCurrency(Math.abs(totalNet))} vereceğin`);
+privateSubHtml = `
+<div class="mt-1.5 pt-1.5 border-t border-slate-200/70 flex items-center justify-between gap-2 text-[10px]">
+<span class="font-bold text-amber-700 truncate"><i class="fa-solid fa-lock text-[9px] mr-1"></i>Aranızdaki özel: <span class="${privNet > 0 ? 'text-emerald-600' : 'text-rose-600'} font-extrabold">${privSign}${formatCurrency(Math.abs(privNet))}</span> ${privLabel}</span>
+<span class="font-extrabold ${totalCls} shrink-0">Toplam: ${totalTxt}</span>
+</div>`;
+}
+}
+return `
+<div class="bg-slate-50 px-3 py-2 rounded-xl border border-slate-200/70">
+<div class="flex items-center justify-between gap-2 text-xs">
+<span class="font-bold text-slate-800 truncate">${escHtml(s.from_name)} <i class="fa-solid fa-arrow-right text-[10px] text-emerald-600 mx-1"></i> ${escHtml(s.to_name)}</span>
+<span class="font-extrabold text-emerald-600 shrink-0">${formatCurrency(s.amount)}</span>
+</div>
+${privateSubHtml}
+</div>`;
+}).join('');
+const extraGroupPrivateDebts = [];
+const seenExtraEntries = new Set();
+const allPrivEntries = new Set([...Object.values(privMaps.byId), ...Object.values(privMaps.byName)]);
+allPrivEntries.forEach(entry => {
+if (!entry || matchedPrivateEntries.has(entry) || seenExtraEntries.has(entry)) return;
+if (Math.abs(entry.net) <= 0.009) return;
+const isGroupMember = (entry.otherId && !!getMemberByUserId(entry.otherId))
+|| (sharedState.members || []).some(m => m.user_id !== uid && String(m.display_name || '').trim().toLocaleLowerCase('tr-TR') === entry.key);
+if (!isGroupMember) return;
+seenExtraEntries.add(entry);
+extraGroupPrivateDebts.push({
+displayName: entry.displayName,
+net: entry.net,
+isSynced: Math.abs(entry.syncedNet) > 0.009
+});
+});
+if (extraGroupPrivateDebts.length > 0) hasAnyPrivateOverlay = true;
+const extraPrivateHtml = extraGroupPrivateDebts.length ? `
+<div class="pt-2 mt-1 border-t border-slate-200/70 space-y-1.5">
+<p class="text-[10px] font-extrabold text-amber-700 flex items-center gap-1"><i class="fa-solid fa-lock text-[9px]"></i> Aranızdaki Özel Borçlar (Sadece İlgili 2 Kişi Görür)</p>
+${extraGroupPrivateDebts.map(x => `
+<div class="flex items-center justify-between gap-2 bg-amber-50 px-3 py-2 rounded-xl border border-amber-200/80 text-[11px]">
+<span class="font-bold text-slate-800 truncate">${escHtml(x.displayName)} <span class="text-[9.5px] font-semibold text-slate-500">• ${x.net > 0 ? 'sana özel borçlu' : 'özel borcun var'}${x.isSynced ? ' • 2 kişi senkron' : ' • sadece bu cihaz'}</span></span>
+<span class="font-extrabold ${x.net > 0 ? 'text-emerald-600' : 'text-rose-600'} shrink-0">${x.net > 0 ? '+' : '-'}${formatCurrency(Math.abs(x.net))}</span>
+</div>`).join('')}
+</div>` : '';
+const privateNoteHtml = hasAnyPrivateOverlay
+? `<p class="text-[9.5px] text-slate-400"><i class="fa-solid fa-shield-halved text-emerald-500 mr-1"></i>Özel borçlar yalnızca ilgili 2 kişinin ekranında görünür; gruptaki 3. kişiler göremez ve "Özeti Kopyala" metnine eklenmez.</p>`
+: '';
 const simplifiedHtml = `
 <div class="neo-card rounded-[24px] p-4 space-y-2.5">
 <div class="flex items-center justify-between">
@@ -7016,11 +7525,9 @@ ${simpList.length ? `<button type="button" onclick="copySimplifiedSettlementSumm
 </div>
 ${simpList.length === 0
 ? `<p class="text-[11px] text-slate-400 text-center py-2">Herkes hesaplaşmış görünüyor 🎉</p>`
-: `<div class="space-y-1.5">${simpList.map(s => `
-<div class="flex items-center justify-between bg-slate-50 px-3 py-2 rounded-xl border border-slate-200/70 text-xs">
-<span class="font-bold text-slate-800 truncate">${escHtml(s.from_name)} <i class="fa-solid fa-arrow-right text-[10px] text-emerald-600 mx-1"></i> ${escHtml(s.to_name)}</span>
-<span class="font-extrabold text-emerald-600 shrink-0">${formatCurrency(s.amount)}</span>
-</div>`).join('')}</div>`}
+: `<div class="space-y-1.5">${simpRowsHtml}</div>`}
+${extraPrivateHtml}
+${privateNoteHtml}
 </div>`;
 
 // 3.5) Ortak Harcama Analizi ("Para Nereye ve Ne Kadar Gidiyor?")
@@ -7325,7 +7832,7 @@ sharedState._chartPayload = chartPayload;
 
 const openPollsCount = (sharedState.polls || []).filter(p => !p.is_closed).length;
 const shopCount = (sharedState.shoppingItems || []).length;
-const simpCount = simpList.length;
+const simpCount = simpList.length + extraGroupPrivateDebts.length;
 
 const sharedWidgetHtmlMap = {
 invite: `
