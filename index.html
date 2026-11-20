@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Cüzdanım v33 — Kişisel Finans & Kart Asistanı</title>
+<title>Cüzdanım v34 — Kişisel Finans & Kart Asistanı</title>
 <meta name="theme-color" content="#eef2f8">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -4490,6 +4490,7 @@ document.getElementById('tx-is-shared-debt').checked = false;
 document.getElementById('tx-is-split-pay').checked = false;
 toggleSplitPayFields();
 document.getElementById('tx-share-to-group').checked = false;
+const privSpReset = document.getElementById('tx-share-private-only'); if (privSpReset) privSpReset.checked = false;
 const peopleListElSp = document.getElementById('tx-shared-people-list');
 if (peopleListElSp) peopleListElSp.innerHTML = '';
 updateSplitButtonLabel(); toggleSharedDebtFields();
@@ -4533,6 +4534,7 @@ if (calcBadge) calcBadge.classList.add('hidden');
 document.getElementById('tx-recurring').checked = false;
 document.getElementById('tx-is-shared-debt').checked = false;
 document.getElementById('tx-share-to-group').checked = false;
+const privRegReset = document.getElementById('tx-share-private-only'); if (privRegReset) privRegReset.checked = false;
 const peopleListEl = document.getElementById('tx-shared-people-list');
 if (peopleListEl) peopleListEl.innerHTML = '';
 updateSplitButtonLabel(); toggleSharedDebtFields();
@@ -5469,8 +5471,7 @@ const rb = document.getElementById('tx-receipt-box');
 if (!cb || !note || !wrap) return;
 if (sharedState.groupId) {
 cb.disabled = false;
-note.textContent = `"${sharedState.groupName}" ortak listesine düşer; borç payları SADECE ilgili kişinin defterine görünür.`;
-note.className = 'text-[10px] text-sky-700';
+updateSharePrivateNote();
 wrap.onclick = null;
 if (panel) panel.classList.toggle('hidden', !cb.checked);
 if (rb) rb.classList.toggle('hidden', !cb.checked);
@@ -6130,7 +6131,11 @@ list.forEach(s => lines.push(`• ${s.from_name} → ${s.to_name}: ${formatCurre
 copyTextToClipboard(lines.join('\n'), 'Net hesaplaşma özeti kopyalandı');
 }
 const PRIVATE_DEBT_SQL_SNIPPET = `alter table public.shared_personal_debts
-  add column if not exists is_private boolean not null default false;
+  add column if not exists is_private boolean not null default false,
+  add column if not exists group_id uuid,
+  add column if not exists expense_source text,
+  add column if not exists category text,
+  add column if not exists expense_date date default current_date;
 
 drop function if exists public.get_group_simplified_debts(uuid);
 create or replace function public.get_group_simplified_debts(
@@ -6412,7 +6417,7 @@ const cb = document.getElementById('tx-share-private-only');
 const note = document.getElementById('tx-share-group-note');
 if (!note) return;
 if (cb && cb.checked) {
-note.textContent = '🔒 Ortak Kayıtlar'a ve 3. kişilerin Net Planına düşmez; yalnızca sen ve seçtiğin kişi(ler) arasında görünür.';
+note.textContent = "🔒 Ortak Kayıtlar'a ve 3. kişilerin Net Planına düşmez; yalnızca sen ve seçtiğin kişi(ler) arasında görünür.";
 note.className = 'text-[10px] font-semibold text-amber-700';
 } else {
 note.textContent = `"${sharedState.groupName}" ortak listesine düşer; borç payları SADECE ilgili kişinin defterine görünür.`;
