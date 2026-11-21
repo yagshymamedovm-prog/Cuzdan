@@ -3,13 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Cüzdanım v35 — Kişisel Finans & Kart Asistanı</title>
+<title>Cüzdanım v36 — Kişisel Finans & Kart Asistanı</title>
 <meta name="theme-color" content="#eef2f8">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Cüzdanım">
 <meta name="description" content="Cihaza özel, tamamen izole kişisel gelir, gider, döviz kartı ve borç takip uygulaması.">
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='42' fill='%23090d16'/%3E%3Ccircle cx='140' cy='40' r='60' fill='%2310b981' fill-opacity='0.22'/%3E%3Crect x='34' y='48' width='112' height='84' rx='22' fill='%2310b981'/%3E%3Crect x='34' y='66' width='112' height='20' fill='%23052e16' fill-opacity='0.35'/%3E%3Ccircle cx='118' cy='104' r='10' fill='%23090d16'/%3E%3C/svg%3E">
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
 <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -2424,9 +2427,10 @@ Tamam
 </div>
 
 <script>
-// --- DİNAMİK PWA MANIFEST ---
+// --- PWA MANIFEST FALLBACK (sadece yerel file:// açılışında) ---
 (function injectInlineManifest() {
 try {
+if (location.protocol !== 'file:') return;
 const manifest = {
 name: "Cüzdanım — Kişisel Finans",
 short_name: "Cüzdanım",
@@ -5512,7 +5516,7 @@ async function enterSharedTab() {
 renderSharedSpace();
 stopSharedPolling();
 sharedState.pollTimer = setInterval(() => {
-if (currentTabName === 'shared' && sharedState.userId) {
+if (!document.hidden && currentTabName === 'shared' && sharedState.userId) {
 if (isUserTypingInInput()) { sharedState._deferredRefresh = true; return; }
 refreshSharedData().catch(() => {});
 }
@@ -9354,7 +9358,22 @@ panel.addEventListener('touchcancel', endSwipe, { passive: true });
 });
 }
 
-window.onload = function() {
+let _appBooted = false;
+let _swReg = null;
+let _lastSwCheck = 0;
+
+function registerPwaServiceWorker() {
+if (!('serviceWorker' in navigator)) return;
+if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') return;
+navigator.serviceWorker.register('./sw.js', { scope: './' }).then((reg) => {
+_swReg = reg;
+_lastSwCheck = Date.now();
+}).catch(() => {});
+}
+
+function bootApp() {
+if (_appBooted) return;
+_appBooted = true;
 ensureDeviceVaultId();
 restoreNightMode();
 restoreWalletState();
@@ -9370,16 +9389,40 @@ syncPaymentMethodDropdown();
 syncAccountDropdown();
 updateUI();
 updateFxCardUI();
-fetchLiveUsdRate();
 refreshShareToggleState();
-restoreSharedSession();
 initBottomSheetSwipeDismiss();
+setTimeout(() => {
+fetchLiveUsdRate();
+restoreSharedSession();
+registerPwaServiceWorker();
+}, 0);
 document.addEventListener('visibilitychange', () => {
-if (!document.hidden && sharedState.userId && !isUserTypingInInput()) {
+if (!document.hidden) {
+if (sharedState.userId && !isUserTypingInInput()) {
 refreshSharedData().catch(() => {});
 }
+if (_swReg && (Date.now() - _lastSwCheck > 300000)) {
+_lastSwCheck = Date.now();
+_swReg.update().catch(() => {});
+}
+}
 });
-};
+}
+
+if (document.readyState === 'loading') {
+document.addEventListener('DOMContentLoaded', bootApp, { once: true });
+} else {
+bootApp();
+}
+window.addEventListener('load', () => {
+if (!_appBooted) bootApp();
+if (!sharedState.userId && isSharedConfigured()) {
+restoreSharedSession();
+}
+if (currentTabName === 'stats' && !chartInstance) {
+updateStatsAndChart();
+}
+}, { once: true });
 </script>
 </body>
 </html>
