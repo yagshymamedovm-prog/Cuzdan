@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Cüzdanım — Kişisel ve Ortak Finans & Kart Asistanı</title>
+<title>Cüzdanım v39 — Kişisel Finans & Kart Asistanı</title>
 <meta name="theme-color" content="#eef2f8">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1158,6 +1158,22 @@ body:has(#app-shell.night-mode[data-night-theme="titanium"]){background:radial-g
 <!-- 1. SEKME: ÖZET -->
 <section id="tab-home" class="tab-content h-full w-full px-4 pt-3 pb-24 flex flex-col justify-between overflow-y-auto">
 <div class="space-y-3.5">
+<!-- KİŞİSEL BULUT HIZLI GİRİŞ BANDI (YALNIZCA CÜZDAN BOŞKEN) -->
+<div id="cloud-empty-banner" class="hidden neo-card rounded-[22px] p-3 flex items-center justify-between gap-2.5 border border-emerald-200/80 bg-emerald-50/70">
+<div class="flex items-center gap-2.5 min-w-0">
+<div class="w-8 h-8 rounded-xl bg-[#090d16] text-emerald-400 flex items-center justify-center shrink-0">
+<i class="fa-solid fa-cloud-arrow-down text-xs"></i>
+</div>
+<div class="min-w-0">
+<p class="text-[11px] font-extrabold text-slate-900 truncate">Kayıtlı verilerin mi var?</p>
+<p class="text-[9.5px] text-slate-500 leading-tight">Uygulama ve tarayıcıyı eşitlemek için giriş yap.</p>
+</div>
+</div>
+<div class="flex items-center gap-1 shrink-0">
+<button type="button" onclick="openCloudSyncModal()" class="px-2.5 py-1.5 rounded-xl bg-[#090d16] text-emerald-400 text-[10px] font-extrabold active:scale-95 transition">Giriş Yap</button>
+<button type="button" onclick="dismissCloudEmptyBanner()" class="w-7 h-7 rounded-xl text-slate-400 hover:text-slate-700 flex items-center justify-center" title="Kapat"><i class="fa-solid fa-xmark text-xs"></i></button>
+</div>
+</div>
 <!-- YAKLAŞAN ABONELİK / DÜZENLİ ÖDEME UYARI BANDI -->
 <div id="upcoming-subscriptions-banner" class="hidden"></div>
 <div id="home-widgets-container" class="space-y-3.5">
@@ -1623,6 +1639,50 @@ class="px-2.5 py-2.5 bg-white border border-slate-200/90 rounded-2xl text-[11px]
 </div>
 <i class="fa-solid fa-chevron-right text-[11px] text-slate-400 shrink-0"></i>
 </button>
+</div>
+
+<!-- GRUP 2.5: KİŞİSEL BULUT SENKRONİZASYONU -->
+<div class="neo-card rounded-[24px] p-3.5 space-y-2.5">
+<div class="flex items-center justify-between gap-2">
+<div class="flex items-center gap-2.5 min-w-0">
+<div class="w-8 h-8 rounded-xl bg-emerald-500/15 text-emerald-600 flex items-center justify-center shrink-0">
+<i class="fa-solid fa-cloud text-xs"></i>
+</div>
+<div class="min-w-0">
+<h3 class="text-xs font-extrabold text-slate-900 truncate">Kişisel Bulut Senkronizasyonu</h3>
+<p id="cloud-sync-subtitle" class="text-[10px] text-slate-400 truncate">Uygulama, tarayıcı ve cihazlar arası otomatik eşitleme</p>
+</div>
+</div>
+<span id="cloud-sync-pill" class="text-[9.5px] font-extrabold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 shrink-0">Kapalı</span>
+</div>
+<div id="cloud-sync-logged-out" class="space-y-2">
+<button type="button" onclick="openCloudSyncModal()" class="w-full py-2.5 px-3 bg-[#090d16] text-white rounded-xl text-[11px] font-extrabold flex items-center justify-center gap-1.5 active:scale-95 transition">
+<i class="fa-solid fa-cloud-arrow-up text-[10px] text-emerald-400"></i> Hesap Bağla / Giriş Yap
+</button>
+</div>
+<div id="cloud-sync-logged-in" class="hidden space-y-2">
+<div class="bg-slate-50 rounded-xl px-3 py-2 border border-slate-200/70 flex items-center justify-between gap-2">
+<div class="min-w-0">
+<p id="cloud-sync-user-label" class="text-xs font-extrabold text-slate-900 truncate">@kullanici</p>
+<p id="cloud-sync-time-label" class="text-[10px] text-slate-400 truncate">Otomatik eşitleme aktif</p>
+</div>
+<button type="button" onclick="manualCloudSyncNow()" class="px-2.5 py-1.5 rounded-xl bg-emerald-500/15 text-emerald-700 text-[10px] font-extrabold flex items-center gap-1 shrink-0 active:scale-95 transition">
+<i class="fa-solid fa-arrows-rotate text-[9px]"></i> Eşitle
+</button>
+</div>
+<div class="grid grid-cols-2 gap-2">
+<button type="button" onclick="copyPersonalSyncLink()" class="py-2 px-2.5 bg-[#090d16] text-white rounded-xl text-[10.5px] font-bold flex items-center justify-center gap-1.5 active:scale-95 transition">
+<i class="fa-solid fa-link text-[10px] text-emerald-400"></i> Özel Giriş Linkim
+</button>
+<button type="button" onclick="logoutCloudSync()" class="py-2 px-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-[10.5px] font-bold flex items-center justify-center gap-1.5 active:scale-95 transition">
+<i class="fa-solid fa-right-from-bracket text-[10px]"></i> Bağlantıyı Kes
+</button>
+</div>
+</div>
+<div id="cloud-sync-sql-hint" class="hidden flex items-center justify-between gap-2 bg-amber-50/90 border border-amber-200/80 rounded-xl px-2.5 py-2">
+<span class="text-[9.5px] font-semibold text-amber-900">Kişisel bulut için Supabase SQL kodunu 1 kez çalıştır.</span>
+<button type="button" onclick="copyPersonalCloudSql()" class="px-2 py-1 rounded-lg bg-amber-600 text-white text-[9.5px] font-extrabold shrink-0 active:scale-95">SQL Kopyala</button>
+</div>
 </div>
 
 <!-- GRUP 3: YEDEK & VERİ -->
@@ -2402,6 +2462,35 @@ Tamam
 </div>
 
 </div>
+</div>
+</div>
+
+<!-- KİŞİSEL BULUT SENKRONİZASYONU MODALI -->
+<div id="cloud-sync-backdrop" onclick="if(event.target===this) closeCloudSyncModal()" class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm z-[45] hidden flex flex-col justify-end">
+<div class="shared-sheet-panel bg-white p-5 shadow-2xl sheet-enter max-h-[88%] overflow-y-auto space-y-3.5">
+<div class="w-10 h-1 bg-slate-200 rounded-full mx-auto"></div>
+<div class="flex items-center justify-between">
+<h3 class="text-sm font-extrabold text-slate-900 flex items-center gap-2"><i class="fa-solid fa-cloud text-emerald-600"></i> Kişisel Bulut Hesabı</h3>
+<button type="button" onclick="closeCloudSyncModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center"><i class="fa-solid fa-xmark text-sm"></i></button>
+</div>
+<p class="text-[11px] text-slate-500 leading-relaxed">Aynı kullanıcı adı ve şifreyle giriş yaptığında <strong>ana ekran uygulaması, Safari linki ve diğer cihazların</strong> otomatik eşitlenir. Başka biri normal site linkini açtığında kendi boş cüzdanını görür.</p>
+<form id="cloud-sync-form" onsubmit="submitCloudSyncForm(event)" class="space-y-3">
+<div>
+<label class="block text-[10px] font-extrabold text-slate-500 uppercase mb-1">Kullanıcı Adı veya E-posta</label>
+<input type="text" id="cloud-username-input" name="username" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required maxlength="48" placeholder="Örn: myrat" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold">
+</div>
+<div>
+<label class="block text-[10px] font-extrabold text-slate-500 uppercase mb-1">Kişisel Şifre</label>
+<input type="password" id="cloud-password-input" name="password" autocomplete="current-password" required minlength="4" maxlength="64" placeholder="En az 4 karakter" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold">
+</div>
+<div id="cloud-modal-sql-hint" class="hidden flex items-center justify-between gap-2 bg-rose-50/90 border border-rose-200/80 rounded-xl px-3 py-2">
+<span class="text-[10px] font-semibold text-rose-700">Supabase'te 1 kez bulut tablosu SQL kodunu çalıştırman gerekiyor.</span>
+<button type="button" onclick="copyPersonalCloudSql()" class="px-2.5 py-1 rounded-lg bg-rose-600 text-white text-[10px] font-extrabold shrink-0 active:scale-95">SQL Kopyala</button>
+</div>
+<button type="submit" id="cloud-sync-submit-btn" class="w-full py-3 bg-[#090d16] hover:bg-slate-800 text-white text-xs font-extrabold rounded-2xl shadow-md transition flex items-center justify-center gap-2 active:scale-95">
+<i class="fa-solid fa-cloud-arrow-up text-emerald-400"></i> Giriş Yap / Hesap Oluştur
+</button>
+</form>
 </div>
 </div>
 
@@ -3848,7 +3937,7 @@ sharedState.channel = null;
 sharedState.personalChannel = null;
 }
 
-async function restoreSharedBackupSnapshot(sb) {
+async function restoreSharedBackupSnapshot(sb, silent = false) {
 if (!sb || typeof sb !== 'object') return;
 const hintEl = document.getElementById('backup-claim-sql-hint');
 if (hintEl) hintEl.classList.add('hidden');
@@ -3887,7 +3976,7 @@ if (!client) {
 if (sb.authStorageKey && sb.authRawValue) {
 try { localStorage.setItem(sb.authStorageKey, sb.authRawValue); } catch (e) {}
 }
-showToast('Yedek yüklendi • İnternet gelince Ortak Alan otomatik bağlanır');
+if (!silent) showToast('Yedek yüklendi • İnternet gelince Ortak Alan otomatik bağlanır');
 return;
 }
 
@@ -3921,7 +4010,7 @@ if (networkFailed) {
 if (sb.authStorageKey && sb.authRawValue) {
 try { localStorage.setItem(sb.authStorageKey, sb.authRawValue); } catch (e) {}
 }
-showToast('Yedek yüklendi • İnternet gelince Ortak Alan otomatik bağlanır');
+if (!silent) showToast('Yedek yüklendi • İnternet gelince Ortak Alan otomatik bağlanır');
 return;
 }
 
@@ -3954,12 +4043,12 @@ await refreshSharedMembership();
 updateUI();
 renderSharedSpace();
 updateSharedIndicators();
-showToast(sharedState.groupId
+if (!silent) showToast(sharedState.groupId
 ? `Yedek ve Ortak Alan ("${sharedState.groupName}") geri yüklendi!`
 : 'Yedek geri yüklendi!');
 return;
 } catch (err) {
-showToast('Yedek yüklendi • Ortak Alan yenilenemedi: ' + sharedErrText(err));
+if (!silent) showToast('Yedek yüklendi • Ortak Alan yenilenemedi: ' + sharedErrText(err));
 return;
 }
 }
@@ -3971,7 +4060,7 @@ sharedState._cacheUserId = sb.userId || null;
 }
 renderDebts();
 updateSharedIndicators();
-showToast('Kişisel veriler yüklendi • Eski Ortak Alan oturumu için aktarım SQL kodunu çalıştır veya güncel cihazdan yedek al');
+if (!silent) showToast('Kişisel veriler yüklendi • Eski Ortak Alan oturumu için aktarım SQL kodunu çalıştır veya güncel cihazdan yedek al');
 }
 
 function exportWalletBackup() {
@@ -5277,6 +5366,7 @@ transactions = []; debts = []; savingsGoals = []; recurringPlans = [];
 accounts.forEach(a => a.initialBalance = 0);
 fxState.cards.forEach(c => { c.balanceUsd = c.monthlyLimitUsd; c.withdrawals = []; });
 updateUI(); updateFxCardUI(); triggerCloudSave();
+if (getCloudAuth()) pushPersonalVaultToCloud(true).catch(() => {});
 showToast('Bu cihazdaki veriler sıfırlandı');
 });
 }
@@ -5329,6 +5419,7 @@ currentNightTheme = themeId;
 const shell = document.getElementById('app-shell');
 if (shell) shell.setAttribute('data-night-theme', themeId);
 try { localStorage.setItem(NIGHT_THEME_KEY, themeId); } catch (e) {}
+if (_appBooted && !silent && !_suppressCloudPush) scheduleCloudPush();
 const isNight = !!(shell && shell.classList.contains('night-mode'));
 updateNightThemePickerUI(isNight);
 if (isNight) {
@@ -5350,6 +5441,7 @@ shell.classList.toggle('night-mode', !!enabled);
 shell.setAttribute('data-night-theme', currentNightTheme);
 }
 try { localStorage.setItem(NIGHT_MODE_KEY, enabled ? '1' : '0'); } catch (e) {}
+if (_appBooted && !_suppressCloudPush) scheduleCloudPush();
 updateNightThemePickerUI(!!enabled);
 const m = getActiveNightMeta();
 const tc = document.querySelector('meta[name="theme-color"]');
@@ -9064,12 +9156,616 @@ customExpenseCategories: categories.expense.filter(c => c.id.startsWith('custom_
 savedAt: new Date().toISOString()
 };
 }
-function triggerCloudSave() {
+// --- KİŞİSEL BULUT SENKRONİZASYONU + INDEXEDDB YEDEĞİ (v39) ---
+const CLOUD_AUTH_KEY = 'cuzdanim_cloud_auth_v1';
+const CLOUD_DIRTY_KEY = 'cuzdanim_cloud_dirty_v1';
+const CLOUD_LOCAL_TS_KEY = 'cuzdanim_local_updated_at_v1';
+const CLOUD_BANNER_DISMISS_KEY = 'cuzdanim_cloud_banner_dismiss_v1';
+const IDB_NAME = 'cuzdanim_mirror_db_v1';
+const IDB_STORE = 'kv';
+
+let _cloudPushTimer = null;
+let _cloudPushing = false;
+let _cloudInitialSyncDone = false;
+let _cloudLastSyncedAt = null;
+let _suppressCloudPush = false;
+
+const PERSONAL_CLOUD_SQL_SNIPPET = `create table if not exists public.personal_wallet_vaults (
+  id uuid primary key default gen_random_uuid(),
+  username text not null unique,
+  pass_hash text not null,
+  sync_token text not null unique default (replace(gen_random_uuid()::text || gen_random_uuid()::text, '-', '')),
+  vault_data jsonb not null default '{}'::jsonb,
+  updated_at timestamptz not null default now(),
+  created_at timestamptz not null default now()
+);
+alter table public.personal_wallet_vaults enable row level security;
+
+create or replace function public.register_or_login_personal_vault(
+  p_username text,
+  p_pass_hash text,
+  p_initial_data jsonb default null
+) returns table (
+  out_status text,
+  out_sync_token text,
+  out_vault_data jsonb,
+  out_updated_at timestamptz
+)
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_user text := lower(trim(coalesce(p_username, '')));
+  v_row public.personal_wallet_vaults%rowtype;
+begin
+  if length(v_user) < 2 or length(v_user) > 48 then
+    raise exception 'Kullanıcı adı en az 2 karakter olmalı';
+  end if;
+  if length(trim(coalesce(p_pass_hash, ''))) < 16 then
+    raise exception 'Geçersiz şifre';
+  end if;
+
+  select * into v_row from public.personal_wallet_vaults where username = v_user;
+  if found then
+    if v_row.pass_hash is distinct from p_pass_hash then
+      raise exception 'Hatalı şifre! Bu kullanıcı adı başka bir şifreyle kayıtlı.';
+    end if;
+    return query select 'logged_in'::text, v_row.sync_token, v_row.vault_data, v_row.updated_at;
+    return;
+  end if;
+
+  insert into public.personal_wallet_vaults (username, pass_hash, vault_data)
+  values (v_user, p_pass_hash, coalesce(p_initial_data, '{}'::jsonb))
+  returning * into v_row;
+
+  return query select 'created'::text, v_row.sync_token, v_row.vault_data, v_row.updated_at;
+end;
+$$;
+
+create or replace function public.get_personal_vault(
+  p_sync_token text
+) returns table (
+  out_username text,
+  out_vault_data jsonb,
+  out_updated_at timestamptz
+)
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  return query
+  select v.username, v.vault_data, v.updated_at
+  from public.personal_wallet_vaults v
+  where v.sync_token = trim(coalesce(p_sync_token, ''))
+  limit 1;
+end;
+$$;
+
+create or replace function public.save_personal_vault(
+  p_sync_token text,
+  p_vault_data jsonb
+) returns timestamptz
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_ts timestamptz;
+begin
+  update public.personal_wallet_vaults
+  set vault_data = coalesce(p_vault_data, '{}'::jsonb),
+      updated_at = now()
+  where sync_token = trim(coalesce(p_sync_token, ''))
+  returning updated_at into v_ts;
+
+  if v_ts is null then
+    raise exception 'Bulut oturumu geçersiz';
+  end if;
+  return v_ts;
+end;
+$$;
+
+grant execute on function public.register_or_login_personal_vault(text, text, jsonb) to authenticated, anon;
+grant execute on function public.get_personal_vault(text) to authenticated, anon;
+grant execute on function public.save_personal_vault(text, jsonb) to authenticated, anon;
+notify pgrst, 'reload schema';`;
+
+function copyPersonalCloudSql() {
+copyTextToClipboard(PERSONAL_CLOUD_SQL_SNIPPET, 'Kişisel Bulut SQL kodu panoya kopyalandı!');
+}
+
+function getCloudAuth() {
 try {
+const raw = JSON.parse(localStorage.getItem(CLOUD_AUTH_KEY) || 'null');
+if (raw && typeof raw.token === 'string' && raw.token.length >= 16) return raw;
+} catch (e) {}
+return null;
+}
+function saveCloudAuth(authObj) {
+try {
+if (!authObj) localStorage.removeItem(CLOUD_AUTH_KEY);
+else localStorage.setItem(CLOUD_AUTH_KEY, JSON.stringify(authObj));
+} catch (e) {}
+updateCloudSyncUI();
+}
+function hasLocalWalletData() {
+if (transactions.length > 0 || debts.length > 0 || savingsGoals.length > 0 || recurringPlans.length > 0) return true;
+if (accounts.some(a => Math.abs(Number(a.initialBalance || 0)) > 0.001)) return true;
+if (fxState && Array.isArray(fxState.cards)) {
+if (fxState.cards.length > 1) return true;
+if (fxState.cards[0] && Array.isArray(fxState.cards[0].withdrawals) && fxState.cards[0].withdrawals.length > 0) return true;
+}
+return false;
+}
+function hasDataInPayload(d) {
+if (!d || typeof d !== 'object') return false;
+if (Array.isArray(d.transactions) && d.transactions.length > 0) return true;
+if (Array.isArray(d.debts) && d.debts.length > 0) return true;
+if (Array.isArray(d.savingsGoals) && d.savingsGoals.length > 0) return true;
+if (Array.isArray(d.recurringPlans) && d.recurringPlans.length > 0) return true;
+if (Array.isArray(d.accounts) && d.accounts.some(a => Math.abs(Number(a.initialBalance || 0)) > 0.001)) return true;
+if (d.fxState && Array.isArray(d.fxState.cards) && (d.fxState.cards.length > 1 || (d.fxState.cards[0] && Array.isArray(d.fxState.cards[0].withdrawals) && d.fxState.cards[0].withdrawals.length > 0))) return true;
+if (d.sharedBackup && d.sharedBackup.groups && d.sharedBackup.groups.length > 0) return true;
+return false;
+}
+
+// IndexedDB yerel ayna yedegi (ayni origin icinde localStorage koruyucusu)
+function idbMirrorPut(key, val) {
+try {
+if (!('indexedDB' in window)) return;
+const req = indexedDB.open(IDB_NAME, 1);
+req.onupgradeneeded = () => {
+const db = req.result;
+if (!db.objectStoreNames.contains(IDB_STORE)) db.createObjectStore(IDB_STORE);
+};
+req.onsuccess = () => {
+try {
+const db = req.result;
+const tx = db.transaction(IDB_STORE, 'readwrite');
+tx.objectStore(IDB_STORE).put(val, key);
+tx.oncomplete = () => db.close();
+} catch (e) {}
+};
+} catch (e) {}
+}
+function idbMirrorGet(key) {
+return new Promise((resolve) => {
+try {
+if (!('indexedDB' in window)) return resolve(null);
+const req = indexedDB.open(IDB_NAME, 1);
+req.onupgradeneeded = () => {
+const db = req.result;
+if (!db.objectStoreNames.contains(IDB_STORE)) db.createObjectStore(IDB_STORE);
+};
+req.onerror = () => resolve(null);
+req.onsuccess = () => {
+try {
+const db = req.result;
+const tx = db.transaction(IDB_STORE, 'readonly');
+const getReq = tx.objectStore(IDB_STORE).get(key);
+getReq.onsuccess = () => { db.close(); resolve(getReq.result || null); };
+getReq.onerror = () => { db.close(); resolve(null); };
+} catch (e) { resolve(null); }
+};
+} catch (e) { resolve(null); }
+});
+}
+
+// SHA-256 (Web Crypto + pure-JS fallback)
+async function sha256Hex(str) {
+if (window.crypto && crypto.subtle && typeof TextEncoder !== 'undefined') {
+const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+const utf8 = unescape(encodeURIComponent(str));
+const bytes = [];
+for (let i = 0; i < utf8.length; i++) bytes.push(utf8.charCodeAt(i));
+const bitLen = bytes.length * 8;
+bytes.push(0x80);
+while ((bytes.length % 64) !== 56) bytes.push(0);
+for (let i = 7; i >= 0; i--) bytes.push((bitLen / Math.pow(2, i * 8)) & 0xff);
+const K = [0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
+const H = [0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];
+const rotr = (x, n) => (x >>> n) | (x << (32 - n));
+for (let i = 0; i < bytes.length; i += 64) {
+const W = new Array(64);
+for (let t = 0; t < 16; t++) W[t] = (bytes[i+t*4]<<24)|(bytes[i+t*4+1]<<16)|(bytes[i+t*4+2]<<8)|bytes[i+t*4+3];
+for (let t = 16; t < 64; t++) {
+const s0 = rotr(W[t-15],7)^rotr(W[t-15],18)^(W[t-15]>>>3);
+const s1 = rotr(W[t-2],17)^rotr(W[t-2],19)^(W[t-2]>>>10);
+W[t] = (W[t-16] + s0 + W[t-7] + s1) | 0;
+}
+let [a,b,c,d,e,f,g,h] = H;
+for (let t = 0; t < 64; t++) {
+const S1 = rotr(e,6)^rotr(e,11)^rotr(e,25);
+const ch = (e & f) ^ (~e & g);
+const t1 = (h + S1 + ch + K[t] + W[t]) | 0;
+const S0 = rotr(a,2)^rotr(a,13)^rotr(a,22);
+const maj = (a & b) ^ (a & c) ^ (b & c);
+const t2 = (S0 + maj) | 0;
+h=g; g=f; f=e; e=(d+t1)|0; d=c; c=b; b=a; a=(t1+t2)|0;
+}
+H[0]=(H[0]+a)|0; H[1]=(H[1]+b)|0; H[2]=(H[2]+c)|0; H[3]=(H[3]+d)|0;
+H[4]=(H[4]+e)|0; H[5]=(H[5]+f)|0; H[6]=(H[6]+g)|0; H[7]=(H[7]+h)|0;
+}
+return H.map(v => (v >>> 0).toString(16).padStart(8, '0')).join('');
+}
+
+function buildCloudVaultPayload() {
+const data = getWalletState();
+const sharedBackup = collectSharedBackupSnapshot();
+if (sharedBackup) data.sharedBackup = sharedBackup;
+data.nightMode = !!(document.getElementById('app-shell')?.classList.contains('night-mode'));
+data.nightTheme = currentNightTheme;
+return data;
+}
+
+function applyCloudVaultPayload(data, updatedAtIso) {
+if (!data || typeof data !== 'object') return;
+_suppressCloudPush = true;
+try {
+applyWalletData(data);
+if (data.nightTheme && NIGHT_THEME_META[data.nightTheme]) setNightTheme(data.nightTheme, true);
+if (typeof data.nightMode === 'boolean') {
+const tgl = document.getElementById('night-mode-toggle');
+if (tgl) tgl.checked = data.nightMode;
+toggleNightMode(data.nightMode);
+}
 const payload = JSON.stringify(getWalletState());
+try {
 localStorage.setItem(getIsolatedStorageKey(), payload);
 localStorage.setItem(LEGACY_STORAGE_KEY, payload);
+localStorage.setItem(CLOUD_LOCAL_TS_KEY, updatedAtIso || data.savedAt || new Date().toISOString());
+localStorage.setItem(CLOUD_DIRTY_KEY, '0');
+} catch (e) {}
+idbMirrorPut('wallet_state', payload);
+updateUI();
+updateFxCardUI();
+} finally {
+_suppressCloudPush = false;
+}
+if (data.sharedBackup && typeof data.sharedBackup === 'object') {
+const sb = data.sharedBackup;
+const sbGroupId = (sb.meta && sb.meta.groupId) || (Array.isArray(sb.groups) && sb.groups[0] && sb.groups[0].group_id) || null;
+if (sbGroupId && (!sharedState.groupId || sharedState.groupId !== sbGroupId)) {
+restoreSharedBackupSnapshot(sb, true).catch(() => {});
+}
+}
+}
+
+function updateCloudSyncUI() {
+const auth = getCloudAuth();
+const pill = document.getElementById('cloud-sync-pill');
+const sub = document.getElementById('cloud-sync-subtitle');
+const outBox = document.getElementById('cloud-sync-logged-out');
+const inBox = document.getElementById('cloud-sync-logged-in');
+const userLbl = document.getElementById('cloud-sync-user-label');
+const timeLbl = document.getElementById('cloud-sync-time-label');
+const emptyBanner = document.getElementById('cloud-empty-banner');
+
+if (auth) {
+if (pill) {
+pill.textContent = 'Bağlı';
+pill.className = 'text-[9.5px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 shrink-0';
+}
+if (sub) sub.textContent = 'Tüm tarayıcı ve uygulamalarda otomatik eşitlenir';
+if (outBox) outBox.classList.add('hidden');
+if (inBox) inBox.classList.remove('hidden');
+if (userLbl) userLbl.textContent = '@' + (auth.username || 'hesap');
+if (timeLbl) {
+const ts = _cloudLastSyncedAt || auth.lastSyncedAt;
+if (ts) {
+const d = new Date(ts);
+const hhmm = isNaN(d.getTime()) ? '' : `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+timeLbl.textContent = hhmm ? `Son eşitleme: ${hhmm} • Otomatik açık` : 'Otomatik eşitleme aktif';
+} else {
+timeLbl.textContent = 'Otomatik eşitleme aktif';
+}
+}
+if (emptyBanner) emptyBanner.classList.add('hidden');
+} else {
+if (pill) {
+pill.textContent = 'Kapalı';
+pill.className = 'text-[9.5px] font-extrabold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 shrink-0';
+}
+if (sub) sub.textContent = 'Uygulama, tarayıcı ve cihazlar arası otomatik eşitleme';
+if (outBox) outBox.classList.remove('hidden');
+if (inBox) inBox.classList.add('hidden');
+let dismissed = false;
+try { dismissed = localStorage.getItem(CLOUD_BANNER_DISMISS_KEY) === '1'; } catch (e) {}
+if (emptyBanner) {
+const showBanner = isSharedConfigured() && !hasLocalWalletData() && !dismissed;
+emptyBanner.classList.toggle('hidden', !showBanner);
+}
+}
+}
+
+function dismissCloudEmptyBanner() {
+try { localStorage.setItem(CLOUD_BANNER_DISMISS_KEY, '1'); } catch (e) {}
+const el = document.getElementById('cloud-empty-banner');
+if (el) el.classList.add('hidden');
+}
+
+function openCloudSyncModal() {
+closeSharedSubview();
+const sqlHint = document.getElementById('cloud-modal-sql-hint');
+if (sqlHint) sqlHint.classList.add('hidden');
+document.getElementById('cloud-sync-backdrop').classList.remove('hidden');
+setTimeout(() => {
+const u = document.getElementById('cloud-username-input');
+if (u && !u.value) u.focus();
+}, 120);
+}
+function closeCloudSyncModal() {
+document.getElementById('cloud-sync-backdrop').classList.add('hidden');
+}
+
+async function submitCloudSyncForm(e) {
+e.preventDefault();
+const userInp = document.getElementById('cloud-username-input');
+const passInp = document.getElementById('cloud-password-input');
+const btn = document.getElementById('cloud-sync-submit-btn');
+const sqlHint = document.getElementById('cloud-modal-sql-hint');
+const setSqlHint = document.getElementById('cloud-sync-sql-hint');
+if (sqlHint) sqlHint.classList.add('hidden');
+if (setSqlHint) setSqlHint.classList.add('hidden');
+
+const username = String(userInp ? userInp.value : '').trim().toLowerCase();
+const password = String(passInp ? passInp.value : '');
+if (username.length < 2) return showToast('Kullanıcı adı en az 2 karakter olmalı');
+if (password.length < 4) return showToast('Şifre en az 4 karakter olmalı');
+if (!isSharedConfigured()) return showToast('Supabase bağlantısı ayarlı değil');
+const client = getSharedClient();
+if (!client) return showToast('Bağlantı hazırlanıyor, tekrar deneyin');
+
+if (btn) { btn.disabled = true; btn.classList.add('opacity-60'); }
+try {
+const passHash = await sha256Hex(`cuzdanim_v1:${username}:${password}`);
+const initialPayload = hasLocalWalletData() ? buildCloudVaultPayload() : null;
+const { data, error } = await client.rpc('register_or_login_personal_vault', {
+p_username: username,
+p_pass_hash: passHash,
+p_initial_data: initialPayload
+});
+if (error) {
+if (/does not exist|schema cache/i.test(error.message || '')) {
+if (sqlHint) sqlHint.classList.remove('hidden');
+if (setSqlHint) setSqlHint.classList.remove('hidden');
+showToast("Önce Supabase SQL Editor'da Kişisel Bulut SQL kodunu çalıştır");
+return;
+}
+throw error;
+}
+const row = Array.isArray(data) ? data[0] : data;
+if (!row || !row.out_sync_token) throw new Error('Bulut yanıtı alınamadı');
+
+const nowIso = row.out_updated_at || new Date().toISOString();
+_cloudLastSyncedAt = nowIso;
+_cloudInitialSyncDone = true;
+saveCloudAuth({ username, token: row.out_sync_token, lastSyncedAt: nowIso });
+idbMirrorPut('cloud_auth', JSON.stringify({ username, token: row.out_sync_token, lastSyncedAt: nowIso }));
+
+const cloudHasData = hasDataInPayload(row.out_vault_data);
+const localHasData = hasLocalWalletData();
+if (row.out_status === 'logged_in') {
+if (cloudHasData) {
+applyCloudVaultPayload(row.out_vault_data, nowIso);
+showToast(`@${username} verileri bu cihaza eşitlendi!`);
+} else if (localHasData) {
+await pushPersonalVaultToCloud(true);
+showToast(`@${username} bağlandı ve mevcut verilerin buluta kaydedildi!`);
+} else {
+showToast(`@${username} bulut hesabına bağlandı!`);
+}
+} else {
+try { localStorage.setItem(CLOUD_DIRTY_KEY, '0'); } catch (ex) {}
+showToast(`@${username} bulut hesabı oluşturuldu ve eşitlendi!`);
+}
+if (passInp) passInp.value = '';
+closeCloudSyncModal();
+updateCloudSyncUI();
+} catch (err) {
+showToast(sharedErrText(err));
+} finally {
+if (btn) { btn.disabled = false; btn.classList.remove('opacity-60'); }
+}
+}
+
+async function pushPersonalVaultToCloud(force = false) {
+const auth = getCloudAuth();
+if (!auth || !isSharedConfigured() || navigator.onLine === false) return false;
+if (!force && !_cloudInitialSyncDone) return false;
+if (!force && !hasLocalWalletData()) return false;
+if (_cloudPushing) return false;
+const client = getSharedClient();
+if (!client) return false;
+_cloudPushing = true;
+try {
+const payload = buildCloudVaultPayload();
+const { data, error } = await client.rpc('save_personal_vault', {
+p_sync_token: auth.token,
+p_vault_data: payload
+});
+if (error) {
+if (/does not exist|schema cache/i.test(error.message || '')) {
+const sh = document.getElementById('cloud-sync-sql-hint');
+if (sh) sh.classList.remove('hidden');
+}
+return false;
+}
+const ts = (typeof data === 'string' && data) ? data : new Date().toISOString();
+_cloudLastSyncedAt = ts;
+try {
+localStorage.setItem(CLOUD_DIRTY_KEY, '0');
+localStorage.setItem(CLOUD_LOCAL_TS_KEY, ts);
+} catch (e) {}
+saveCloudAuth({ ...auth, lastSyncedAt: ts });
+return true;
+} catch (e) {
+return false;
+} finally {
+_cloudPushing = false;
+}
+}
+
+function scheduleCloudPush() {
+if (_suppressCloudPush) return;
+const auth = getCloudAuth();
+if (!auth) return;
+try { localStorage.setItem(CLOUD_DIRTY_KEY, '1'); } catch (e) {}
+if (_cloudPushTimer) clearTimeout(_cloudPushTimer);
+_cloudPushTimer = setTimeout(() => {
+_cloudPushTimer = null;
+pushPersonalVaultToCloud(false).catch(() => {});
+}, 1100);
+}
+
+async function pullPersonalVaultFromCloud(silent = true) {
+const auth = getCloudAuth();
+if (!auth || !isSharedConfigured() || navigator.onLine === false) return false;
+const client = getSharedClient();
+if (!client) return false;
+try {
+const { data, error } = await client.rpc('get_personal_vault', { p_sync_token: auth.token });
+if (error) return false;
+const row = Array.isArray(data) ? data[0] : data;
+if (!row) return false;
+_cloudInitialSyncDone = true;
+if (row.out_username && row.out_username !== auth.username) {
+saveCloudAuth({ ...auth, username: row.out_username, lastSyncedAt: row.out_updated_at || auth.lastSyncedAt });
+}
+const cloudHasData = hasDataInPayload(row.out_vault_data);
+const localHasData = hasLocalWalletData();
+const isDirty = localStorage.getItem(CLOUD_DIRTY_KEY) === '1';
+const localTs = Date.parse(localStorage.getItem(CLOUD_LOCAL_TS_KEY) || '') || 0;
+const cloudTs = Date.parse(row.out_updated_at || (row.out_vault_data && row.out_vault_data.savedAt) || '') || 0;
+
+if (!localHasData && cloudHasData) {
+_cloudLastSyncedAt = row.out_updated_at || new Date().toISOString();
+applyCloudVaultPayload(row.out_vault_data, _cloudLastSyncedAt);
+if (!silent) showToast(`@${row.out_username || auth.username} verileri buluttan yüklendi!`);
+updateCloudSyncUI();
+return true;
+}
+if (cloudHasData && !isDirty && cloudTs > localTs + 1500 && !isUserTypingInInput()) {
+_cloudLastSyncedAt = row.out_updated_at || new Date().toISOString();
+applyCloudVaultPayload(row.out_vault_data, _cloudLastSyncedAt);
+if (!silent) showToast('Güncel veriler buluttan çekildi');
+updateCloudSyncUI();
+return true;
+}
+if (isDirty && localHasData) {
+const ok = await pushPersonalVaultToCloud(true);
+if (ok && !silent) showToast('Yerel değişiklikler buluta gönderildi');
+return ok;
+}
+_cloudLastSyncedAt = row.out_updated_at || _cloudLastSyncedAt;
+updateCloudSyncUI();
+if (!silent) showToast('Verilerin zaten güncel');
+return true;
+} catch (e) {
+return false;
+}
+}
+
+async function manualCloudSyncNow() {
+const auth = getCloudAuth();
+if (!auth) return openCloudSyncModal();
+if (navigator.onLine === false) return showToast('İnternet bağlantısı yok');
+showToast('Bulut ile eşitleniyor...');
+const isDirty = localStorage.getItem(CLOUD_DIRTY_KEY) === '1';
+if (isDirty && hasLocalWalletData()) {
+const ok = await pushPersonalVaultToCloud(true);
+showToast(ok ? 'Buluta kaydedildi!' : 'Eşitleme başarısız oldu');
+} else {
+await pullPersonalVaultFromCloud(false);
+}
+}
+
+function copyPersonalSyncLink() {
+const auth = getCloudAuth();
+if (!auth || !auth.token) return showToast('Önce bulut hesabını bağla');
+const baseUrl = (location.protocol === 'http:' || location.protocol === 'https:')
+? `${location.origin}${location.pathname}`
+: location.href.split('#')[0];
+const personalUrl = `${baseUrl}#vlt=${encodeURIComponent(auth.token)}`;
+copyTextToClipboard(personalUrl, 'Özel giriş linkin kopyalandı! Bu linki kimseyle paylaşma.');
+}
+
+function logoutCloudSync() {
+const auth = getCloudAuth();
+openConfirmModal(`"@${auth?.username || ''}" bulut senkronizasyonu bu tarayıcıda kapatılsın mı? Verilerin bulutta ve bu cihazda kalır, sadece otomatik eşitleme durur.`, () => {
+if (_cloudPushTimer) { clearTimeout(_cloudPushTimer); _cloudPushTimer = null; }
+saveCloudAuth(null);
+idbMirrorPut('cloud_auth', '');
+showToast('Bulut bağlantısı kesildi');
+});
+}
+
+function checkUrlSyncTokenOnBoot() {
+try {
+const hash = location.hash || '';
+const m = hash.match(/#vlt=([A-Za-z0-9_-]{16,128})/);
+if (!m) return false;
+const token = decodeURIComponent(m[1]);
+const existing = getCloudAuth();
+if (!existing || existing.token !== token) {
+saveCloudAuth({ username: existing?.username || 'hesap', token, lastSyncedAt: null });
+idbMirrorPut('cloud_auth', JSON.stringify({ username: existing?.username || 'hesap', token, lastSyncedAt: null }));
+}
+if (location.protocol === 'http:' || location.protocol === 'https:') {
+history.replaceState(null, '', location.pathname + location.search);
+} else {
+location.hash = '';
+}
+return true;
+} catch (e) { return false; }
+}
+
+async function initPersonalCloudSyncOnBoot() {
+const fromHash = checkUrlSyncTokenOnBoot();
+// Eger localStorage bos ama IndexedDB aynasinda kayit varsa kurtar
+if (!hasLocalWalletData()) {
+const mirroredRaw = await idbMirrorGet('wallet_state');
+if (mirroredRaw && typeof mirroredRaw === 'string') {
+try {
+const parsed = JSON.parse(mirroredRaw);
+if (hasDataInPayload(parsed)) {
+applyCloudVaultPayload(parsed, parsed.savedAt || new Date().toISOString());
+}
+} catch (e) {}
+}
+}
+if (!getCloudAuth()) {
+const mirroredAuth = await idbMirrorGet('cloud_auth');
+if (mirroredAuth && typeof mirroredAuth === 'string') {
+try {
+const parsedAuth = JSON.parse(mirroredAuth);
+if (parsedAuth && parsedAuth.token) saveCloudAuth(parsedAuth);
+} catch (e) {}
+}
+}
+updateCloudSyncUI();
+if (getCloudAuth()) {
+await pullPersonalVaultFromCloud(!fromHash);
+}
+}
+
+function triggerCloudSave() {
+try {
+const nowIso = new Date().toISOString();
+const stateObj = getWalletState();
+stateObj.savedAt = nowIso;
+const payload = JSON.stringify(stateObj);
+localStorage.setItem(getIsolatedStorageKey(), payload);
+localStorage.setItem(LEGACY_STORAGE_KEY, payload);
+localStorage.setItem(CLOUD_LOCAL_TS_KEY, nowIso);
+idbMirrorPut('wallet_state', payload);
 } catch (error) { console.error('Yerel kayıt hatası:', error); }
+scheduleCloudPush();
+updateCloudSyncUI();
 }
 function restoreWalletState() {
 try {
@@ -9576,7 +10272,8 @@ const sheets = [
 ['shared-subview-backdrop', closeSharedSubview],
 ['shared-layout-backdrop', closeSharedLayoutModal],
 ['home-layout-backdrop', closeHomeLayoutModal],
-['settings-sheet-backdrop', closeSettingsSheet]
+['settings-sheet-backdrop', closeSettingsSheet],
+['cloud-sync-backdrop', closeCloudSyncModal]
 ];
 
 function findScrollableParent(target, stopAt) {
@@ -9696,51 +10393,184 @@ panel.addEventListener('touchcancel', endSwipe, { passive: true });
 let _appBooted = false;
 let _swReg = null;
 let _lastSwCheck = 0;
+let _swReloading = false;
+let _pendingSwReload = false;
+let _lastHiddenAt = 0;
+let _lastResumeAt = 0;
+let _lastFxFetchAt = 0;
+let _lastBootDateStr = '';
+
+function normalizeAppPathOnWeb() {
+try {
+if (location.protocol !== 'https:' && location.protocol !== 'http:') return;
+const p = location.pathname || '/';
+if (/\.html?$/i.test(p)) {
+history.replaceState(null, '', './' + (location.search || '') + (location.hash || ''));
+}
+} catch (e) {}
+}
+
+function requestPersistentStorage() {
+try {
+if (navigator.storage && typeof navigator.storage.persist === 'function') {
+navigator.storage.persist().catch(() => {});
+}
+} catch (e) {}
+}
+
+function triggerSafeSwReload() {
+if (_swReloading) return;
+if (isUserTypingInInput()) {
+_pendingSwReload = true;
+return;
+}
+_swReloading = true;
+location.reload();
+}
 
 function registerPwaServiceWorker() {
 if (!('serviceWorker' in navigator)) return;
 if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') return;
-navigator.serviceWorker.register('./sw.js', { scope: './' }).then((reg) => {
+const hadController = !!navigator.serviceWorker.controller;
+navigator.serviceWorker.addEventListener('controllerchange', () => {
+if (hadController) triggerSafeSwReload();
+});
+navigator.serviceWorker.register('./sw.js', { scope: './', updateViaCache: 'none' }).then((reg) => {
 _swReg = reg;
 _lastSwCheck = Date.now();
+if (reg.waiting) {
+try { reg.waiting.postMessage({ type: 'SKIP_WAITING' }); } catch (e) {}
+}
+reg.addEventListener('updatefound', () => {
+const installing = reg.installing;
+if (!installing) return;
+installing.addEventListener('statechange', () => {
+if (installing.state === 'installed' && navigator.serviceWorker.controller) {
+try { installing.postMessage({ type: 'SKIP_WAITING' }); } catch (e) {}
+}
+});
+});
 }).catch(() => {});
+}
+
+async function reconnectSharedAfterFreeze(longSuspend) {
+if (!isSharedConfigured() || navigator.onLine === false) return;
+const client = getSharedClient();
+if (!client) return;
+try {
+const { data } = await client.auth.getSession();
+let session = data && data.session;
+if (session) {
+const expiresAtMs = (session.expires_at || 0) * 1000;
+if (longSuspend || (expiresAtMs && (expiresAtMs - Date.now() < 300000))) {
+const ref = await client.auth.refreshSession();
+if (ref && ref.data && ref.data.session) session = ref.data.session;
+}
+}
+if (session && session.user) {
+sharedState.userId = session.user.id;
+if (longSuspend) {
+teardownAllSharedChannels();
+}
+if (sharedState.groupId) {
+if (!sharedState.channel) subscribeSharedChannel();
+if (!sharedState.personalChannel) subscribePersonalChannel();
+if (!isUserTypingInInput()) await refreshSharedData();
+} else {
+await refreshSharedMembership();
+}
+} else if (sharedState.groupId || sharedState.userId) {
+await restoreSharedSession();
+}
+} catch (e) {}
+}
+
+function handleAppResume(reason) {
+const now = Date.now();
+if (now - _lastResumeAt < 1800) return;
+_lastResumeAt = now;
+const suspendedMs = _lastHiddenAt ? (now - _lastHiddenAt) : 0;
+const longSuspend = reason === 'bfcache' || reason === 'online' || suspendedMs > 45000;
+_lastHiddenAt = 0;
+
+if (_pendingSwReload && !isUserTypingInInput()) {
+_pendingSwReload = false;
+triggerSafeSwReload();
+return;
+}
+
+const todayStr = getTodayOffset(0);
+if (_lastBootDateStr && _lastBootDateStr !== todayStr) {
+_lastBootDateStr = todayStr;
+const addSheetClosed = document.getElementById('add-sheet-backdrop')?.classList.contains('hidden');
+const txDateEl = document.getElementById('tx-date');
+if (addSheetClosed && txDateEl) txDateEl.value = todayStr;
+if (!isUserTypingInInput()) updateUI();
+}
+
+if (_swReg && (now - _lastSwCheck > 60000)) {
+_lastSwCheck = now;
+_swReg.update().catch(() => {});
+}
+if (navigator.onLine !== false) {
+if (now - _lastFxFetchAt > 1800000) {
+_lastFxFetchAt = now;
+fetchLiveUsdRate();
+}
+reconnectSharedAfterFreeze(longSuspend).catch(() => {});
+if (getCloudAuth()) pullPersonalVaultFromCloud(true).catch(() => {});
+}
+}
+
+function safeInitStep(fn) {
+try { fn(); } catch (e) { console.error('Başlatma uyarısı:', e); }
 }
 
 function bootApp() {
 if (_appBooted) return;
 _appBooted = true;
-ensureDeviceVaultId();
-restoreNightMode();
-restoreWalletState();
-restoreHomeLayout();
-restoreSharedLayout();
-restoreAppLanguage();
-restorePersonalCache();
-migrateLegacyTransactionsToAccounts();
-document.getElementById('tx-date').value = getTodayOffset(0);
-document.getElementById('monthly-budget-input').value = monthlyBudgetLimit;
-populateCategories('expense');
-syncPaymentMethodDropdown();
-syncAccountDropdown();
-updateUI();
-updateFxCardUI();
-refreshShareToggleState();
-initBottomSheetSwipeDismiss();
+normalizeAppPathOnWeb();
+requestPersistentStorage();
+safeInitStep(ensureDeviceVaultId);
+safeInitStep(restoreNightMode);
+safeInitStep(restoreWalletState);
+safeInitStep(restoreHomeLayout);
+safeInitStep(restoreSharedLayout);
+safeInitStep(restoreAppLanguage);
+safeInitStep(restorePersonalCache);
+safeInitStep(migrateLegacyTransactionsToAccounts);
+_lastBootDateStr = getTodayOffset(0);
+const txDateEl = document.getElementById('tx-date');
+if (txDateEl) txDateEl.value = _lastBootDateStr;
+const budgetInp = document.getElementById('monthly-budget-input');
+if (budgetInp) budgetInp.value = monthlyBudgetLimit;
+safeInitStep(() => populateCategories('expense'));
+safeInitStep(syncPaymentMethodDropdown);
+safeInitStep(syncAccountDropdown);
+safeInitStep(updateUI);
+safeInitStep(updateFxCardUI);
+safeInitStep(refreshShareToggleState);
+safeInitStep(initBottomSheetSwipeDismiss);
+updateCloudSyncUI();
 setTimeout(() => {
+_lastFxFetchAt = Date.now();
 fetchLiveUsdRate();
 restoreSharedSession();
+initPersonalCloudSyncOnBoot();
 registerPwaServiceWorker();
 }, 0);
 document.addEventListener('visibilitychange', () => {
-if (!document.hidden) {
-if (sharedState.userId && !isUserTypingInInput()) {
-refreshSharedData().catch(() => {});
+if (document.hidden) {
+_lastHiddenAt = Date.now();
+} else {
+handleAppResume('visibility');
 }
-if (_swReg && (Date.now() - _lastSwCheck > 300000)) {
-_lastSwCheck = Date.now();
-_swReg.update().catch(() => {});
-}
-}
+});
+window.addEventListener('pageshow', (e) => {
+if (e && e.persisted) handleAppResume('bfcache');
+});
+window.addEventListener('online', () => {
+handleAppResume('online');
 });
 }
 
@@ -9753,6 +10583,9 @@ window.addEventListener('load', () => {
 if (!_appBooted) bootApp();
 if (!sharedState.userId && isSharedConfigured()) {
 restoreSharedSession();
+}
+if (getCloudAuth() && !_cloudInitialSyncDone) {
+pullPersonalVaultFromCloud(true).catch(() => {});
 }
 if (currentTabName === 'stats' && !chartInstance) {
 updateStatsAndChart();

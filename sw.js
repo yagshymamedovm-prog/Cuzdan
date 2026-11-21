@@ -1,6 +1,6 @@
-/* Cüzdanım PWA Service Worker v37 */
-const APP_CACHE = 'cuzdanim-app-v37b';
-const CDN_CACHE = 'cuzdanim-cdn-v37';
+/* Cüzdanım PWA Service Worker v39 (iOS Safari 404 & Redirect Korumalı) */
+const APP_CACHE = 'cuzdanim-app-v39';
+const CDN_CACHE = 'cuzdanim-cdn-v39';
 const PRECACHE_URLS = [
   './',
   './index.html',
@@ -17,24 +17,54 @@ const CDN_HOSTS = new Set([
   'cdn.jsdelivr.net'
 ]);
 
+// iOS Safari, Service Worker'dan donen redirected=true yanitlari navigasyonda reddedebilir.
+function cleanResponse(res) {
+  if (!res || !res.redirected) return Promise.resolve(res);
+  return res.arrayBuffer().then((buf) => {
+    const headers = new Headers(res.headers);
+    return new Response(buf, {
+      status: res.status,
+      statusText: res.statusText,
+      headers
+    });
+  });
+}
+
+function precacheOne(cache, url) {
+  return fetch(url, { cache: 'reload', credentials: 'same-origin', redirect: 'follow' })
+    .then((res) => {
+      if (!res || !res.ok) return null;
+      return cleanResponse(res).then((clean) => cache.put(url, clean));
+    })
+    .catch(() => null);
+}
+
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(APP_CACHE).then((cache) =>
-      Promise.allSettled(PRECACHE_URLS.map((u) => cache.add(u)))
-    ).then(() => self.skipWaiting())
+    caches.open(APP_CACHE)
+      .then((cache) => Promise.allSettled(PRECACHE_URLS.map((u) => precacheOne(cache, u))))
+      .then(() => self.skipWaiting())
   );
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(
-        keys
-          .filter((k) => k !== APP_CACHE && k !== CDN_CACHE)
-          .map((k) => caches.delete(k))
+    caches.keys()
+      .then((keys) =>
+        Promise.all(
+          keys
+            .filter((k) => k !== APP_CACHE && k !== CDN_CACHE)
+            .map((k) => caches.delete(k))
+        )
       )
-    ).then(() => self.clients.claim())
+      .then(() => self.clients.claim())
   );
+});
+
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
 
 function isLiveApiRequest(url) {
@@ -53,6 +83,42 @@ function fetchWithTimeout(input, init, ms) {
   });
 }
 
+function getCachedShell() {
+  return caches.open(APP_CACHE)
+    .then((cache) => cache.match('./index.html').then((m) => m || cache.match('./')))
+    .then((m) => (m ? cleanResponse(m) : m));
+}
+
+function cacheAndReturnShell(res) {
+  return cleanResponse(res).then((clean) => {
+    const c1 = clean.clone();
+    const c2 = clean.clone();
+    caches.open(APP_CACHE).then((cache) => {
+      cache.put('./index.html', c1).catch(() => {});
+      cache.put('./', c2).catch(() => {});
+    });
+    return clean;
+  });
+}
+
+function fetchAppShellNetworkFirst(reqUrl) {
+  const opts = { cache: 'no-cache', credentials: 'same-origin', redirect: 'follow' };
+  return fetchWithTimeout(reqUrl, opts, 3500)
+    .then((res) => {
+      if (res && res.ok) return cacheAndReturnShell(res);
+      // Sunucu 404/5xx donduyse (ornegin eski kisayol yolu) dogrudan ./index.html dene
+      return fetchWithTimeout('./index.html', opts, 3500).then((fallbackRes) => {
+        if (fallbackRes && fallbackRes.ok) return cacheAndReturnShell(fallbackRes);
+        return getCachedShell();
+      });
+    })
+    .catch(() => getCachedShell())
+    .then((res) => res || new Response('Cevrimdisi — Lutfen internet baglantinizi kontrol edin.', {
+      status: 503,
+      headers: { 'Content-Type': 'text/plain; charset=utf-8' }
+    }));
+}
+
 self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') return;
@@ -62,31 +128,16 @@ self.addEventListener('fetch', (event) => {
   if (url.protocol !== 'http:' && url.protocol !== 'https:') return;
   if (isLiveApiRequest(url)) return;
 
-  // 1) HTML / Sayfa açılışı: Network-First (güncelleme anında gelir, çevrimdışıyken önbellekten açılır)
-  if (req.mode === 'navigate' || (url.origin === self.location.origin && (url.pathname.endsWith('/') || url.pathname.endsWith('/index.html')))) {
-    event.respondWith(
-      fetchWithTimeout(req.url, { cache: 'no-cache', credentials: 'same-origin' }, 3500)
-        .then((res) => {
-          if (res && res.ok) {
-            const copy1 = res.clone();
-            const copy2 = res.clone();
-            caches.open(APP_CACHE).then((c) => {
-              c.put('./index.html', copy1).catch(() => {});
-              c.put(req.url, copy2).catch(() => {});
-            });
-          }
-          return res;
-        })
-        .catch(() =>
-          caches.match(req.url)
-            .then((m) => m || caches.match('./index.html'))
-            .then((m) => m || caches.match('./'))
-        )
-    );
+  // 1) Sayfa acilisi / HTML: Network-First + 404/Redirect korumasi + Cevrimdisi onbellek
+  if (
+    req.mode === 'navigate' ||
+    (url.origin === self.location.origin && (url.pathname.endsWith('/') || /\.html?$/i.test(url.pathname)))
+  ) {
+    event.respondWith(fetchAppShellNetworkFirst(req.url));
     return;
   }
 
-  // 2) CDN kütüphaneleri & yazı tipleri: Stale-While-Revalidate (anında açılış + çevrimdışı destek)
+  // 2) CDN kutuphaneleri & yazi tipleri: Stale-While-Revalidate (aninda acilis + cevrimdisi destek)
   if (CDN_HOSTS.has(url.hostname)) {
     event.respondWith(
       caches.open(CDN_CACHE).then((cache) =>
@@ -104,7 +155,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 3) Aynı kaynak statik dosyalar (ikonlar, manifest): Stale-While-Revalidate
+  // 3) Ayni kaynak statik dosyalar (ikonlar, manifest): Stale-While-Revalidate
   if (url.origin === self.location.origin) {
     event.respondWith(
       caches.open(APP_CACHE).then((cache) =>
