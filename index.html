@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Cüzdanım v36 — Kişisel Finans & Kart Asistanı</title>
+<title>Cüzdanım v37 — Kişisel Finans & Kart Asistanı</title>
 <meta name="theme-color" content="#eef2f8">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1633,7 +1633,7 @@ class="px-2.5 py-2.5 bg-white border border-slate-200/90 rounded-2xl text-[11px]
 </div>
 <div>
 <h3 class="text-xs font-extrabold text-slate-900">Cihaz Yedeği & Veri</h3>
-<p class="text-[10px] text-slate-400">Veriler yalnızca bu cihazda saklanır</p>
+<p class="text-[10px] text-slate-400">Kişisel kayıtlar + Ortak Alan grubu ve borçların dahil</p>
 </div>
 </div>
 <div class="grid grid-cols-2 gap-2">
@@ -1642,6 +1642,10 @@ class="px-2.5 py-2.5 bg-white border border-slate-200/90 rounded-2xl text-[11px]
 <i class="fa-solid fa-upload text-[10px]"></i>Yedek Yükle
 <input type="file" id="backup-file" accept="application/json,.json" onchange="importWalletBackup(event)" class="hidden">
 </label>
+</div>
+<div id="backup-claim-sql-hint" class="hidden flex items-center justify-between gap-2 bg-amber-50/90 border border-amber-200/80 rounded-xl px-2.5 py-2">
+<span class="text-[9.5px] font-semibold text-amber-900">Eski yedeğin Ortak Alan oturumu yenilenmiş. Hesabı aktarmak için SQL kodunu 1 kez çalıştırıp yedeği tekrar yükle.</span>
+<button type="button" onclick="copyClaimIdentitySql()" class="px-2 py-1 rounded-lg bg-amber-600 text-white text-[9.5px] font-extrabold shrink-0 active:scale-95">SQL Kopyala</button>
 </div>
 <button onclick="clearAllData()" class="w-full py-2 px-3 bg-rose-50 hover:bg-rose-100 text-rose-600 text-[11px] font-bold rounded-xl transition flex items-center justify-center gap-1.5 active:scale-95">
 <i class="fa-solid fa-trash-can text-[10px]"></i> Bu Cihazdaki Tüm Verileri Sıfırla
@@ -3660,14 +3664,328 @@ return `<div class="flex items-center justify-between gap-2 p-2.5 bg-slate-50 ro
 }).join('');
 }
 function deleteRecurringPlan(id) { recurringPlans = recurringPlans.filter(p => p.id !== id); renderRecurringPlans(); renderUpcomingSubscriptionsBanner(); triggerCloudSave(); }
+const CLAIM_IDENTITY_SQL_SNIPPET = `create or replace function public.claim_shared_identity(
+  p_old_user_id uuid,
+  p_invite_codes text[]
+) returns int
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_new_uid uuid := auth.uid();
+  v_matched_groups int := 0;
+  v_codes text[];
+begin
+  if v_new_uid is null then
+    raise exception 'Oturum gerekli';
+  end if;
+  if p_old_user_id is null or p_old_user_id = v_new_uid then
+    return 0;
+  end if;
+
+  select array_agg(upper(regexp_replace(coalesce(c, ''), '[^0-9A-Za-z]', '', 'g')))
+    into v_codes
+  from unnest(coalesce(p_invite_codes, array[]::text[])) as c
+  where length(trim(coalesce(c, ''))) >= 6;
+
+  if v_codes is null or array_length(v_codes, 1) is null then
+    raise exception 'Doğrulama için grup davet kodu gerekli';
+  end if;
+
+  select count(*) into v_matched_groups
+  from public.shared_members m
+  join public.shared_groups g on g.id = m.group_id
+  where m.user_id = p_old_user_id
+    and upper(regexp_replace(coalesce(g.invite_code, ''), '[^0-9A-Za-z]', '', 'g')) = any(v_codes);
+
+  if v_matched_groups = 0 then
+    raise exception 'Eski hesap ile eşleşen ortak grup bulunamadı';
+  end if;
+
+  delete from public.shared_members m_new
+  where m_new.user_id = v_new_uid
+    and m_new.group_id in (select group_id from public.shared_members where user_id = p_old_user_id);
+
+  update public.shared_members
+  set user_id = v_new_uid
+  where user_id = p_old_user_id;
+
+  if exists (
+    select 1 from information_schema.columns
+    where table_schema = 'public' and table_name = 'shared_groups' and column_name = 'created_by'
+  ) then
+    update public.shared_groups
+    set created_by = v_new_uid
+    where created_by = p_old_user_id;
+  end if;
+
+  delete from public.shared_records r_new
+  where r_new.created_by = v_new_uid
+    and exists (
+      select 1 from public.shared_records r_old
+      where r_old.created_by = p_old_user_id
+        and r_old.group_id = r_new.group_id
+        and r_old.source_local_id = r_new.source_local_id
+    );
+
+  update public.shared_records
+  set created_by = v_new_uid
+  where created_by = p_old_user_id;
+
+  update public.shared_personal_debts
+  set creditor_id = v_new_uid
+  where creditor_id = p_old_user_id;
+
+  update public.shared_personal_debts
+  set debtor_id = v_new_uid
+  where debtor_id = p_old_user_id;
+
+  if exists (
+    select 1 from information_schema.columns
+    where table_schema = 'public' and table_name = 'shared_personal_debts' and column_name = 'created_by'
+  ) then
+    update public.shared_personal_debts
+    set created_by = v_new_uid
+    where created_by = p_old_user_id;
+  end if;
+
+  if to_regclass('public.shared_polls') is not null then
+    update public.shared_polls
+    set created_by = v_new_uid
+    where created_by = p_old_user_id;
+
+    update public.shared_polls
+    set votes = (votes - p_old_user_id::text) || jsonb_build_object(v_new_uid::text, votes -> p_old_user_id::text)
+    where votes ? p_old_user_id::text;
+  end if;
+
+  if to_regclass('public.shared_shopping_items') is not null then
+    update public.shared_shopping_items
+    set created_by = v_new_uid
+    where created_by = p_old_user_id;
+
+    update public.shared_shopping_items
+    set checked_by = v_new_uid
+    where checked_by = p_old_user_id;
+  end if;
+
+  return v_matched_groups;
+end;
+$$;
+grant execute on function public.claim_shared_identity(uuid, text[]) to authenticated, anon;
+notify pgrst, 'reload schema';`;
+
+function copyClaimIdentitySql() {
+copyTextToClipboard(CLAIM_IDENTITY_SQL_SNIPPET, 'Ortak Alan hesap aktarım SQL kodu panoya kopyalandı!');
+}
+
+function readSupabaseAuthFromStorage() {
+try {
+for (let i = 0; i < localStorage.length; i++) {
+const k = localStorage.key(i);
+if (k && /^sb-.*-auth-token$/i.test(k)) {
+const raw = localStorage.getItem(k);
+if (!raw) continue;
+const parsed = JSON.parse(raw);
+const sess = (parsed && parsed.access_token) ? parsed : (parsed && parsed.currentSession ? parsed.currentSession : null);
+return {
+storageKey: k,
+rawValue: raw,
+accessToken: (sess && sess.access_token) || null,
+refreshToken: (sess && sess.refresh_token) || null,
+userId: (sess && sess.user && sess.user.id) || (parsed && parsed.user && parsed.user.id) || null
+};
+}
+}
+} catch (e) {}
+return null;
+}
+
+function collectSharedBackupSnapshot() {
+const authSnap = readSupabaseAuthFromStorage();
+const meta = loadSharedMeta();
+let cachedPd = null;
+try { cachedPd = JSON.parse(localStorage.getItem(PD_CACHE_KEY) || 'null'); } catch (e) {}
+const groups = (Array.isArray(sharedState.groups) && sharedState.groups.length)
+? sharedState.groups.map(g => ({
+group_id: g.group_id,
+group_name: g.group_name || 'Ortak Alan',
+invite_code: g.invite_code || '',
+display_name: g.display_name || ''
+}))
+: (meta && meta.groupId ? [{
+group_id: meta.groupId,
+group_name: meta.groupName || 'Ortak Alan',
+invite_code: meta.inviteCode || '',
+display_name: meta.displayName || ''
+}] : []);
+const personalDebts = (Array.isArray(sharedState.personalDebts) && sharedState.personalDebts.length)
+? sharedState.personalDebts
+: (cachedPd && Array.isArray(cachedPd.rows) ? cachedPd.rows : []);
+const userId = sharedState.userId || (authSnap && authSnap.userId) || sharedState._cacheUserId || (cachedPd && cachedPd.userId) || null;
+if (!userId && !groups.length && !personalDebts.length && !(authSnap && authSnap.refreshToken)) return null;
+return {
+version: 1,
+userId,
+authStorageKey: (authSnap && authSnap.storageKey) || null,
+authRawValue: (authSnap && authSnap.rawValue) || null,
+accessToken: (authSnap && authSnap.accessToken) || null,
+refreshToken: (authSnap && authSnap.refreshToken) || null,
+meta,
+groups,
+personalDebts,
+pdSeen: loadPdSeen()
+};
+}
+
+function teardownAllSharedChannels() {
+try {
+if (sharedState.channel && sharedState.client) sharedState.client.removeChannel(sharedState.channel);
+if (sharedState.personalChannel && sharedState.client) sharedState.client.removeChannel(sharedState.personalChannel);
+} catch (e) {}
+sharedState.channel = null;
+sharedState.personalChannel = null;
+}
+
+async function restoreSharedBackupSnapshot(sb) {
+if (!sb || typeof sb !== 'object') return;
+const hintEl = document.getElementById('backup-claim-sql-hint');
+if (hintEl) hintEl.classList.add('hidden');
+
+// 1) Yerel Ortak Alan meta ve borç önbelleğini anında geri yükle (çevrimdışıyken bile görünür)
+const meta = (sb.meta && typeof sb.meta === 'object') ? sb.meta : {};
+const groups = Array.isArray(sb.groups) ? sb.groups : [];
+const firstGrp = groups[0] || null;
+const restoredGroupId = meta.groupId || (firstGrp && firstGrp.group_id) || null;
+const restoredGroupName = meta.groupName || (firstGrp && firstGrp.group_name) || 'Ortak Alan';
+const restoredInviteCode = meta.inviteCode || (firstGrp && firstGrp.invite_code) || '';
+const restoredDisplayName = meta.displayName || (firstGrp && firstGrp.display_name) || '';
+
+if (restoredGroupId) {
+sharedState.groupId = restoredGroupId;
+sharedState.groupName = restoredGroupName;
+sharedState.inviteCode = restoredInviteCode;
+sharedState.displayName = restoredDisplayName;
+saveSharedMeta();
+}
+if (groups.length) sharedState.groups = groups;
+if (sb.pdSeen && typeof sb.pdSeen === 'object') savePdSeen(sb.pdSeen);
+if (Array.isArray(sb.personalDebts) && sb.personalDebts.length) {
+sharedState.personalDebts = sb.personalDebts;
+sharedState._cacheUserId = sb.userId || null;
+try {
+localStorage.setItem(PD_CACHE_KEY, JSON.stringify({ userId: sb.userId || null, rows: sb.personalDebts }));
+} catch (e) {}
+}
+renderDebts();
+updateSharedIndicators();
+
+if (!isSharedConfigured()) return;
+const client = getSharedClient();
+if (!client) {
+if (sb.authStorageKey && sb.authRawValue) {
+try { localStorage.setItem(sb.authStorageKey, sb.authRawValue); } catch (e) {}
+}
+showToast('Yedek yüklendi • İnternet gelince Ortak Alan otomatik bağlanır');
+return;
+}
+
+// 2) Canlı Supabase oturumunu geri yükle (aynı auth.uid() ile tüm grup + borçlar geri gelir)
+teardownAllSharedChannels();
+let liveRestored = false;
+let networkFailed = false;
+try {
+const { data: curData } = await client.auth.getSession();
+const curSession = curData && curData.session;
+if (curSession && curSession.user && sb.userId && curSession.user.id === sb.userId) {
+sharedState.userId = curSession.user.id;
+liveRestored = true;
+} else if (sb.accessToken && sb.refreshToken) {
+const { data: setData, error: setErr } = await client.auth.setSession({
+access_token: sb.accessToken,
+refresh_token: sb.refreshToken
+});
+if (!setErr && setData && setData.session && setData.session.user) {
+sharedState.userId = setData.session.user.id;
+liveRestored = true;
+} else if (setErr && /failed to fetch|networkerror|load failed/i.test(setErr.message || '')) {
+networkFailed = true;
+}
+}
+} catch (err) {
+if (/failed to fetch|networkerror|load failed/i.test((err && err.message) || '')) networkFailed = true;
+}
+
+if (networkFailed) {
+if (sb.authStorageKey && sb.authRawValue) {
+try { localStorage.setItem(sb.authStorageKey, sb.authRawValue); } catch (e) {}
+}
+showToast('Yedek yüklendi • İnternet gelince Ortak Alan otomatik bağlanır');
+return;
+}
+
+// 3) Yedekteki refresh_token eskimişse: davet koduyla eski Ortak Alan kimliğini yeni cihaza aktar (SQL RPC)
+if (!liveRestored && sb.userId) {
+const codeSet = new Set();
+groups.forEach(g => { const c = normalizeInviteCode(g && g.invite_code); if (c) codeSet.add(c); });
+const metaCode = normalizeInviteCode(restoredInviteCode);
+if (metaCode) codeSet.add(metaCode);
+const inviteCodes = Array.from(codeSet);
+if (inviteCodes.length) {
+try {
+await ensureSharedAuth();
+const { error: claimErr } = await client.rpc('claim_shared_identity', {
+p_old_user_id: sb.userId,
+p_invite_codes: inviteCodes
+});
+if (!claimErr) {
+liveRestored = true;
+} else if (/does not exist|schema cache/i.test(claimErr.message || '')) {
+if (hintEl) hintEl.classList.remove('hidden');
+}
+} catch (e) {}
+}
+}
+
+if (liveRestored) {
+try {
+await refreshSharedMembership();
+updateUI();
+renderSharedSpace();
+updateSharedIndicators();
+showToast(sharedState.groupId
+? `Yedek ve Ortak Alan ("${sharedState.groupName}") geri yüklendi!`
+: 'Yedek geri yüklendi!');
+return;
+} catch (err) {
+showToast('Yedek yüklendi • Ortak Alan yenilenemedi: ' + sharedErrText(err));
+return;
+}
+}
+
+// Oturum yenilenemediyse önbellekteki borçları koru ve kullanıcıya net bilgi ver
+if (Array.isArray(sb.personalDebts) && sb.personalDebts.length) {
+sharedState.personalDebts = sb.personalDebts;
+sharedState._cacheUserId = sb.userId || null;
+}
+renderDebts();
+updateSharedIndicators();
+showToast('Kişisel veriler yüklendi • Eski Ortak Alan oturumu için aktarım SQL kodunu çalıştır veya güncel cihazdan yedek al');
+}
+
 function exportWalletBackup() {
 const data = getWalletState();
+const sharedBackup = collectSharedBackupSnapshot();
+if (sharedBackup) data.sharedBackup = sharedBackup;
+data.nightMode = !!(document.getElementById('app-shell')?.classList.contains('night-mode'));
+data.nightTheme = currentNightTheme;
 const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
 const url = URL.createObjectURL(blob);
 const a = document.createElement('a');
 a.href = url; a.download = `cuzdanim-yedek-${getTodayOffset(0)}.json`;
 document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
-showToast('Yedek dosyası hazırlandı');
+showToast(sharedBackup ? 'Yedek indirildi (Ortak Alan & borçlar dahil)' : 'Yedek dosyası hazırlandı');
 }
 function importWalletBackup(event) {
 const file = event.target.files?.[0];
@@ -3677,8 +3995,25 @@ reader.onload = () => {
 try {
 const data = JSON.parse(reader.result);
 if (!data || !Array.isArray(data.transactions)) throw new Error('Geçersiz yedek');
-openConfirmModal('Bu cihazdaki mevcut kayıtlar yedek dosyasındaki verilerle değiştirilsin mi?', () => {
-applyWalletData(data); updateUI(); updateFxCardUI(); triggerCloudSave(); showToast('Yedek geri yüklendi');
+const hasShared = !!(data.sharedBackup && typeof data.sharedBackup === 'object');
+const confirmMsg = hasShared
+? 'Bu cihazdaki mevcut kayıtlar ve Ortak Alan bağlantısı yedek dosyasındaki verilerle geri yüklensin mi?'
+: 'Bu cihazdaki mevcut kayıtlar yedek dosyasındaki verilerle değiştirilsin mi?';
+openConfirmModal(confirmMsg, () => {
+applyWalletData(data);
+if (data.nightTheme && NIGHT_THEME_META[data.nightTheme]) setNightTheme(data.nightTheme, true);
+if (typeof data.nightMode === 'boolean') {
+const tgl = document.getElementById('night-mode-toggle');
+if (tgl) tgl.checked = data.nightMode;
+toggleNightMode(data.nightMode);
+}
+updateUI(); updateFxCardUI(); triggerCloudSave();
+if (hasShared) {
+showToast('Yedek yüklendi • Ortak Alan bağlanıyor...');
+restoreSharedBackupSnapshot(data.sharedBackup);
+} else {
+showToast('Yedek geri yüklendi');
+}
 });
 } catch (e) { showToast('Yedek dosyası okunamadı'); }
 event.target.value = '';
@@ -5465,7 +5800,7 @@ const dot = document.getElementById('shared-btn-dot');
 if (dot) dot.classList.toggle('hidden', !sharedState.groupId);
 const badge = document.getElementById('shared-btn-badge');
 if (badge) {
-const uid = sharedState.userId;
+const uid = sharedState.userId || sharedState._cacheUserId;
 const n = (sharedState.personalDebts || []).filter(r =>
 (r.debtor_id === uid && r.status === 'open') || (r.creditor_id === uid && r.status === 'paid_pending')
 ).length;
@@ -5892,7 +6227,7 @@ showToast('Ortak kayıt kaldırıldı');
 
 // --- KİŞİYE ÖZEL BORÇ, KISMİ ÖDEME, DEKONT, MAHSUPLAŞMA (Hesaplaşma 1,2,3,6,7) ---
 function getPersonalLedgerItems() {
-const uid = sharedState.userId;
+const uid = sharedState.userId || sharedState._cacheUserId;
 if (!uid) return [];
 return (sharedState.personalDebts || [])
 .filter(r => r.status === 'open' || r.status === 'paid_pending')

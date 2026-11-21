@@ -1,6 +1,6 @@
-/* Cüzdanım PWA Service Worker v36 */
-const APP_CACHE = 'cuzdanim-app-v36';
-const CDN_CACHE = 'cuzdanim-cdn-v36';
+/* Cüzdanım PWA Service Worker v37 */
+const APP_CACHE = 'cuzdanim-app-v37b';
+const CDN_CACHE = 'cuzdanim-cdn-v37';
 const PRECACHE_URLS = [
   './',
   './index.html',
