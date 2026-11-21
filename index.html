@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Cüzdanım v39 — Kişisel Finans & Kart Asistanı</title>
+<title>Cüzdanım v41 — Kişisel Finans & Kart Asistanı</title>
 <meta name="theme-color" content="#eef2f8">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1193,7 +1193,7 @@ body:has(#app-shell.night-mode[data-night-theme="titanium"]){background:radial-g
 <i class="fa-solid fa-arrow-trend-up text-xs"></i>
 </div>
 <div class="min-w-0">
-<p class="text-[10px] text-slate-400 font-medium">Toplam Giriş</p>
+<p class="text-[10px] text-slate-400 font-medium">Bu Ay Giriş</p>
 <p id="total-income" class="text-xs font-extrabold text-white truncate">₺0</p>
 </div>
 </div>
@@ -1202,7 +1202,7 @@ body:has(#app-shell.night-mode[data-night-theme="titanium"]){background:radial-g
 <i class="fa-solid fa-arrow-trend-down text-xs"></i>
 </div>
 <div class="min-w-0">
-<p class="text-[10px] text-slate-400 font-medium">Toplam Çıkış</p>
+<p class="text-[10px] text-slate-400 font-medium">Bu Ay Çıkış</p>
 <p id="total-expense" class="text-xs font-extrabold text-white truncate">₺0</p>
 </div>
 </div>
@@ -1674,8 +1674,14 @@ class="px-2.5 py-2.5 bg-white border border-slate-200/90 rounded-2xl text-[11px]
 <button type="button" onclick="copyPersonalSyncLink()" class="py-2 px-2.5 bg-[#090d16] text-white rounded-xl text-[10.5px] font-bold flex items-center justify-center gap-1.5 active:scale-95 transition">
 <i class="fa-solid fa-link text-[10px] text-emerald-400"></i> Özel Giriş Linkim
 </button>
+<button type="button" onclick="rotatePersonalSyncLink()" class="py-2 px-2.5 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200/80 rounded-xl text-[10.5px] font-bold flex items-center justify-center gap-1.5 active:scale-95 transition" title="Eski özel giriş linkini iptal edip yeni link üretir">
+<i class="fa-solid fa-shield-halved text-[10px]"></i> Linki İptal/Yenile
+</button>
+<button type="button" onclick="openCloudPasswordModal()" class="py-2 px-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-[10.5px] font-bold flex items-center justify-center gap-1.5 active:scale-95 transition">
+<i class="fa-solid fa-key text-[10px] text-sky-600"></i> Şifre Değiştir
+</button>
 <button type="button" onclick="logoutCloudSync()" class="py-2 px-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-[10.5px] font-bold flex items-center justify-center gap-1.5 active:scale-95 transition">
-<i class="fa-solid fa-right-from-bracket text-[10px]"></i> Bağlantıyı Kes
+<i class="fa-solid fa-right-from-bracket text-[10px] text-rose-500"></i> Bağlantıyı Kes
 </button>
 </div>
 </div>
@@ -1703,10 +1709,7 @@ class="px-2.5 py-2.5 bg-white border border-slate-200/90 rounded-2xl text-[11px]
 <input type="file" id="backup-file" accept="application/json,.json" onchange="importWalletBackup(event)" class="hidden">
 </label>
 </div>
-<div id="backup-claim-sql-hint" class="hidden flex items-center justify-between gap-2 bg-amber-50/90 border border-amber-200/80 rounded-xl px-2.5 py-2">
-<span class="text-[9.5px] font-semibold text-amber-900">Eski yedeğin Ortak Alan oturumu yenilenmiş. Hesabı aktarmak için SQL kodunu 1 kez çalıştırıp yedeği tekrar yükle.</span>
-<button type="button" onclick="copyClaimIdentitySql()" class="px-2 py-1 rounded-lg bg-amber-600 text-white text-[9.5px] font-extrabold shrink-0 active:scale-95">SQL Kopyala</button>
-</div>
+
 <button onclick="clearAllData()" class="w-full py-2 px-3 bg-rose-50 hover:bg-rose-100 text-rose-600 text-[11px] font-bold rounded-xl transition flex items-center justify-center gap-1.5 active:scale-95">
 <i class="fa-solid fa-trash-can text-[10px]"></i> Bu Cihazdaki Tüm Verileri Sıfırla
 </button>
@@ -2494,6 +2497,39 @@ Tamam
 </div>
 </div>
 
+<!-- KİŞİSEL BULUT ŞİFRE DEĞİŞTİRME MODALI -->
+<div id="cloud-pass-backdrop" onclick="if(event.target===this) closeCloudPasswordModal()" class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm z-[45] hidden flex flex-col justify-end">
+<div class="shared-sheet-panel bg-white p-5 shadow-2xl sheet-enter max-h-[88%] overflow-y-auto space-y-3.5">
+<div class="w-10 h-1 bg-slate-200 rounded-full mx-auto"></div>
+<div class="flex items-center justify-between">
+<h3 class="text-sm font-extrabold text-slate-900 flex items-center gap-2"><i class="fa-solid fa-key text-sky-600"></i> Bulut Şifresini Değiştir</h3>
+<button type="button" onclick="closeCloudPasswordModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center"><i class="fa-solid fa-xmark text-sm"></i></button>
+</div>
+<p class="text-[11px] text-slate-500 leading-relaxed">Şifreni değiştirdiğinde <strong>eski özel giriş linklerin otomatik iptal edilir</strong> ve yalnızca bu cihaz yeni oturumla devam eder.</p>
+<form id="cloud-pass-form" onsubmit="submitCloudPasswordChange(event)" class="space-y-3">
+<div>
+<label class="block text-[10px] font-extrabold text-slate-500 uppercase mb-1">Mevcut Şifre</label>
+<input type="password" id="cloud-old-pass-input" autocomplete="current-password" required minlength="4" maxlength="64" placeholder="Şu anki şifren" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold">
+</div>
+<div>
+<label class="block text-[10px] font-extrabold text-slate-500 uppercase mb-1">Yeni Şifre</label>
+<input type="password" id="cloud-new-pass-input" autocomplete="new-password" required minlength="6" maxlength="64" placeholder="En az 6 karakter (güçlü bir şifre önerilir)" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold">
+</div>
+<div>
+<label class="block text-[10px] font-extrabold text-slate-500 uppercase mb-1">Yeni Şifre (Tekrar)</label>
+<input type="password" id="cloud-new-pass2-input" autocomplete="new-password" required minlength="6" maxlength="64" placeholder="Yeni şifreni tekrar yaz" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold">
+</div>
+<div id="cloud-pass-sql-hint" class="hidden flex items-center justify-between gap-2 bg-rose-50/90 border border-rose-200/80 rounded-xl px-3 py-2">
+<span class="text-[10px] font-semibold text-rose-700">Şifre değiştirme için Supabase'te v40 güvenlik SQL kodunu çalıştırman gerekiyor.</span>
+<button type="button" onclick="copyPersonalCloudSql()" class="px-2.5 py-1 rounded-lg bg-rose-600 text-white text-[10px] font-extrabold shrink-0 active:scale-95">SQL Kopyala</button>
+</div>
+<button type="submit" id="cloud-pass-submit-btn" class="w-full py-3 bg-[#090d16] hover:bg-slate-800 text-white text-xs font-extrabold rounded-2xl shadow-md transition flex items-center justify-center gap-2 active:scale-95">
+<i class="fa-solid fa-shield-halved text-emerald-400"></i> Şifreyi Güncelle & Eski Linkleri İptal Et
+</button>
+</form>
+</div>
+</div>
+
 <!-- ONAY -->
 <div id="confirm-modal-backdrop" class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-5">
 <div class="bg-white rounded-[28px] p-5 shadow-2xl w-full max-w-xs space-y-4">
@@ -2766,7 +2802,7 @@ return `
 <div class="flex items-center gap-2 min-w-0">
 <span class="w-8 h-8 rounded-xl bg-emerald-400/15 border border-emerald-400/30 text-emerald-300 flex items-center justify-center shrink-0"><i class="fa-solid fa-globe text-xs"></i></span>
 <div class="min-w-0">
-<span class="text-xs font-extrabold text-white block leading-none truncate">${c.name}</span>
+<span class="text-xs font-extrabold text-white block leading-none truncate">${escHtml(c.name)}</span>
 <span class="text-[9px] text-emerald-300 font-semibold">USD • Kart ${index + 1}/${fxState.cards.length}</span>
 </div>
 </div>
@@ -2797,7 +2833,7 @@ return;
 }
 dotsEl.innerHTML = fxState.cards.map(c => {
 const isActive = c.id === fxState.activeCardId;
-return `<button type="button" onclick="selectFxCard(${c.id}, true)" class="h-2 rounded-full transition-all ${isActive ? 'w-6 bg-[#090d16]' : 'w-2 bg-slate-300 hover:bg-slate-400'}" title="${c.name}"></button>`;
+return `<button type="button" onclick="selectFxCard(${c.id}, true)" class="h-2 rounded-full transition-all ${isActive ? 'w-6 bg-[#090d16]' : 'w-2 bg-slate-300 hover:bg-slate-400'}" title="${escHtml(c.name)}"></button>`;
 }).join('') + `<span class="text-[10px] font-bold text-slate-400 ml-1">Kaydır</span>`;
 }
 function openFxCardSettings(cardId) {
@@ -2914,7 +2950,7 @@ return `
 <div class="w-8 h-8 rounded-xl ${isActive ? 'bg-[#090d16] text-emerald-400' : 'bg-slate-200 text-slate-700'} flex items-center justify-center shrink-0"><i class="fa-solid fa-credit-card text-xs"></i></div>
 <div class="min-w-0">
 <div class="flex items-center gap-1.5">
-<p class="text-xs font-extrabold text-slate-900 truncate">${c.name}</p>
+<p class="text-xs font-extrabold text-slate-900 truncate">${escHtml(c.name)}</p>
 ${isActive ? '<span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">Aktif</span>' : ''}
 </div>
 <p class="text-[10px] text-slate-500">Kalan: <strong class="text-emerald-600">${formatUsd(stats.remainingUsd)}</strong> / Limit: ${formatUsd(c.monthlyLimitUsd)}</p>
@@ -2930,7 +2966,7 @@ ${isActive ? '<span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald
 function syncPaymentMethodDropdown() {
 const select = document.getElementById('tx-payment-method');
 if (!select) return;
-const cardOptions = fxState.cards.map(c => `<option value="${c.name}">💳 ${c.name}</option>`).join('');
+const cardOptions = fxState.cards.map(c => `<option value="${escHtml(c.name)}">💳 ${escHtml(c.name)}</option>`).join('');
 select.innerHTML = `<option value="Nakit (Çekilen)">💵 Nakit (Çekilen)</option>${cardOptions}<option value="Banka / TR Kart">🏦 TR Banka Kartı</option>`;
 }
 async function fetchLiveUsdRate() {
@@ -3194,7 +3230,7 @@ if (!listEl) return;
 const accountSelect = document.getElementById('debt-account');
 if (accountSelect && document.activeElement !== accountSelect) {
 const selected = accountSelect.value || 'cash-try';
-accountSelect.innerHTML = accounts.map(a => `<option value="${a.id}">${a.name} (${a.currency})</option>`).join('');
+accountSelect.innerHTML = accounts.map(a => `<option value="${escHtml(a.id)}">${escHtml(a.name)} (${escHtml(a.currency)})</option>`).join('');
 accountSelect.value = accounts.some(a => a.id === selected) ? selected : (accounts[0]?.id || '');
 }
 refreshDebtPrivateSyncUI();
@@ -3276,7 +3312,7 @@ return `
 </div>
 </div>`;
 }).join('');
-const safeKey = g.key.replace(/'/g, "\\'");
+const safeKey = escJs(g.key);
 return `
 <div class="bg-slate-50 rounded-2xl border ${isExpanded ? 'border-slate-900' : 'border-slate-200/70'} overflow-hidden transition">
 <button type="button" onclick="toggleDebtPersonGroup('${safeKey}')" class="w-full px-3 py-2.5 flex items-center justify-between text-left hover:bg-slate-100/80 transition">
@@ -3350,7 +3386,7 @@ histEl.innerHTML = `<p class="text-[11px] text-slate-400">Bu karttan henüz ATM 
 } else {
 histEl.innerHTML = card.withdrawals.map(w => `
 <div class="flex items-center justify-between bg-slate-50 px-2.5 py-2 rounded-xl text-[11px]">
-<div><span class="font-extrabold text-slate-900">${formatCurrency(w.tryAmount)}</span><span class="text-slate-400 ml-1">(${w.date})</span></div>
+<div><span class="font-extrabold text-slate-900">${formatCurrency(w.tryAmount)}</span><span class="text-slate-400 ml-1">(${escHtml(w.date)})</span></div>
 <div class="flex items-center gap-2">
 <span class="font-bold text-rose-600">-${formatUsd(w.totalUsdDeducted)} <span class="text-[9px] text-slate-400">(Kom: ${formatUsd(w.usdFee)})</span></span>
 <button onclick="deleteAtmWithdrawal(${w.id})" class="text-slate-300 hover:text-rose-500"><i class="fa-solid fa-xmark"></i></button>
@@ -3426,7 +3462,7 @@ function renderCustomCategories() {
 const el = document.getElementById('custom-category-list');
 if (!el) return;
 const custom = categories.expense.filter(c => c.id.startsWith('custom_'));
-el.innerHTML = custom.length ? custom.map(c => `<span class="inline-flex items-center gap-1 bg-slate-100 rounded-lg px-2 py-1 text-[10px] font-semibold text-slate-700">${c.name}<button onclick="removeCustomExpenseCategory('${c.id}')" class="text-rose-500 ml-1">×</button></span>`).join('') : '<span class="text-[10px] text-slate-400">Özel kategori eklenmedi.</span>';
+el.innerHTML = custom.length ? custom.map(c => `<span class="inline-flex items-center gap-1 bg-slate-100 rounded-lg px-2 py-1 text-[10px] font-semibold text-slate-700">${escHtml(c.name)}<button onclick="removeCustomExpenseCategory('${escJs(c.id)}')" class="text-rose-500 ml-1">×</button></span>`).join('') : '<span class="text-[10px] text-slate-400">Özel kategori eklenmedi.</span>';
 }
 function getCurrentMonthKey() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; }
 function monthTransactions(monthKey) { return transactions.filter(t => String(t.date || '').slice(0,7) === monthKey); }
@@ -3449,7 +3485,7 @@ if (!select) return;
 const previous = selectedId || select.value;
 const typeEl = document.getElementById('tx-type');
 const typeVal = typeEl ? typeEl.value : 'expense';
-const accOpts = accounts.map(a => `<option value="${a.id}">${a.name} (${a.currency})</option>`).join('');
+const accOpts = accounts.map(a => `<option value="${escHtml(a.id)}">${escHtml(a.name)} (${escHtml(a.currency)})</option>`).join('');
 const cardOpts = typeVal === 'expense' ? fxState.cards.map(c => `<option value="fx-card-${c.id}">💳 ${escHtml(c.name)} (USD)</option>`).join('') : '';
 select.innerHTML = cardOpts ? `<optgroup label="Hesaplar">${accOpts}</optgroup><optgroup label="Yurt Dışı Kartlar">${cardOpts}</optgroup>` : accOpts;
 if (Array.from(select.options).some(o => o.value === previous)) select.value = previous;
@@ -3467,11 +3503,11 @@ const prevTo = toVal || toSel.value;
 const accOptions = accounts.map(a => {
 const balTry = getAccountBalanceTry(a);
 const balLabel = a.currency === 'TRY' ? formatCurrency(balTry) : `${Number(balTry / (a.rate || 1)).toFixed(0)} ${a.currency}`;
-return `<option value="acc:${a.id}">🏦 ${a.name} (${balLabel})</option>`;
+return `<option value="acc:${escHtml(a.id)}">🏦 ${escHtml(a.name)} (${escHtml(balLabel)})</option>`;
 }).join('');
 const cardOptions = fxState.cards.map(c => {
 const stats = getCardStats(c);
-return `<option value="card:${c.id}">💳 ${c.name} (${formatUsd(stats.remainingUsd)})</option>`;
+return `<option value="card:${escHtml(c.id)}">💳 ${escHtml(c.name)} (${formatUsd(stats.remainingUsd)})</option>`;
 }).join('');
 const html = `<optgroup label="Hesaplar">${accOptions}</optgroup><optgroup label="Yurt Dışı Kartlar">${cardOptions}</optgroup>`;
 fromSel.innerHTML = html;
@@ -3537,10 +3573,10 @@ const tryAmt = entered * rate;
 const usdAmt = tryAmt / (Number(fxState.usdRate) || 34.5);
 if (!fromMeta || !toMeta) { previewEl.textContent = 'Gönderen ve alıcı seçin.'; return; }
 if (fromMeta.endpoint === toMeta.endpoint) { previewEl.innerHTML = `<span class="text-rose-600"><i class="fa-solid fa-circle-exclamation mr-1"></i>Gönderen ve alıcı aynı olamaz.</span>`; return; }
-if (entered <= 0) { previewEl.innerHTML = `<strong>${fromMeta.name}</strong> → <strong>${toMeta.name}</strong>`; return; }
+if (entered <= 0) { previewEl.innerHTML = `<strong>${escHtml(fromMeta.name)}</strong> → <strong>${escHtml(toMeta.name)}</strong>`; return; }
 const outStr = fromMeta.kind === 'card' ? `-${formatUsd(usdAmt)}` : `-${formatCurrency(tryAmt)}`;
 const inStr = toMeta.kind === 'card' ? `+${formatUsd(usdAmt)}` : `+${formatCurrency(tryAmt)}`;
-previewEl.innerHTML = `<strong>${fromMeta.name}</strong> (${outStr}) <i class="fa-solid fa-arrow-right mx-1 text-slate-400"></i> <strong>${toMeta.name}</strong> (${inStr})`;
+previewEl.innerHTML = `<strong>${escHtml(fromMeta.name)}</strong> (${escHtml(outStr)}) <i class="fa-solid fa-arrow-right mx-1 text-slate-400"></i> <strong>${escHtml(toMeta.name)}</strong> (${escHtml(inStr)})`;
 }
 function toggleTxCurrencyDrawer(forceOpen) {
 const drawer = document.getElementById('tx-currency-drawer');
@@ -3621,12 +3657,12 @@ const currentNative = total / rate;
 if (renderAccounts._editingId === a.id) {
 return `<div class="p-2.5 bg-emerald-50/60 rounded-xl border border-emerald-300 space-y-2">
 <div class="flex items-center justify-between gap-2">
-<p class="text-xs font-extrabold text-slate-800 truncate">${a.name}</p>
+<p class="text-xs font-extrabold text-slate-800 truncate">${escHtml(a.name)}</p>
 <span class="text-[9px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded shrink-0">Bakiye Güncelle</span>
 </div>
 <div class="flex items-center gap-1.5">
 <input id="acc-balance-edit-input" type="number" step="0.01" inputmode="decimal" value="${currentNative.toFixed(2)}" onkeydown="if(event.key==='Enter'){event.preventDefault();saveAccountBalanceEdit('${a.id}');}else if(event.key==='Escape'){cancelAccountBalanceEdit();}" class="flex-1 min-w-0 px-2.5 py-2 bg-white border border-emerald-300 rounded-xl text-xs font-extrabold focus:outline-none focus:ring-2 focus:ring-emerald-500">
-<span class="text-[10px] font-extrabold text-slate-500 shrink-0">${a.currency}</span>
+<span class="text-[10px] font-extrabold text-slate-500 shrink-0">${escHtml(a.currency)}</span>
 <button onclick="saveAccountBalanceEdit('${a.id}')" class="px-2.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-[10px] font-bold shrink-0 active:scale-95 transition" title="Kaydet"><i class="fa-solid fa-check"></i></button>
 <button onclick="cancelAccountBalanceEdit()" class="px-2.5 py-2 bg-white border border-slate-200 text-slate-500 rounded-xl text-[10px] font-bold shrink-0 active:scale-95 transition" title="Vazgeç"><i class="fa-solid fa-xmark"></i></button>
 </div>
@@ -3635,7 +3671,7 @@ return `<div class="p-2.5 bg-emerald-50/60 rounded-xl border border-emerald-300 
 }
 const display = a.currency === 'TRY' ? formatCurrency(total) : `${Number(currentNative).toFixed(2)} ${a.currency} (≈ ${formatCurrency(total)})`;
 const openingNote = a.initialBalance ? ` • Açılış: ${a.currency === 'TRY' ? formatCurrency(a.initialBalance) : Number(a.initialBalance).toFixed(2) + ' ' + a.currency}` : '';
-return `<div class="flex items-center justify-between gap-2 p-2.5 bg-slate-50 rounded-xl border border-slate-200/60"><div class="min-w-0"><p class="text-xs font-extrabold text-slate-800">${a.name}${getPrimaryAccountValue() === a.id ? ' <span class="text-[9px] font-extrabold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded align-middle">★ Birincil</span>' : ''}</p><p class="text-[10px] text-slate-500">${a.currency} • Bakiye: ${display}${openingNote}</p></div><div class="flex items-center gap-0.5 shrink-0"><button onclick="startAccountBalanceEdit('${a.id}')" class="text-slate-400 hover:text-emerald-600 text-xs p-1" title="Bakiyeyi Güncelle"><i class="fa-solid fa-pen"></i></button><button onclick="removeAccount('${a.id}')" class="text-rose-500 text-xs p-1" title="Hesabı Sil"><i class="fa-solid fa-trash"></i></button></div></div>`;
+return `<div class="flex items-center justify-between gap-2 p-2.5 bg-slate-50 rounded-xl border border-slate-200/60"><div class="min-w-0"><p class="text-xs font-extrabold text-slate-800">${escHtml(a.name)}${getPrimaryAccountValue() === a.id ? ' <span class="text-[9px] font-extrabold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded align-middle">★ Birincil</span>' : ''}</p><p class="text-[10px] text-slate-500">${escHtml(a.currency)} • Bakiye: ${escHtml(display)}${escHtml(openingNote)}</p></div><div class="flex items-center gap-0.5 shrink-0"><button onclick="startAccountBalanceEdit('${a.id}')" class="text-slate-400 hover:text-emerald-600 text-xs p-1" title="Bakiyeyi Güncelle"><i class="fa-solid fa-pen"></i></button><button onclick="removeAccount('${a.id}')" class="text-rose-500 text-xs p-1" title="Hesabı Sil"><i class="fa-solid fa-trash"></i></button></div></div>`;
 }).join('');
 }
 function startAccountBalanceEdit(id) {
@@ -3665,7 +3701,7 @@ showToast(`${a.name} bakiyesi güncellendi`);
 function populateCategoryBudgetSelect() {
 const el = document.getElementById('category-budget-select');
 if (!el) return;
-el.innerHTML = categories.expense.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+el.innerHTML = categories.expense.map(c => `<option value="${escHtml(c.id)}">${escHtml(c.name)}</option>`).join('');
 }
 function saveCategoryBudget() {
 const id = document.getElementById('category-budget-select').value;
@@ -3685,7 +3721,7 @@ el.innerHTML = entries.map(([id,limit]) => {
 const category = getCategoryDetails('expense',id);
 const spent = monthRows.filter(t=>t.category===id).reduce((s,t)=>s+Number(t.amount||0),0);
 const pct = Math.round(spent/limit*100);
-return `<div class="p-2 bg-slate-50 rounded-xl"><div class="flex justify-between gap-2"><span class="text-[10px] font-bold text-slate-700">${category.name}</span><span class="text-[10px] font-extrabold ${pct>=100?'text-rose-600':'text-slate-500'}">${formatCurrency(spent)} / ${formatCurrency(limit)}</span></div><div class="h-1.5 bg-slate-200 rounded-full mt-1 overflow-hidden"><div class="h-1.5 ${pct>=100?'bg-rose-500':'bg-emerald-500'} rounded-full" style="width:${Math.min(100,pct)}%"></div></div></div>`;
+return `<div class="p-2 bg-slate-50 rounded-xl"><div class="flex justify-between gap-2"><span class="text-[10px] font-bold text-slate-700">${escHtml(category.name)}</span><span class="text-[10px] font-extrabold ${pct>=100?'text-rose-600':'text-slate-500'}">${formatCurrency(spent)} / ${formatCurrency(limit)}</span></div><div class="h-1.5 bg-slate-200 rounded-full mt-1 overflow-hidden"><div class="h-1.5 ${pct>=100?'bg-rose-500':'bg-emerald-500'} rounded-full" style="width:${Math.min(100,pct)}%"></div></div></div>`;
 }).join('');
 }
 function addSavingsGoal() {
@@ -3711,7 +3747,7 @@ if (!el) return;
 if (!savingsGoals.length) { el.innerHTML = '<p class="text-xs text-slate-400">Henüz birikim hedefi yok.</p>'; return; }
 el.innerHTML = savingsGoals.map(g => {
 const pct = Math.min(100, Math.round((Number(g.current||0) / Number(g.target||1))*100));
-return `<div class="p-2.5 bg-slate-50 rounded-xl space-y-1.5"><div class="flex justify-between gap-2"><p class="text-xs font-extrabold text-slate-800">${g.name}</p><span class="text-[10px] font-extrabold text-emerald-600">${pct}%</span></div><div class="h-2 bg-slate-200 rounded-full overflow-hidden"><div class="h-2 bg-emerald-500 rounded-full" style="width:${pct}%"></div></div><div class="flex justify-between items-center"><span class="text-[10px] text-slate-500">${formatCurrency(g.current)} / ${formatCurrency(g.target)}</span><div class="flex gap-2"><button onclick="updateSavingsGoal(${g.id},-100)" class="text-[10px] font-bold text-slate-500">−100</button><button onclick="updateSavingsGoal(${g.id},100)" class="text-[10px] text-emerald-700 font-extrabold">+100</button><button onclick="deleteSavingsGoal(${g.id})" class="text-[10px] text-rose-500"><i class="fa-solid fa-trash"></i></button></div></div></div>`;
+return `<div class="p-2.5 bg-slate-50 rounded-xl space-y-1.5"><div class="flex justify-between gap-2"><p class="text-xs font-extrabold text-slate-800">${escHtml(g.name)}</p><span class="text-[10px] font-extrabold text-emerald-600">${pct}%</span></div><div class="h-2 bg-slate-200 rounded-full overflow-hidden"><div class="h-2 bg-emerald-500 rounded-full" style="width:${pct}%"></div></div><div class="flex justify-between items-center"><span class="text-[10px] text-slate-500">${formatCurrency(g.current)} / ${formatCurrency(g.target)}</span><div class="flex gap-2"><button onclick="updateSavingsGoal(${g.id},-100)" class="text-[10px] font-bold text-slate-500">−100</button><button onclick="updateSavingsGoal(${g.id},100)" class="text-[10px] text-emerald-700 font-extrabold">+100</button><button onclick="deleteSavingsGoal(${g.id})" class="text-[10px] text-rose-500"><i class="fa-solid fa-trash"></i></button></div></div></div>`;
 }).join('');
 }
 function addRecurringPayment() {
@@ -3749,7 +3785,7 @@ if (!recurringPlans.length) { el.innerHTML = '<p class="text-xs text-slate-400">
 el.innerHTML = recurringPlans.map(p => {
 const due = p.frequency === 'weekly' ? 'Haftalık' : `Her ayın ${p.day}. günü`;
 const isDue = recurringPeriodKey(p) === 'due' && (p.frequency === 'weekly' || new Date().getDate() >= p.day);
-return `<div class="flex items-center justify-between gap-2 p-2.5 bg-slate-50 rounded-xl"><div class="min-w-0"><p class="text-xs font-extrabold text-slate-800">${p.name}</p><p class="text-[10px] text-slate-500">${due} • ${formatCurrency(p.amount)}${isDue ? ' • Ödeme zamanı' : ''}</p></div><div class="flex gap-2"><button onclick="markRecurringPaid(${p.id})" class="text-[10px] font-extrabold text-emerald-600">Ödendi</button><button onclick="deleteRecurringPlan(${p.id})" class="text-rose-500 text-xs"><i class="fa-solid fa-trash"></i></button></div></div>`;
+return `<div class="flex items-center justify-between gap-2 p-2.5 bg-slate-50 rounded-xl"><div class="min-w-0"><p class="text-xs font-extrabold text-slate-800">${escHtml(p.name)}</p><p class="text-[10px] text-slate-500">${due} • ${formatCurrency(p.amount)}${isDue ? ' • Ödeme zamanı' : ''}</p></div><div class="flex gap-2"><button onclick="markRecurringPaid(${p.id})" class="text-[10px] font-extrabold text-emerald-600">Ödendi</button><button onclick="deleteRecurringPlan(${p.id})" class="text-rose-500 text-xs"><i class="fa-solid fa-trash"></i></button></div></div>`;
 }).join('');
 }
 function deleteRecurringPlan(id) { recurringPlans = recurringPlans.filter(p => p.id !== id); renderRecurringPlans(); renderUpcomingSubscriptionsBanner(); triggerCloudSave(); }
@@ -4014,28 +4050,7 @@ if (!silent) showToast('Yedek yüklendi • İnternet gelince Ortak Alan otomati
 return;
 }
 
-// 3) Yedekteki refresh_token eskimişse: davet koduyla eski Ortak Alan kimliğini yeni cihaza aktar (SQL RPC)
-if (!liveRestored && sb.userId) {
-const codeSet = new Set();
-groups.forEach(g => { const c = normalizeInviteCode(g && g.invite_code); if (c) codeSet.add(c); });
-const metaCode = normalizeInviteCode(restoredInviteCode);
-if (metaCode) codeSet.add(metaCode);
-const inviteCodes = Array.from(codeSet);
-if (inviteCodes.length) {
-try {
-await ensureSharedAuth();
-const { error: claimErr } = await client.rpc('claim_shared_identity', {
-p_old_user_id: sb.userId,
-p_invite_codes: inviteCodes
-});
-if (!claimErr) {
-liveRestored = true;
-} else if (/does not exist|schema cache/i.test(claimErr.message || '')) {
-if (hintEl) hintEl.classList.remove('hidden');
-}
-} catch (e) {}
-}
-}
+// Not: Güvenlik nedeniyle davet koduyla eski kimlik devralma devre dışı bırakıldı (v40).
 
 if (liveRestored) {
 try {
@@ -4060,7 +4075,7 @@ sharedState._cacheUserId = sb.userId || null;
 }
 renderDebts();
 updateSharedIndicators();
-if (!silent) showToast('Kişisel veriler yüklendi • Eski Ortak Alan oturumu için aktarım SQL kodunu çalıştır veya güncel cihazdan yedek al');
+if (!silent) showToast('Kişisel veriler yüklendi • Ortak Alan oturumu eskiyse güncel cihazdan eşitle');
 }
 
 function exportWalletBackup() {
@@ -4432,8 +4447,9 @@ const lbl = document.getElementById('tx-receipt-btn-label');
 if (lbl) lbl.textContent = 'Fiş Fotoğrafı Ekle';
 }
 function openImageLightbox(src, caption = 'Fiş / Dekont') {
-if (!src) return;
-document.getElementById('lightbox-img').src = src;
+const safeSrc = sanitizeImageDataUrl(src);
+if (!safeSrc) { showToast('Geçersiz görsel formatı'); return; }
+document.getElementById('lightbox-img').src = safeSrc;
 document.getElementById('lightbox-caption').textContent = caption;
 document.getElementById('image-lightbox-backdrop').classList.remove('hidden');
 }
@@ -5104,7 +5120,7 @@ const totalTry = getAccountBalanceTry(a);
 const valStr = a.currency === 'TRY' ? formatCurrency(totalTry) : `${a.currency === 'USD' ? '$' : '€'}${Number(totalTry / (a.rate || 1)).toFixed(0)}`;
 return `
 <div class="flex items-center justify-between gap-2 bg-white/[0.08] border border-white/10 rounded-lg px-2 py-1 text-[10px] leading-tight">
-<span class="text-slate-300 font-semibold truncate">${a.name}</span>
+<span class="text-slate-300 font-semibold truncate">${escHtml(a.name)}</span>
 <span class="font-extrabold text-emerald-300 shrink-0">${valStr}</span>
 </div>`;
 }).join('');
@@ -5124,8 +5140,8 @@ return `
 <div class="flex items-center gap-2.5 min-w-0">
 <div class="w-8 h-8 rounded-xl bg-indigo-500/15 text-indigo-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-right-left text-xs"></i></div>
 <div class="min-w-0">
-<p class="text-xs font-extrabold text-slate-900 truncate">${t.fromName || 'Çıkış'} → ${t.toName || 'Giriş'}</p>
-<p class="text-[10px] text-slate-400 font-medium truncate">${t.date}${t.title && t.title !== `${t.fromName} → ${t.toName}` ? ' • ' + t.title : ''}</p>
+<p class="text-xs font-extrabold text-slate-900 truncate">${escHtml(t.fromName || 'Çıkış')} → ${escHtml(t.toName || 'Giriş')}</p>
+<p class="text-[10px] text-slate-400 font-medium truncate">${escHtml(t.date || '')}${t.title && t.title !== `${t.fromName} → ${t.toName}` ? ' • ' + escHtml(t.title) : ''}</p>
 </div>
 </div>
 <div class="flex items-center gap-1.5 shrink-0">
@@ -5137,11 +5153,14 @@ return `
 }
 
 // --- TÜM EKRANLARI GÜNCELLE ---
+let _lastRenderedMonthKey = '';
 function updateUI() {
+const curMonthKey = getCurrentMonthKey();
+_lastRenderedMonthKey = curMonthKey;
 let income = 0, expense = 0;
-transactions.forEach(t => {
-if (t.type === 'income') income += t.amount;
-else if (t.type === 'expense') expense += t.amount;
+monthTransactions(curMonthKey).forEach(t => {
+if (t.type === 'income') income += Number(t.amount || 0);
+else if (t.type === 'expense') expense += Number(t.amount || 0);
 });
 const net = accounts.reduce((sum, a) => sum + getAccountBalanceTry(a), 0);
 const cashAcc = accounts.find(a => a.id === 'cash-try') || accounts[0];
@@ -5166,7 +5185,7 @@ const totalSpendablePower = Math.max(0, net + totalCardsRemainingTry);
 const dailySafe = totalSpendablePower / daysLeft;
 document.getElementById('days-left-badge').textContent = `${daysLeft} gün`;
 document.getElementById('daily-safe-limit').textContent = `${formatCurrency(dailySafe)} / gün`;
-const monthExpense = monthTransactions(getCurrentMonthKey()).filter(t => t.type === 'expense').reduce((s,t)=>s+Number(t.amount||0),0);
+const monthExpense = expense;
 const rawPct = monthlyBudgetLimit > 0 ? Math.round((monthExpense / monthlyBudgetLimit) * 100) : 0;
 const pct = Math.min(rawPct, 100);
 document.getElementById('budget-percent').textContent = `%${rawPct}`;
@@ -5208,8 +5227,8 @@ return `
 <div class="flex items-center gap-2.5 min-w-0">
 <div class="w-9 h-9 rounded-2xl flex items-center justify-center text-white text-xs shrink-0" style="background:${cat.color}"><i class="fa-solid ${cat.icon}"></i></div>
 <div class="min-w-0">
-<p class="text-xs font-extrabold text-slate-900 truncate">${tx.title}</p>
-<p class="text-[10px] text-slate-400 font-medium">${cat.name} • ${tx.paymentMethod || 'Nakit'}</p>
+<p class="text-xs font-extrabold text-slate-900 truncate">${escHtml(tx.title)}</p>
+<p class="text-[10px] text-slate-400 font-medium">${escHtml(cat.name)} • ${escHtml(tx.paymentMethod || 'Nakit')}</p>
 </div>
 </div>
 <span class="text-xs font-extrabold ${colorCls}">${sign}${tx.currency && tx.currency !== 'TRY' ? `${Number(tx.originalAmount || 0).toFixed(2)} ${tx.currency}` : formatCurrency(tx.amount)}</span>
@@ -5251,11 +5270,11 @@ return `
 <div class="w-9 h-9 rounded-2xl flex items-center justify-center text-white text-xs shrink-0" style="background:${cat.color}"><i class="fa-solid ${cat.icon}"></i></div>
 <div class="min-w-0">
 <div class="flex items-center gap-1.5">
-<p class="text-xs font-extrabold text-slate-900 truncate">${tx.title}</p>
+<p class="text-xs font-extrabold text-slate-900 truncate">${escHtml(tx.title)}</p>
 ${tx.recurring ? '<i class="fa-solid fa-repeat text-[10px] text-violet-600" title="Düzenli"></i>' : ''}
 ${tx.sharedToGroup ? '<i class="fa-solid fa-user-group text-[10px] text-sky-600" title="Ortak Alanda paylaşıldı"></i>' : ''}
 </div>
-<p class="text-[10px] text-slate-400">${cat.name} • <span class="font-semibold text-slate-600">${tx.paymentMethod || 'Nakit'}</span> • ${tx.date}${tx.isPos && Number.isFinite(Number(tx.usdAmount)) ? ` • <span class="font-bold text-sky-600">${formatUsd(tx.usdAmount)}${Number(tx.posFeePercent) > 0 ? ' (kom. %' + Number(tx.posFeePercent) + ')' : ''}</span>` : ''}</p>
+<p class="text-[10px] text-slate-400">${escHtml(cat.name)} • <span class="font-semibold text-slate-600">${escHtml(tx.paymentMethod || 'Nakit')}</span> • ${escHtml(tx.date || '')}${tx.isPos && Number.isFinite(Number(tx.usdAmount)) ? ` • <span class="font-bold text-sky-600">${formatUsd(tx.usdAmount)}${Number(tx.posFeePercent) > 0 ? ' (kom. %' + Number(tx.posFeePercent) + ')' : ''}</span>` : ''}</p>
 </div>
 </div>
 <div class="flex items-center gap-1 shrink-0">
@@ -5316,7 +5335,7 @@ if (totals[cid] > topCat.val) topCat = { name: c.name, val: totals[cid] };
 });
 const topPct = Math.round((topCat.val / totalExp) * 100);
 document.getElementById('top-category-badge').textContent = `En çok: ${topCat.name} (%${topPct})`;
-document.getElementById('insight-text').innerHTML = `Bu ay işlem başına ortalama <strong>${formatCurrency(txAvg)}</strong> harcadın. En yoğun gider kalemin <strong>%${topPct}</strong> ile <strong>${topCat.name}</strong>.`;
+document.getElementById('insight-text').innerHTML = `Bu ay işlem başına ortalama <strong>${formatCurrency(txAvg)}</strong> harcadın. En yoğun gider kalemin <strong>%${topPct}</strong> ile <strong>${escHtml(topCat.name)}</strong>.`;
 if (typeof Chart === 'undefined') return;
 if (chartInstance) chartInstance.destroy();
 chartInstance = new Chart(canvas.getContext('2d'), {
@@ -5336,7 +5355,7 @@ const list = transactions.filter(t => t.recurring && t.type === 'expense');
 if (list.length === 0) { container.innerHTML = `<p class="text-xs text-slate-400">Kayıtlı abonelik bulunmuyor.</p>`; return; }
 container.innerHTML = list.map(t => `
 <div class="flex items-center justify-between p-2.5 bg-slate-50 rounded-xl text-xs">
-<span class="font-bold text-slate-800">${t.title}</span>
+<span class="font-bold text-slate-800">${escHtml(t.title)}</span>
 <span class="font-extrabold text-rose-600">${formatCurrency(t.amount)}/ay</span>
 </div>`).join('');
 }
@@ -5642,6 +5661,33 @@ let activeEditRecordId = null;
 let activeEditReceiptUrl = '';
 
 function escHtml(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m])); }
+function escJs(s) { return String(s == null ? '' : s).replace(/[\\'"\n\r<>]/g, m => ({ '\\': '\\\\', "'": "\\'", '"': '&quot;', '\n': ' ', '\r': '', '<': '&lt;', '>': '&gt;' }[m])); }
+function sanitizeImageDataUrl(src) {
+const s = String(src || '').trim();
+if (!s || s.length > 2500000) return '';
+return /^data:image\/(jpeg|jpg|png|webp);base64,[A-Za-z0-9+/=]+$/i.test(s) ? s : '';
+}
+function openDebtReceiptLightbox(pdId) {
+const r = (sharedState.personalDebts || []).find(x => String(x.id) === String(pdId));
+if (!r || !r.receipt_img) return showToast('Dekont bulunamadı');
+openImageLightbox(r.receipt_img, 'Dekont • ' + (r.title || ''));
+}
+function openRecordReceiptLightbox(recId) {
+const r = (sharedState.records || []).find(x => String(x.id) === String(recId));
+const img = r && r.payload && r.payload.receipt_img;
+if (!img) return showToast('Fiş bulunamadı');
+openImageLightbox(img, 'Fiş • ' + (r.title || ''));
+}
+function copyMemberIban(userId) {
+const m = getMemberByUserId(userId);
+if (!m || !m.iban) return showToast('IBAN bulunamadı');
+copyTextToClipboard(m.iban, `${m.display_name || 'Üye'} IBAN kopyalandı`);
+}
+function triggerMutualOffsetById(otherId) {
+const opp = findMutualOffsetOpportunities().find(x => String(x.otherId) === String(otherId));
+if (!opp) return showToast('Mahsuplaşılacak açık borç bulunamadı');
+triggerMutualOffset(opp.otherId, opp.otherName, opp.offsetAmt);
+}
 function isSharedConfigured() {
 return SUPABASE_URL.startsWith('https://') && !SUPABASE_URL.includes('SENIN') && SUPABASE_ANON_KEY.length > 20 && !SUPABASE_ANON_KEY.includes('SENIN');
 }
@@ -7524,7 +7570,7 @@ return;
 }
 listEl.innerHTML = others.map(m => {
 const initials = (m.display_name || '?').slice(0, 2).toUpperCase();
-const safeName = escHtml(m.display_name || 'Üye').replace(/'/g, "\\'");
+const safeName = escJs(m.display_name || 'Üye');
 return `
 <div class="flex items-center justify-between gap-2 bg-white px-2.5 py-2 rounded-xl border border-rose-200/70">
 <div class="flex items-center gap-2 min-w-0">
@@ -7867,12 +7913,11 @@ const memberChips = sharedState.members.map(m => {
 const isMe = m.user_id === uid;
 const initials = (m.display_name || '?').slice(0, 2).toUpperCase();
 const hasIban = !!(m.iban && m.iban.trim());
-const safeIban = (m.iban || '').replace(/'/g, "\\'");
 return `
 <span class="inline-flex items-center gap-1.5 ${isMe ? 'bg-emerald-50 border-emerald-300' : 'bg-slate-50 border-slate-200/80'} border rounded-full pl-1 pr-2 py-1">
 <span class="w-5 h-5 rounded-full ${isMe ? 'bg-emerald-600' : 'bg-slate-700'} text-white text-[8px] font-extrabold flex items-center justify-center">${escHtml(initials)}</span>
 <span class="text-[10px] font-bold text-slate-800">${escHtml(m.display_name)}${isMe ? ' (Sen)' : ''}</span>
-${hasIban ? `<button type="button" onclick="copyTextToClipboard('${safeIban}','${escHtml(m.display_name)} IBAN kopyalandı')" title="${escHtml(m.bank_name || 'IBAN')}: ${escHtml(m.iban)}" class="ml-0.5 px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[8px] font-extrabold active:scale-95"><i class="fa-solid fa-building-columns mr-0.5"></i>IBAN</button>` : ''}
+${hasIban ? `<button type="button" onclick="copyMemberIban('${escJs(m.user_id)}')" title="${escHtml(m.bank_name || 'IBAN')}: ${escHtml(m.iban)}" class="ml-0.5 px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[8px] font-extrabold active:scale-95"><i class="fa-solid fa-building-columns mr-0.5"></i>IBAN</button>` : ''}
 </span>`;
 }).join('');
 
@@ -7892,7 +7937,7 @@ const mutualHtml = mutualList.length ? `
 ${mutualList.map(m => `
 <div class="flex items-center justify-between gap-2 bg-white/80 px-2.5 py-1.5 rounded-xl">
 <span class="text-[10px] font-bold text-slate-700 truncate"><strong>${escHtml(m.otherName)}</strong> ile ${formatCurrency(m.offsetAmt)} takas</span>
-<button type="button" onclick="triggerMutualOffset('${m.otherId}','${escHtml(m.otherName).replace(/'/g,"\\'")}',${m.offsetAmt})" class="px-2.5 py-1 rounded-lg bg-amber-500 text-white text-[10px] font-extrabold shrink-0 active:scale-95">Mahsuplaş</button>
+<button type="button" onclick="triggerMutualOffsetById('${escJs(m.otherId)}')" class="px-2.5 py-1 rounded-lg bg-amber-500 text-white text-[10px] font-extrabold shrink-0 active:scale-95">Mahsuplaş</button>
 </div>`).join('')}
 </div>` : '';
 
@@ -7902,8 +7947,8 @@ const personalRows = personalActive.length === 0
 : personalActive.map(r => {
 const iAmDebtor = r.debtor_id === uid;
 const other = iAmDebtor ? r.creditor_name : r.debtor_name;
-const hasReceipt = !!(r.receipt_img);
-const receiptBtn = hasReceipt ? `<button type="button" onclick="openImageLightbox('${r.receipt_img.replace(/'/g,"\\'")}','Dekont • ${escHtml(r.title).replace(/'/g,"\\'")}')" class="px-1.5 py-1 rounded-lg bg-sky-100 text-sky-700 text-[9px] font-extrabold" title="Dekontu Gör"><i class="fa-solid fa-receipt"></i></button>` : '';
+const hasReceipt = !!sanitizeImageDataUrl(r.receipt_img);
+const receiptBtn = hasReceipt ? `<button type="button" onclick="openDebtReceiptLightbox('${escJs(r.id)}')" class="px-1.5 py-1 rounded-lg bg-sky-100 text-sky-700 text-[9px] font-extrabold" title="Dekontu Gör"><i class="fa-solid fa-receipt"></i></button>` : '';
 let action = '';
 if (iAmDebtor && r.status === 'open') {
 action = `<button onclick="openSharedPayModal('${r.id}','pay')" class="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-[#090d16] text-white active:scale-95 transition">Ödedim</button>`;
@@ -7955,7 +8000,7 @@ ${historyPeople.map(p => `<option value="${escHtml(p)}" ${hFilter === p ? 'selec
 <div class="space-y-1 max-h-40 overflow-y-auto pr-0.5">${filteredHistory.slice(0, 20).map(r => {
 const iAmDebtor = r.debtor_id === uid;
 const isCreator = r.created_by ? r.created_by === uid : r.creditor_id === uid;
-const rBtn = r.receipt_img ? `<button type="button" onclick="openImageLightbox('${r.receipt_img.replace(/'/g,"\\'")}','Dekont • ${escHtml(r.title).replace(/'/g,"\\'")}')" class="text-sky-600 px-1"><i class="fa-solid fa-receipt text-[10px]"></i></button>` : '';
+const rBtn = sanitizeImageDataUrl(r.receipt_img) ? `<button type="button" onclick="openDebtReceiptLightbox('${escJs(r.id)}')" class="text-sky-600 px-1"><i class="fa-solid fa-receipt text-[10px]"></i></button>` : '';
 const delBtn = isCreator ? `<button type="button" onclick="deletePersonalDebtHistory('${r.id}')" class="text-slate-300 hover:text-rose-500 px-1 active:scale-95 transition" title="Geçmişten Sil (Sadece Ekleyen)"><i class="fa-solid fa-trash-can text-[10px]"></i></button>` : '';
 return `<div class="flex items-center justify-between gap-1.5 text-[10px] px-2.5 py-1.5 rounded-xl bg-slate-50/80"><span class="font-semibold text-slate-600 truncate"><i class="fa-solid fa-circle-check text-emerald-500 mr-1"></i>${escHtml(r.title)} • ${escHtml(iAmDebtor ? r.creditor_name : r.debtor_name)} <span class="text-slate-400">(${escHtml(r.expense_date || '')})</span></span><div class="flex items-center gap-1 shrink-0">${rBtn}<span class="font-extrabold ${iAmDebtor ? 'text-rose-600' : 'text-emerald-600'}">${iAmDebtor ? '-' : '+'}${formatCurrency(r.amount)}</span>${delBtn}</div></div>`;
 }).join('')}</div>
@@ -8340,9 +8385,9 @@ if (r.payload && r.payload.split_count) splitCount = Number(r.payload.split_coun
 else if (r.payload && Array.isArray(r.payload.splits) && r.payload.splits.length) splitCount = r.payload.splits.length + 1;
 const splitBadge = splitCount > 1
 ? `<span class="text-[8px] font-extrabold px-1.5 py-0.5 rounded bg-sky-100 text-sky-700 shrink-0"><i class="fa-solid fa-user-group mr-0.5"></i>${splitCount} kişi</span>` : '';
-const receiptImg = r.payload && r.payload.receipt_img;
+const receiptImg = sanitizeImageDataUrl(r.payload && r.payload.receipt_img);
 const receiptBadge = receiptImg
-? `<button type="button" onclick="openImageLightbox('${receiptImg.replace(/'/g,"\\'")}','Fiş • ${escHtml(r.title).replace(/'/g,"\\'")}')" class="text-[9px] font-extrabold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 shrink-0 active:scale-95"><i class="fa-solid fa-receipt mr-0.5"></i>Fiş</button>` : '';
+? `<button type="button" onclick="openRecordReceiptLightbox('${escJs(r.id)}')" class="text-[9px] font-extrabold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 shrink-0 active:scale-95"><i class="fa-solid fa-receipt mr-0.5"></i>Fiş</button>` : '';
 return `
 <div class="flex items-center justify-between gap-2 bg-slate-50 px-3 py-2 rounded-2xl border border-slate-200/70">
 <div class="flex items-center gap-2.5 min-w-0">
@@ -8803,7 +8848,7 @@ listEl.innerHTML = items.map(it => `
 <div class="w-8 h-8 rounded-xl flex items-center justify-center text-white text-[11px] shrink-0" style="background:${it.color}"><i class="fa-solid ${it.icon}"></i></div>
 <div class="min-w-0">
 <p class="text-[11px] font-extrabold text-slate-900 truncate">${escHtml(it.title)}</p>
-<p class="text-[10px] text-slate-400 truncate">${it.date || ''} • ${escHtml(it.sub)}</p>
+<p class="text-[10px] text-slate-400 truncate">${escHtml(it.date || '')} • ${escHtml(it.sub)}</p>
 </div>
 </div>
 <div class="flex items-center gap-1 shrink-0">
@@ -8904,6 +8949,9 @@ resetPageScroll();
 }
 document.addEventListener('visibilitychange', () => {
 if (!document.hidden && !isUserTypingInInput()) {
+if (_lastRenderedMonthKey && _lastRenderedMonthKey !== getCurrentMonthKey()) {
+updateUI();
+}
 resetPageScroll(true);
 setTimeout(() => resetPageScroll(true), 200);
 }
@@ -9170,16 +9218,25 @@ let _cloudInitialSyncDone = false;
 let _cloudLastSyncedAt = null;
 let _suppressCloudPush = false;
 
-const PERSONAL_CLOUD_SQL_SNIPPET = `create table if not exists public.personal_wallet_vaults (
+const PERSONAL_CLOUD_SQL_SNIPPET = `-- Cüzdanım v40: Kişisel Bulut + Güvenlik Sertleştirme SQL
+drop function if exists public.claim_shared_identity(uuid, text[]);
+
+create table if not exists public.personal_wallet_vaults (
   id uuid primary key default gen_random_uuid(),
   username text not null unique,
   pass_hash text not null,
   sync_token text not null unique default (replace(gen_random_uuid()::text || gen_random_uuid()::text, '-', '')),
   vault_data jsonb not null default '{}'::jsonb,
+  failed_attempts int not null default 0,
+  locked_until timestamptz,
   updated_at timestamptz not null default now(),
   created_at timestamptz not null default now()
 );
+alter table public.personal_wallet_vaults
+  add column if not exists failed_attempts int not null default 0,
+  add column if not exists locked_until timestamptz;
 alter table public.personal_wallet_vaults enable row level security;
+revoke all on public.personal_wallet_vaults from anon, authenticated;
 
 create or replace function public.register_or_login_personal_vault(
   p_username text,
@@ -9198,6 +9255,7 @@ as $$
 declare
   v_user text := lower(trim(coalesce(p_username, '')));
   v_row public.personal_wallet_vaults%rowtype;
+  v_attempts int;
 begin
   if length(v_user) < 2 or length(v_user) > 48 then
     raise exception 'Kullanıcı adı en az 2 karakter olmalı';
@@ -9208,9 +9266,20 @@ begin
 
   select * into v_row from public.personal_wallet_vaults where username = v_user;
   if found then
-    if v_row.pass_hash is distinct from p_pass_hash then
-      raise exception 'Hatalı şifre! Bu kullanıcı adı başka bir şifreyle kayıtlı.';
+    if v_row.locked_until is not null and v_row.locked_until > now() then
+      raise exception 'Çok fazla hatalı deneme. Lütfen 15 dakika sonra tekrar deneyin.';
     end if;
+    if v_row.pass_hash is distinct from p_pass_hash then
+      v_attempts := coalesce(v_row.failed_attempts, 0) + 1;
+      update public.personal_wallet_vaults
+      set failed_attempts = v_attempts,
+          locked_until = case when v_attempts >= 5 then now() + interval '15 minutes' else null end
+      where id = v_row.id;
+      raise exception 'Kullanıcı adı veya şifre hatalı.';
+    end if;
+    update public.personal_wallet_vaults
+    set failed_attempts = 0, locked_until = null
+    where id = v_row.id;
     return query select 'logged_in'::text, v_row.sync_token, v_row.vault_data, v_row.updated_at;
     return;
   end if;
@@ -9261,15 +9330,122 @@ begin
   returning updated_at into v_ts;
 
   if v_ts is null then
-    raise exception 'Bulut oturumu geçersiz';
+    raise exception 'Bulut oturumu geçersiz veya yenilenmiş. Tekrar giriş yapın.';
   end if;
   return v_ts;
 end;
 $$;
 
+create or replace function public.rotate_personal_vault_token(
+  p_sync_token text
+) returns text
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_new_token text := replace(gen_random_uuid()::text || gen_random_uuid()::text, '-', '');
+begin
+  update public.personal_wallet_vaults
+  set sync_token = v_new_token,
+      updated_at = now()
+  where sync_token = trim(coalesce(p_sync_token, ''));
+
+  if not found then
+    raise exception 'Bulut oturumu geçersiz';
+  end if;
+  return v_new_token;
+end;
+$$;
+
+create or replace function public.change_personal_vault_password(
+  p_sync_token text,
+  p_old_pass_hash text,
+  p_new_pass_hash text
+) returns text
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_row public.personal_wallet_vaults%rowtype;
+  v_new_token text := replace(gen_random_uuid()::text || gen_random_uuid()::text, '-', '');
+  v_attempts int;
+begin
+  if length(trim(coalesce(p_new_pass_hash, ''))) < 16 then
+    raise exception 'Geçersiz yeni şifre';
+  end if;
+
+  select * into v_row
+  from public.personal_wallet_vaults
+  where sync_token = trim(coalesce(p_sync_token, ''));
+
+  if not found then
+    raise exception 'Bulut oturumu geçersiz. Tekrar giriş yapın.';
+  end if;
+
+  if v_row.locked_until is not null and v_row.locked_until > now() then
+    raise exception 'Çok fazla hatalı deneme. Lütfen 15 dakika sonra tekrar deneyin.';
+  end if;
+
+  if v_row.pass_hash is distinct from p_old_pass_hash then
+    v_attempts := coalesce(v_row.failed_attempts, 0) + 1;
+    update public.personal_wallet_vaults
+    set failed_attempts = v_attempts,
+        locked_until = case when v_attempts >= 5 then now() + interval '15 minutes' else null end
+    where id = v_row.id;
+    raise exception 'Mevcut şifre hatalı.';
+  end if;
+
+  update public.personal_wallet_vaults
+  set pass_hash = p_new_pass_hash,
+      sync_token = v_new_token,
+      failed_attempts = 0,
+      locked_until = null,
+      updated_at = now()
+  where id = v_row.id;
+
+  return v_new_token;
+end;
+$$;
+
+create or replace function public.validate_receipt_image()
+returns trigger
+language plpgsql
+as $$
+declare
+  v_img text;
+begin
+  if tg_table_name = 'shared_personal_debts' then
+    v_img := new.receipt_img;
+  elsif tg_table_name = 'shared_records' then
+    v_img := new.payload->>'receipt_img';
+  end if;
+
+  if v_img is not null and v_img <> '' then
+    if length(v_img) > 2500000 or v_img !~* '^data:image/(jpeg|jpg|png|webp);base64,[A-Za-z0-9+/=]+$' then
+      raise exception 'Geçersiz görsel formatı';
+    end if;
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists trg_validate_debt_receipt on public.shared_personal_debts;
+create trigger trg_validate_debt_receipt
+  before insert or update on public.shared_personal_debts
+  for each row execute function public.validate_receipt_image();
+
+drop trigger if exists trg_validate_record_receipt on public.shared_records;
+create trigger trg_validate_record_receipt
+  before insert or update on public.shared_records
+  for each row execute function public.validate_receipt_image();
+
 grant execute on function public.register_or_login_personal_vault(text, text, jsonb) to authenticated, anon;
 grant execute on function public.get_personal_vault(text) to authenticated, anon;
 grant execute on function public.save_personal_vault(text, jsonb) to authenticated, anon;
+grant execute on function public.rotate_personal_vault_token(text) to authenticated, anon;
+grant execute on function public.change_personal_vault_password(text, text, text) to authenticated, anon;
 notify pgrst, 'reload schema';`;
 
 function copyPersonalCloudSql() {
@@ -9631,7 +9807,10 @@ try {
 const { data, error } = await client.rpc('get_personal_vault', { p_sync_token: auth.token });
 if (error) return false;
 const row = Array.isArray(data) ? data[0] : data;
-if (!row) return false;
+if (!row) {
+if (!silent) showToast('Bulut oturumu yenilenmiş veya iptal edilmiş • Tekrar giriş yap');
+return false;
+}
 _cloudInitialSyncDone = true;
 if (row.out_username && row.out_username !== auth.username) {
 saveCloudAuth({ ...auth, username: row.out_username, lastSyncedAt: row.out_updated_at || auth.lastSyncedAt });
@@ -9692,6 +9871,113 @@ const baseUrl = (location.protocol === 'http:' || location.protocol === 'https:'
 : location.href.split('#')[0];
 const personalUrl = `${baseUrl}#vlt=${encodeURIComponent(auth.token)}`;
 copyTextToClipboard(personalUrl, 'Özel giriş linkin kopyalandı! Bu linki kimseyle paylaşma.');
+}
+
+function rotatePersonalSyncLink() {
+const auth = getCloudAuth();
+if (!auth || !auth.token) return showToast('Önce bulut hesabını bağla');
+openConfirmModal('Eski özel giriş linkin tamamen iptal edilsin ve yeni bir giriş linki üretilsin mi? Eski linki kullanan diğer tarayıcıların bağlantısı kesilir.', async () => {
+if (!isSharedConfigured() || navigator.onLine === false) return showToast('İnternet bağlantısı gerekli');
+const client = getSharedClient();
+if (!client) return showToast('Bağlantı hazır değil');
+const setSqlHint = document.getElementById('cloud-sync-sql-hint');
+if (setSqlHint) setSqlHint.classList.add('hidden');
+try {
+const { data, error } = await client.rpc('rotate_personal_vault_token', { p_sync_token: auth.token });
+if (error) {
+if (/does not exist|schema cache/i.test(error.message || '')) {
+if (setSqlHint) setSqlHint.classList.remove('hidden');
+showToast("Önce Supabase SQL Editor'da v40 güvenlik SQL kodunu çalıştır");
+return;
+}
+throw error;
+}
+if (!data || typeof data !== 'string') throw new Error('Yeni link üretilemedi');
+const nextAuth = { ...auth, token: data, lastSyncedAt: new Date().toISOString() };
+saveCloudAuth(nextAuth);
+idbMirrorPut('cloud_auth', JSON.stringify(nextAuth));
+const baseUrl = (location.protocol === 'http:' || location.protocol === 'https:')
+? `${location.origin}${location.pathname}`
+: location.href.split('#')[0];
+const personalUrl = `${baseUrl}#vlt=${encodeURIComponent(data)}`;
+copyTextToClipboard(personalUrl, 'Eski link iptal edildi • Yeni özel giriş linkin kopyalandı!');
+} catch (err) {
+showToast(sharedErrText(err));
+}
+});
+}
+
+function openCloudPasswordModal() {
+const auth = getCloudAuth();
+if (!auth || !auth.token) return showToast('Önce bulut hesabına giriş yap');
+closeSharedSubview();
+const hint = document.getElementById('cloud-pass-sql-hint');
+if (hint) hint.classList.add('hidden');
+['cloud-old-pass-input', 'cloud-new-pass-input', 'cloud-new-pass2-input'].forEach(id => {
+const el = document.getElementById(id);
+if (el) el.value = '';
+});
+document.getElementById('cloud-pass-backdrop').classList.remove('hidden');
+setTimeout(() => {
+const el = document.getElementById('cloud-old-pass-input');
+if (el) el.focus();
+}, 120);
+}
+function closeCloudPasswordModal() {
+document.getElementById('cloud-pass-backdrop').classList.add('hidden');
+}
+
+async function submitCloudPasswordChange(e) {
+e.preventDefault();
+const auth = getCloudAuth();
+if (!auth || !auth.token || !auth.username) return showToast('Aktif bulut oturumu bulunamadı');
+const oldPass = String(document.getElementById('cloud-old-pass-input')?.value || '');
+const newPass = String(document.getElementById('cloud-new-pass-input')?.value || '');
+const newPass2 = String(document.getElementById('cloud-new-pass2-input')?.value || '');
+const btn = document.getElementById('cloud-pass-submit-btn');
+const hint = document.getElementById('cloud-pass-sql-hint');
+const setSqlHint = document.getElementById('cloud-sync-sql-hint');
+if (hint) hint.classList.add('hidden');
+if (setSqlHint) setSqlHint.classList.add('hidden');
+
+if (oldPass.length < 4) return showToast('Mevcut şifreni gir');
+if (newPass.length < 6) return showToast('Yeni şifre en az 6 karakter olmalı');
+if (newPass !== newPass2) return showToast('Yeni şifreler eşleşmiyor');
+if (newPass === oldPass) return showToast('Yeni şifre eskisiyle aynı olamaz');
+if (!isSharedConfigured() || navigator.onLine === false) return showToast('İnternet bağlantısı gerekli');
+const client = getSharedClient();
+if (!client) return showToast('Bağlantı hazır değil');
+
+if (btn) { btn.disabled = true; btn.classList.add('opacity-60'); }
+try {
+const uname = String(auth.username).trim().toLowerCase();
+const oldHash = await sha256Hex(`cuzdanim_v1:${uname}:${oldPass}`);
+const newHash = await sha256Hex(`cuzdanim_v1:${uname}:${newPass}`);
+const { data, error } = await client.rpc('change_personal_vault_password', {
+p_sync_token: auth.token,
+p_old_pass_hash: oldHash,
+p_new_pass_hash: newHash
+});
+if (error) {
+if (/does not exist|schema cache/i.test(error.message || '')) {
+if (hint) hint.classList.remove('hidden');
+if (setSqlHint) setSqlHint.classList.remove('hidden');
+showToast("Önce Supabase SQL Editor'da v40 güvenlik SQL kodunu çalıştır");
+return;
+}
+throw error;
+}
+if (!data || typeof data !== 'string') throw new Error('Şifre güncellenemedi');
+const nextAuth = { ...auth, token: data, lastSyncedAt: new Date().toISOString() };
+saveCloudAuth(nextAuth);
+idbMirrorPut('cloud_auth', JSON.stringify(nextAuth));
+closeCloudPasswordModal();
+showToast('Şifren güncellendi ve eski giriş linkleri iptal edildi!');
+} catch (err) {
+showToast(sharedErrText(err));
+} finally {
+if (btn) { btn.disabled = false; btn.classList.remove('opacity-60'); }
+}
 }
 
 function logoutCloudSync() {
@@ -9814,7 +10100,9 @@ const I18N_EXACT = {
 'İşlemler': { en: 'History', ru: 'Операции' },
 'Toplam Net Varlık': { en: 'Total Net Worth', ru: 'Общий чистый капитал' },
 'Toplam Giriş': { en: 'Total Income', ru: 'Общий доход' },
+'Bu Ay Giriş': { en: 'Monthly Income', ru: 'Доход за месяц' },
 'Toplam Çıkış': { en: 'Total Expense', ru: 'Общий расход' },
+'Bu Ay Çıkış': { en: 'Monthly Expense', ru: 'Расход за месяц' },
 'Nakit': { en: 'Cash', ru: 'Наличные' },
 'Eldeki Nakit': { en: 'Cash on Hand', ru: 'Наличные на руках' },
 'Günlük Güvenli Limit': { en: 'Daily Safe Limit', ru: 'Дневной лимит' },
@@ -10273,7 +10561,8 @@ const sheets = [
 ['shared-layout-backdrop', closeSharedLayoutModal],
 ['home-layout-backdrop', closeHomeLayoutModal],
 ['settings-sheet-backdrop', closeSettingsSheet],
-['cloud-sync-backdrop', closeCloudSyncModal]
+['cloud-sync-backdrop', closeCloudSyncModal],
+['cloud-pass-backdrop', closeCloudPasswordModal]
 ];
 
 function findScrollableParent(target, stopAt) {

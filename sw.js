@@ -1,6 +1,6 @@
-/* Cüzdanım PWA Service Worker v39 (iOS Safari 404 & Redirect Korumalı) */
-const APP_CACHE = 'cuzdanim-app-v39';
-const CDN_CACHE = 'cuzdanim-cdn-v39';
+/* Cüzdanım PWA Service Worker v41 (iOS Safari 404 & Redirect Korumalı) */
+const APP_CACHE = 'cuzdanim-app-v41';
+const CDN_CACHE = 'cuzdanim-cdn-v41';
 const PRECACHE_URLS = [
   './',
   './index.html',
