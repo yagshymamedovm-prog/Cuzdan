@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Cüzdanım v41 — Kişisel Finans & Kart Asistanı</title>
+<title>Cüzdanım v48 — Kişisel Finans, Takvim & Gün Planlayıcı</title>
 <meta name="theme-color" content="#eef2f8">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -19,6 +19,7 @@
 <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="dns-prefetch" href="https://pokghdlfhufibxnkeuvw.supabase.co">
+<link rel="dns-prefetch" href="https://api.aladhan.com">
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -245,7 +246,43 @@ html.ios-standalone,html.ios-standalone body,html.ios-standalone #app-shell{heig
 #app-shell>header button{background:var(--card)!important;color:var(--ink)!important;border:1px solid var(--line)!important;border-radius:14px;box-shadow:var(--shadow)}
 #app-shell>header button.header-btn-active{background:linear-gradient(135deg,#0f172a,#1e293b)!important;color:#34d399!important;border-color:rgba(16,185,129,.35)!important;box-shadow:0 8px 18px -8px rgba(15,23,42,.55)}
 #app-shell.night-mode>header button.header-btn-active{background:linear-gradient(135deg,#10b981,#14b8a6)!important;color:#04221a!important;border-color:transparent!important;box-shadow:0 8px 18px -8px rgba(16,185,129,.7)}
-#app-shell #shared-btn-dot,#app-shell #shared-btn-badge{border-color:var(--bg)!important}
+#app-shell #shared-btn-dot,#app-shell #shared-btn-badge,#app-shell #planner-btn-badge{border-color:var(--bg)!important}
+.planner-time-inp{min-width:0;text-align:center;font-variant-numeric:tabular-nums;font-size:12px!important;line-height:1.2}
+.lgoal-horizon-pill.active{background:#090d16!important;color:#34d399!important;border-color:#090d16!important}
+#app-shell.night-mode .lgoal-horizon-pill.active{background:var(--nm-btn-grad)!important;color:var(--nm-btn-ink)!important;border-color:transparent!important}
+.lgoal-card.achieved{border-color:rgba(16,185,129,.5)!important}
+#app-shell.night-mode .lgoal-card.achieved{border-color:var(--nm-accent)!important}
+.planner-habit-card.done{border-color:rgba(16,185,129,.45)!important;background:rgba(16,185,129,.10)!important}
+#app-shell.night-mode .planner-habit-card.done{border-color:var(--nm-accent)!important;background:var(--nm-accent-bg)!important}
+#app-shell textarea{background-color:var(--field);border:1px solid var(--field-line);border-radius:14px;color:var(--ink)}
+#app-shell textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(16,185,129,.2);outline:none}
+#app-shell.night-mode textarea{background-color:var(--nm-field)!important;border-color:var(--nm-line-strong)!important;color:var(--nm-ink)!important}
+#app-shell.night-mode textarea::placeholder{color:var(--nm-muted)!important;opacity:.8}
+#app-shell.night-mode #planner-templates-backdrop > div,
+#app-shell.night-mode #planner-close-day-backdrop > div,
+#app-shell.night-mode #planner-archive-backdrop > div{background:linear-gradient(180deg,var(--nm-card) 0%,var(--nm-card-2) 100%)!important;color:var(--nm-ink)!important;border-color:var(--nm-line-strong)!important}
+.planner-week-day.selected{background:#090d16!important;color:#ffffff!important;border-color:transparent!important;box-shadow:0 8px 18px -8px rgba(15,23,42,.55)}
+#app-shell.night-mode .planner-week-day.selected{background:var(--nm-btn-grad)!important;color:var(--nm-btn-ink)!important;border-color:transparent!important}
+.planner-week-day.is-today:not(.selected){border-color:rgba(16,185,129,.55)!important}
+#app-shell.night-mode .planner-week-day.is-today:not(.selected){border-color:var(--nm-accent)!important}
+.planner-subtab-btn.active{background:#090d16!important;color:#34d399!important;box-shadow:0 6px 14px -6px rgba(15,23,42,.45)}
+.planner-rep-day.active{background:#090d16!important;color:#34d399!important;border-color:#090d16!important}
+#app-shell.night-mode .planner-rep-day.active{background:var(--nm-btn-grad)!important;color:var(--nm-btn-ink)!important;border-color:transparent!important}
+#app-shell.night-mode .planner-subtab-btn.active{background:var(--nm-btn-grad)!important;color:var(--nm-btn-ink)!important}
+.pcal-cell{min-height:54px;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;padding:3px 2.5px;border-radius:13px;border:1px solid rgba(15,23,42,.07);background:#fff;transition:all .14s ease;overflow:hidden}
+.pcal-cell.other-month{opacity:.38}
+.pcal-cell.is-today{border-color:rgba(16,185,129,.6)!important}
+.pcal-cell.selected{background:#090d16!important;color:#fff!important;border-color:transparent!important;box-shadow:0 10px 20px -10px rgba(15,23,42,.6)}
+.pcal-cell.selected .pcal-day-num{color:#fff!important}
+.pcal-cell.selected .pcal-task-chip{background:rgba(255,255,255,.16)!important;color:#f8fafc!important}
+.pcal-cell.selected .pcal-prayer-dot{color:#6ee7b7!important}
+#app-shell.night-mode .pcal-cell{background:var(--nm-surface)!important;border-color:var(--nm-line)!important}
+#app-shell.night-mode .pcal-cell.is-today{border-color:var(--nm-accent)!important}
+#app-shell.night-mode .pcal-cell.selected{background:var(--nm-btn-grad)!important;color:var(--nm-btn-ink)!important;border-color:transparent!important}
+#app-shell.night-mode .pcal-cell.selected .pcal-day-num{color:var(--nm-btn-ink)!important}
+#app-shell.night-mode .pcal-cell.selected .pcal-task-chip{background:rgba(0,0,0,.16)!important;color:var(--nm-btn-ink)!important}
+.prayer-timeline-row{background:linear-gradient(135deg,rgba(16,185,129,.08),rgba(20,184,166,.05));border-color:rgba(16,185,129,.28)!important}
+#app-shell.night-mode .prayer-timeline-row{background:var(--nm-alt-bg)!important;border-color:var(--nm-line-strong)!important}
 #app-shell nav button:not(.w-12):hover{color:var(--ink)}
 #app-shell nav button.text-emerald-400:hover{color:var(--accent-ink)}
 </style>
@@ -1142,6 +1179,10 @@ body:has(#app-shell.night-mode[data-night-theme="titanium"]){background:radial-g
 </div>
 </div>
 <div class="flex items-center gap-1.5 shrink-0">
+<button onclick="switchTab('planner')" id="planner-space-btn" title="Gün Planlayıcı" class="relative w-8 h-8 rounded-xl bg-white border border-slate-200/90 text-slate-700 flex items-center justify-center transition shadow-sm">
+<i class="fa-solid fa-calendar-check text-xs"></i>
+<span id="planner-btn-badge" class="hidden absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-0.5 rounded-full bg-emerald-500 text-slate-950 text-[9px] font-extrabold items-center justify-center border-2 border-[#f2f4f7]">0</span>
+</button>
 <button onclick="switchTab('shared')" id="shared-space-btn" title="Ortak Alan" class="relative w-8 h-8 rounded-xl bg-white border border-slate-200/90 text-slate-700 flex items-center justify-center transition shadow-sm">
 <i class="fa-solid fa-user-group text-xs"></i>
 <span id="shared-btn-dot" class="hidden absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-[#f2f4f7]"></span>
@@ -1729,6 +1770,422 @@ class="px-2.5 py-2.5 bg-white border border-slate-200/90 rounded-2xl text-[11px]
 </button>
 </div>
 <div id="shared-space-body" class="space-y-3.5"></div>
+</div>
+</section>
+
+<!-- 7. SEKME: GÜN PLANLAYICI & TAKVİM -->
+<section id="tab-planner" class="tab-content hidden h-full w-full px-4 pt-2 pb-24 flex flex-col overflow-y-auto">
+<div class="space-y-2.5">
+
+<!-- 1) EN ÜSTTE: HAFTALIK ŞERİT (Pzt–Paz + Hafta Kaydırma Okları) -->
+<div class="flex items-center gap-1">
+<button type="button" onclick="shiftPlannerDate(-7)" title="Önceki Hafta" class="w-6 h-11 rounded-xl bg-white border border-slate-200/80 text-slate-400 hover:text-slate-800 flex items-center justify-center shrink-0 active:scale-90 transition shadow-sm">
+<i class="fa-solid fa-chevron-left text-[9px]"></i>
+</button>
+<div id="planner-week-strip" class="flex-1 grid grid-cols-7 gap-1 min-w-0"></div>
+<button type="button" onclick="shiftPlannerDate(7)" title="Sonraki Hafta" class="w-6 h-11 rounded-xl bg-white border border-slate-200/80 text-slate-400 hover:text-slate-800 flex items-center justify-center shrink-0 active:scale-90 transition shadow-sm">
+<i class="fa-solid fa-chevron-right text-[9px]"></i>
+</button>
+</div>
+
+<!-- 2) KOMPAKT TEK SATIR ARAÇ ÇUBUĞU (NAMAZ AÇ/KAPA + KONUM | ŞABLON • KAPAT • ARA) -->
+<div class="neo-card rounded-2xl px-2.5 py-2 space-y-2">
+<div class="flex items-center justify-between gap-2">
+<!-- Namaz Vakitleri: Sadece kompakt aç/kapa + konum seçici -->
+<div class="flex items-center gap-1.5 min-w-0">
+<label class="relative inline-flex items-center cursor-pointer shrink-0" title="Namaz vakitlerini plana ve takvime ekle / kaldır">
+<input type="checkbox" id="prayer-enabled-toggle" onchange="togglePrayerTimes(this.checked)" class="sr-only peer">
+<div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500"></div>
+</label>
+<button type="button" onclick="togglePrayerLocationDrawer()" class="flex items-center gap-1 text-[10.5px] font-extrabold text-slate-700 hover:text-slate-900 min-w-0 active:scale-95 transition">
+<i class="fa-solid fa-mosque text-emerald-600 text-[10px] shrink-0"></i>
+<span id="prayer-loc-short" class="truncate max-w-[105px]">Namaz • İstanbul</span>
+<i id="prayer-loc-caret" class="fa-solid fa-chevron-down text-[7.5px] text-slate-400 transition-transform duration-150 shrink-0"></i>
+</button>
+</div>
+<!-- Sağda 3 kompakt aksiyon butonu -->
+<div class="flex items-center gap-1 shrink-0">
+<button type="button" onclick="openPlannerTemplatesModal()" title="Hazır Rutin Şablonları" class="px-2 py-1 rounded-xl bg-slate-50 border border-slate-200/80 text-[10px] font-extrabold text-slate-700 flex items-center gap-1 active:scale-95 transition">
+<i class="fa-solid fa-wand-magic-sparkles text-indigo-500 text-[9.5px]"></i> Şablon
+</button>
+<button type="button" onclick="openCloseDayModal()" title="30 Saniyede Günü Kapat" class="w-7 h-7 rounded-xl bg-slate-50 border border-slate-200/80 text-amber-500 flex items-center justify-center active:scale-95 transition">
+<i class="fa-solid fa-moon text-[10.5px]"></i>
+</button>
+<button type="button" onclick="openPlannerArchiveModal()" title="Görev Arama & Geçmiş Arşivi" class="w-7 h-7 rounded-xl bg-slate-50 border border-slate-200/80 text-sky-500 flex items-center justify-center active:scale-95 transition">
+<i class="fa-solid fa-magnifying-glass text-[10.5px]"></i>
+</button>
+</div>
+</div>
+
+<!-- Ülke / Şehir Seçim Çekmecesi (sadece konuma basınca açılır) -->
+<div id="prayer-location-drawer" class="hidden bg-slate-50 rounded-xl p-2.5 border border-slate-200/80 space-y-2">
+<div class="grid grid-cols-2 gap-1.5">
+<div>
+<label class="block text-[9px] font-extrabold text-slate-400 uppercase mb-0.5">Ülke</label>
+<select id="prayer-country-select" onchange="handlePrayerCountryChange()" class="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-xl text-[11px] font-bold"></select>
+</div>
+<div>
+<label class="block text-[9px] font-extrabold text-slate-400 uppercase mb-0.5">Şehir</label>
+<select id="prayer-city-select" onchange="handlePrayerCityChange()" class="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-xl text-[11px] font-bold"></select>
+</div>
+</div>
+<div id="prayer-custom-loc-row" class="hidden grid grid-cols-2 gap-1.5">
+<input type="text" id="prayer-custom-country" maxlength="40" placeholder="Ülke (Örn: Turkey)" class="px-2.5 py-1.5 bg-white border border-slate-200 rounded-xl text-[11px] font-bold">
+<input type="text" id="prayer-custom-city" maxlength="40" placeholder="Şehir (Örn: Bursa)" class="px-2.5 py-1.5 bg-white border border-slate-200 rounded-xl text-[11px] font-bold">
+</div>
+<div class="flex items-center justify-between gap-2">
+<span id="prayer-hijri-label" class="text-[9.5px] font-bold text-slate-400 truncate">Ülkeye göre internetten günlük çekilir</span>
+<button type="button" onclick="applyPrayerLocationSelection()" class="px-3 py-1 rounded-xl bg-[#090d16] text-emerald-400 text-[10px] font-extrabold shrink-0 active:scale-95 transition">
+<i class="fa-solid fa-arrows-rotate text-[9px] mr-1"></i>Uygula
+</button>
+</div>
+</div>
+</div>
+
+<!-- 3) KAYDIRMADAN ERİŞİM: 6'LI KOMPAKT SEKME ÇUBUĞU -->
+<div class="grid grid-cols-6 gap-0.5 p-1 bg-white border border-slate-200/80 rounded-2xl shadow-sm">
+<button type="button" id="psub-btn-plan" onclick="setPlannerSubtab('plan')" class="planner-subtab-btn active py-1.5 px-0.5 rounded-xl text-[9.5px] font-extrabold text-slate-600 flex flex-col items-center justify-center gap-0.5 transition active:scale-95">
+<i class="fa-solid fa-list-check text-[11px]"></i>
+<span class="leading-none">Plan</span>
+</button>
+<button type="button" id="psub-btn-calendar" onclick="setPlannerSubtab('calendar')" class="planner-subtab-btn py-1.5 px-0.5 rounded-xl text-[9.5px] font-extrabold text-slate-600 flex flex-col items-center justify-center gap-0.5 transition active:scale-95">
+<i class="fa-solid fa-calendar-days text-[11px]"></i>
+<span class="leading-none">Takvim</span>
+</button>
+<button type="button" id="psub-btn-goals" onclick="setPlannerSubtab('goals')" class="planner-subtab-btn relative py-1.5 px-0.5 rounded-xl text-[9.5px] font-extrabold text-slate-600 flex flex-col items-center justify-center gap-0.5 transition active:scale-95">
+<i class="fa-solid fa-bullseye text-[11px]"></i>
+<span class="leading-none">Hedef</span>
+<span id="psub-goals-dot" class="hidden absolute top-1 right-1.5 w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+</button>
+<button type="button" id="psub-btn-habits" onclick="setPlannerSubtab('habits')" class="planner-subtab-btn py-1.5 px-0.5 rounded-xl text-[9.5px] font-extrabold text-slate-600 flex flex-col items-center justify-center gap-0.5 transition active:scale-95">
+<i class="fa-solid fa-fire text-[11px]"></i>
+<span class="leading-none">Rutin</span>
+</button>
+<button type="button" id="psub-btn-inbox" onclick="setPlannerSubtab('inbox')" class="planner-subtab-btn relative py-1.5 px-0.5 rounded-xl text-[9.5px] font-extrabold text-slate-600 flex flex-col items-center justify-center gap-0.5 transition active:scale-95">
+<i class="fa-solid fa-inbox text-[11px]"></i>
+<span class="leading-none">Havuz</span>
+<span id="psub-inbox-dot" class="hidden absolute top-1 right-1.5 w-1.5 h-1.5 rounded-full bg-sky-500"></span>
+</button>
+<button type="button" id="psub-btn-note" onclick="setPlannerSubtab('note')" class="planner-subtab-btn py-1.5 px-0.5 rounded-xl text-[9.5px] font-extrabold text-slate-600 flex flex-col items-center justify-center gap-0.5 transition active:scale-95">
+<i class="fa-solid fa-feather-pointed text-[11px]"></i>
+<span class="leading-none">Not</span>
+</button>
+</div>
+
+<!-- ========================================================= -->
+<!-- SEKME 1: GÜNLÜK PLAN (KOMPAKT ÖZET + HIZLI EKLE + AKIM)   -->
+<!-- ========================================================= -->
+<div id="planner-pane-plan" class="space-y-2.5">
+<!-- Tek Satır Kompakt Hero Şeridi -->
+<div class="hero-mesh rounded-[22px] px-3.5 py-2.5 text-white shadow-lg relative overflow-hidden space-y-2">
+<div class="flex items-center justify-between gap-2">
+<div class="flex items-center gap-2 min-w-0 flex-wrap">
+<span id="planner-hero-date-chip" class="text-[10px] font-extrabold text-emerald-300 uppercase tracking-wider shrink-0">21 Kas</span>
+<span id="planner-hero-tasks-stat" class="text-sm font-extrabold text-white leading-none">0 / 0 Görev</span>
+<span id="planner-hero-prayer-stat" class="hidden text-[10px] font-extrabold px-1.5 py-0.5 rounded-md bg-emerald-400/20 text-emerald-200">☪️ 0/5</span>
+</div>
+<div class="flex items-center gap-1.5 shrink-0">
+<button type="button" id="planner-hero-today-btn" onclick="jumpPlannerToday()" class="hidden px-2 py-0.5 rounded-lg bg-white/15 text-[9.5px] font-extrabold text-white active:scale-95 transition">Bugün</button>
+<span id="planner-hero-pct" class="text-[10.5px] font-extrabold px-2 py-0.5 rounded-lg bg-white/10 border border-white/15 text-emerald-300">%0</span>
+</div>
+</div>
+<div class="w-full bg-white/10 rounded-full h-1.5 overflow-hidden">
+<div id="planner-hero-bar" class="bg-emerald-400 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+</div>
+<div class="flex items-center justify-between gap-1.5 flex-wrap text-[9.5px]">
+<span id="planner-hero-load" class="font-bold text-slate-200"><i class="fa-regular fa-hourglass-half mr-1 text-sky-300"></i>Planlanan: 0 dk</span>
+<span id="planner-hero-budget-badge" class="font-bold text-emerald-200"></span>
+</div>
+<div id="planner-hero-bills" class="hidden pt-1.5 border-t border-white/10 space-y-1"></div>
+</div>
+
+<!-- Günün Planı Kartı (Hemen İlk Ekranda Görünür!) -->
+<div class="neo-card rounded-[24px] p-3.5 space-y-2.5">
+<div id="planner-pinned-priority-banner" class="hidden"></div>
+<form onsubmit="addPlannerTask(event)" class="bg-slate-50 rounded-2xl p-2 border border-slate-200/70 space-y-1.5">
+<div class="flex gap-1.5">
+<input type="text" id="planner-task-input" maxlength="90" placeholder="Görev ekle... (Örn: Makale özeti)" class="flex-1 min-w-0 px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold">
+<button type="submit" class="px-3 py-1.5 bg-[#090d16] text-emerald-400 rounded-xl text-xs font-extrabold shrink-0 active:scale-95 transition flex items-center justify-center">
+<i class="fa-solid fa-plus"></i>
+</button>
+</div>
+<div class="flex items-center gap-1.5 flex-wrap">
+<input type="time" id="planner-task-time" title="Saat (isteğe bağlı)" class="planner-time-inp h-8 px-2 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-800 w-[98px]">
+<select id="planner-task-dur" onchange="handlePlannerDurSelectChange()" title="Tahmini süre" class="h-8 px-1.5 bg-white border border-slate-200 rounded-lg text-[10.5px] font-extrabold text-slate-700">
+<option value="0">⏱ Süre</option>
+<option value="15">15 dk</option>
+<option value="30">30 dk</option>
+<option value="45">45 dk</option>
+<option value="60">1 saat</option>
+<option value="120">2 saat</option>
+<option value="custom">✏️ Özel...</option>
+</select>
+<button type="button" id="planner-priority-btn" onclick="cyclePlannerPriority()" class="h-8 px-2 rounded-lg bg-sky-50 border border-sky-200 text-sky-700 text-[10.5px] font-extrabold flex items-center gap-1 active:scale-95 transition">
+<span class="w-1.5 h-1.5 rounded-full bg-sky-500"></span> Normal
+</button>
+<button type="button" id="planner-repeat-btn" onclick="cyclePlannerRepeat()" title="Tekrar sıklığı" class="h-8 px-2 rounded-lg bg-white border border-slate-200 text-slate-600 text-[10.5px] font-extrabold flex items-center gap-1 active:scale-95 transition">
+<i class="fa-solid fa-repeat text-[8.5px]"></i> Tek
+</button>
+</div>
+<!-- Özel Süre Satırı (Süre: Özel seçilince açılır) -->
+<div id="planner-custom-dur-row" class="hidden flex items-center justify-between gap-1.5 bg-white border border-slate-200/80 rounded-xl px-2 py-1.5">
+<div class="flex items-center gap-1.5 min-w-0">
+<span class="text-[9.5px] font-extrabold text-slate-500 shrink-0">Özel süre:</span>
+<input type="number" id="planner-custom-dur-hr" min="0" max="23" inputmode="numeric" placeholder="0" oninput="updateCustomDurPreview()" class="w-11 px-1.5 py-0.5 bg-slate-50 border border-slate-200 rounded-lg text-[11px] font-extrabold text-center">
+<span class="text-[9.5px] font-bold text-slate-400">sa</span>
+<input type="number" id="planner-custom-dur-min" min="0" max="1440" inputmode="numeric" placeholder="45" oninput="updateCustomDurPreview()" class="w-12 px-1.5 py-0.5 bg-slate-50 border border-slate-200 rounded-lg text-[11px] font-extrabold text-center">
+<span class="text-[9.5px] font-bold text-slate-400">dk</span>
+</div>
+<span id="planner-custom-dur-preview" class="text-[9.5px] font-extrabold text-indigo-600 shrink-0"></span>
+</div>
+<!-- Haftanın Günleri Tekrar Seçici (Gün Seç modunda açılır) -->
+<div id="planner-repeat-days-row" class="hidden bg-white border border-slate-200/80 rounded-xl p-2 space-y-1.5">
+<div class="flex items-center justify-between gap-2">
+<span class="text-[9.5px] font-extrabold text-slate-500"><i class="fa-solid fa-calendar-week text-emerald-500 mr-1"></i>Hangi günler tekrarlansın?</span>
+<span id="planner-repeat-days-summary" class="text-[9.5px] font-extrabold text-emerald-600 truncate"></span>
+</div>
+<div id="planner-repeat-days-grid" class="grid grid-cols-7 gap-1"></div>
+</div>
+</form>
+<div id="planner-tasks-list" class="space-y-2"></div>
+<div id="planner-bulk-defer-wrap" class="hidden pt-0.5">
+<button type="button" onclick="deferAllPendingTasksToTomorrow()" class="w-full py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10.5px] font-extrabold flex items-center justify-center gap-1.5 active:scale-95 transition">
+<i class="fa-solid fa-forward-fast text-indigo-500 text-[10px]"></i> <span id="planner-bulk-defer-text">Bitmeyenleri Yarına Aktar</span>
+</button>
+</div>
+</div>
+</div>
+
+<!-- ========================================================= -->
+<!-- SEKME 2: AYLIK TAKVİM (İŞLER + NAMAZ VAKİTLERİ)           -->
+<!-- ========================================================= -->
+<div id="planner-pane-calendar" class="hidden space-y-2.5">
+<div class="neo-card rounded-[24px] p-3 space-y-2">
+<div class="flex items-center justify-between gap-2">
+<button type="button" onclick="shiftPlannerCalendarMonth(-1)" class="w-7 h-7 rounded-xl bg-slate-50 border border-slate-200/80 text-slate-600 flex items-center justify-center active:scale-90 transition">
+<i class="fa-solid fa-chevron-left text-[10px]"></i>
+</button>
+<div class="text-center min-w-0">
+<h3 id="pcal-month-title" class="text-xs font-extrabold text-slate-900">Kasım 2026</h3>
+<p id="pcal-month-meta" class="text-[9.5px] text-slate-400 font-semibold">0 iş planlandı</p>
+</div>
+<div class="flex items-center gap-1">
+<button type="button" onclick="jumpPlannerToday()" class="px-2 py-1 rounded-lg bg-emerald-50 border border-emerald-200/80 text-emerald-700 text-[9.5px] font-extrabold active:scale-95 transition">Bugün</button>
+<button type="button" onclick="shiftPlannerCalendarMonth(1)" class="w-7 h-7 rounded-xl bg-slate-50 border border-slate-200/80 text-slate-600 flex items-center justify-center active:scale-90 transition">
+<i class="fa-solid fa-chevron-right text-[10px]"></i>
+</button>
+</div>
+</div>
+<div class="grid grid-cols-7 gap-1 text-center text-[9px] font-extrabold text-slate-400 uppercase px-0.5">
+<span>Pzt</span><span>Sal</span><span>Çar</span><span>Per</span><span>Cum</span><span>Cmt</span><span>Paz</span>
+</div>
+<div id="pcal-grid" class="grid grid-cols-7 gap-1"></div>
+</div>
+
+<!-- Seçili Günün İşleri & Vakitleri -->
+<div class="neo-card rounded-[24px] p-3.5 space-y-2.5">
+<div class="flex items-center justify-between gap-2">
+<div class="min-w-0">
+<h4 id="pcal-day-detail-title" class="text-xs font-extrabold text-slate-900 truncate">Bugün</h4>
+<p id="pcal-day-detail-sub" class="text-[10px] text-slate-400 font-medium">Seçili günün işleri</p>
+</div>
+<button type="button" onclick="setPlannerSubtab('plan')" class="px-2.5 py-1 rounded-xl bg-[#090d16] text-emerald-400 text-[10px] font-extrabold flex items-center gap-1 shrink-0 active:scale-95 transition">
+<i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i> Günü Aç
+</button>
+</div>
+<form onsubmit="addQuickCalendarTask(event)" class="bg-slate-50 rounded-2xl p-1.5 border border-slate-200/70 flex gap-1.5">
+<input type="text" id="pcal-quick-task-input" maxlength="90" placeholder="Bu güne hızlı iş ekle..." class="flex-1 min-w-0 px-2.5 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold">
+<input type="time" id="pcal-quick-task-time" class="planner-time-inp w-[96px] px-2 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 shrink-0">
+<button type="submit" class="px-3 py-1.5 bg-[#090d16] text-emerald-400 rounded-xl text-xs font-extrabold shrink-0 active:scale-95 transition">
+<i class="fa-solid fa-plus"></i>
+</button>
+</form>
+<div id="pcal-day-detail-list" class="space-y-1.5"></div>
+</div>
+</div>
+
+<!-- ========================================================= -->
+<!-- SEKME 3: YAŞAM HEDEFLERİ (1 AYLIK • 1 YILLIK • 5 YILLIK)  -->
+<!-- ========================================================= -->
+<div id="planner-pane-goals" class="hidden space-y-2.5">
+<!-- Başarı Takibi & İlerleme Özeti Şeridi -->
+<div class="hero-mesh rounded-[22px] px-3.5 py-3 text-white shadow-lg relative overflow-hidden space-y-2">
+<div class="flex items-center justify-between gap-2">
+<div class="min-w-0">
+<span class="text-[9.5px] font-extrabold uppercase tracking-wider text-emerald-300 flex items-center gap-1.5">
+<i class="fa-solid fa-trophy text-[10px]"></i> Yaşam Hedefleri & Başarı
+</span>
+<div class="flex items-baseline gap-2 mt-1 flex-wrap">
+<span id="lgoals-hero-count" class="text-lg font-extrabold text-white leading-none">0 / 0 Başarıldı</span>
+<span id="lgoals-hero-steps" class="text-[10px] font-bold text-slate-300">0 aşama</span>
+</div>
+</div>
+<span id="lgoals-hero-pct" class="text-xs font-extrabold px-2.5 py-1 rounded-xl bg-white/10 border border-white/15 text-emerald-300 shrink-0">%0</span>
+</div>
+<div class="w-full bg-white/10 rounded-full h-1.5 overflow-hidden">
+<div id="lgoals-hero-bar" class="bg-emerald-400 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+</div>
+<div id="lgoals-horizon-stats" class="grid grid-cols-3 gap-1.5 pt-0.5 text-center"></div>
+</div>
+
+<!-- Ufuk Filtreleri + Yeni Hedef Ekle Butonu -->
+<div class="flex items-center justify-between gap-1.5">
+<div class="flex items-center gap-1 overflow-x-auto no-scrollbar">
+<button type="button" data-gh="all" onclick="setLifeGoalHorizonFilter('all')" class="lgoal-horizon-pill active px-2.5 py-1.5 rounded-xl bg-white border border-slate-200/80 text-[10px] font-extrabold text-slate-600 shrink-0 transition">Tümü</button>
+<button type="button" data-gh="1m" onclick="setLifeGoalHorizonFilter('1m')" class="lgoal-horizon-pill px-2.5 py-1.5 rounded-xl bg-white border border-slate-200/80 text-[10px] font-extrabold text-slate-600 shrink-0 transition">1 Aylık</button>
+<button type="button" data-gh="1y" onclick="setLifeGoalHorizonFilter('1y')" class="lgoal-horizon-pill px-2.5 py-1.5 rounded-xl bg-white border border-slate-200/80 text-[10px] font-extrabold text-slate-600 shrink-0 transition">1 Yıllık</button>
+<button type="button" data-gh="5y" onclick="setLifeGoalHorizonFilter('5y')" class="lgoal-horizon-pill px-2.5 py-1.5 rounded-xl bg-white border border-slate-200/80 text-[10px] font-extrabold text-slate-600 shrink-0 transition">5 Yıllık</button>
+</div>
+<button type="button" id="lgoal-add-toggle-btn" onclick="toggleLifeGoalAddForm()" class="px-2.5 py-1.5 rounded-xl bg-[#090d16] text-emerald-400 text-[10px] font-extrabold flex items-center gap-1 shrink-0 active:scale-95 transition shadow-sm">
+<i class="fa-solid fa-plus text-[9px]"></i> Hedef
+</button>
+</div>
+
+<!-- Yeni Hedef / Düzenle Formu (Açılır-Kapanır) -->
+<form id="lgoal-add-form" onsubmit="saveLifeGoalForm(event)" class="hidden neo-card rounded-[22px] p-3.5 space-y-2.5">
+<div class="flex items-center justify-between">
+<h4 id="lgoal-form-title" class="text-xs font-extrabold text-slate-900 flex items-center gap-1.5">
+<i class="fa-solid fa-bullseye text-emerald-600"></i> Yeni Yaşam Hedefi
+</h4>
+<button type="button" onclick="toggleLifeGoalAddForm(false)" class="w-6 h-6 rounded-lg bg-slate-100 text-slate-500 flex items-center justify-center"><i class="fa-solid fa-xmark text-xs"></i></button>
+</div>
+<input type="text" id="lgoal-title-inp" maxlength="80" placeholder="Hedefin nedir? (Örn: Lisans tezini başarıyla bitir)" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold">
+<div class="grid grid-cols-3 gap-1.5">
+<select id="lgoal-horizon-inp" onchange="autoFillLifeGoalTargetDate()" class="px-2 py-2 bg-slate-50 border border-slate-200 rounded-xl text-[10.5px] font-extrabold text-slate-800">
+<option value="1m">🎯 1 Aylık</option>
+<option value="1y">🚀 1 Yıllık</option>
+<option value="5y">🏔️ 5 Yıllık</option>
+</select>
+<select id="lgoal-cat-inp" class="px-2 py-2 bg-slate-50 border border-slate-200 rounded-xl text-[10.5px] font-extrabold text-slate-800">
+<option value="career">🎓 Eğitim / İş</option>
+<option value="health">💪 Sağlık</option>
+<option value="finance">💰 Finans</option>
+<option value="growth">🌱 Gelişim</option>
+<option value="other">✨ Diğer</option>
+</select>
+<input type="date" id="lgoal-target-date-inp" class="px-1.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-[10px] font-bold text-slate-700">
+</div>
+<div id="lgoal-init-steps-wrap" class="space-y-1">
+<label class="block text-[9.5px] font-extrabold text-slate-400 uppercase">İlk Aşamalar (Her satıra 1 adım — isteğe bağlı)</label>
+<textarea id="lgoal-steps-inp" rows="2" maxlength="400" placeholder="Örn:&#10;Literatür taramasını tamamla&#10;Veri analizini bitir" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium resize-none"></textarea>
+</div>
+<button type="submit" id="lgoal-submit-btn" class="w-full py-2.5 bg-[#090d16] text-white text-xs font-extrabold rounded-xl shadow-sm flex items-center justify-center gap-1.5 active:scale-95 transition">
+<i class="fa-solid fa-check text-emerald-400"></i> Hedefi Kaydet
+</button>
+</form>
+
+<!-- Yaşam Hedefleri Listesi -->
+<div id="lgoals-list" class="space-y-2.5"></div>
+</div>
+
+<!-- ========================================================= -->
+<!-- SEKME 3: GÜNLÜK ALIŞKANLIKLAR                             -->
+<!-- ========================================================= -->
+<div id="planner-pane-habits" class="hidden space-y-2.5">
+<div class="neo-card rounded-[24px] p-4 space-y-3">
+<div class="flex items-center justify-between gap-2">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-xl bg-amber-500/15 text-amber-600 flex items-center justify-center shrink-0">
+<i class="fa-solid fa-fire text-xs"></i>
+</div>
+<div>
+<h3 class="text-xs font-extrabold text-slate-900">Günlük Alışkanlıklar</h3>
+<p class="text-[10px] text-slate-400 font-medium">Tek tık veya sayaçlı • son 7 gün izi</p>
+</div>
+</div>
+<div class="flex items-center gap-1">
+<button type="button" id="planner-habit-edit-btn" onclick="togglePlannerHabitEditMode()" class="w-7 h-7 rounded-lg bg-slate-100 text-slate-500 text-[10px] flex items-center justify-center active:scale-95 transition" title="Alışkanlıkları Düzenle">
+<i class="fa-solid fa-pen"></i>
+</button>
+<button type="button" onclick="togglePlannerHabitAddForm()" class="px-2.5 py-1 rounded-lg bg-[#090d16] text-emerald-400 text-[10px] font-extrabold flex items-center gap-1 active:scale-95 transition">
+<i class="fa-solid fa-plus text-[9px]"></i> Ekle
+</button>
+</div>
+</div>
+<form id="planner-habit-add-form" onsubmit="addPlannerHabit(event)" class="hidden bg-slate-50 rounded-2xl p-2.5 border border-slate-200/70 space-y-2">
+<div class="flex gap-1.5">
+<input type="text" id="planner-habit-emoji" maxlength="4" value="⚡" class="w-10 px-1 py-1.5 bg-white border border-slate-200 rounded-xl text-xs text-center font-bold shrink-0">
+<input type="text" id="planner-habit-name" maxlength="28" placeholder="Alışkanlık (Örn: Su / Okuma)" class="flex-1 min-w-0 px-2.5 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-bold">
+</div>
+<div class="flex items-center justify-between gap-1.5">
+<div class="flex items-center gap-1">
+<button type="button" id="hab-mode-check" onclick="setHabitFormMode('check')" class="px-2.5 py-1 rounded-lg bg-[#090d16] text-emerald-400 text-[10px] font-extrabold transition">Tek Tık</button>
+<button type="button" id="hab-mode-counter" onclick="setHabitFormMode('counter')" class="px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-slate-600 text-[10px] font-extrabold transition">Sayaçlı (5/8)</button>
+</div>
+<button type="submit" class="px-3 py-1 bg-emerald-600 text-white rounded-lg text-[10.5px] font-extrabold shrink-0 active:scale-95 transition">Kaydet</button>
+</div>
+<div id="planner-habit-counter-opts" class="hidden grid grid-cols-3 gap-1.5">
+<input type="number" id="planner-habit-target" min="2" max="999" value="8" placeholder="Hedef" class="px-2 py-1.5 bg-white border border-slate-200 rounded-xl text-[11px] font-bold">
+<input type="number" id="planner-habit-step" min="1" max="100" value="1" placeholder="Artış" class="px-2 py-1.5 bg-white border border-slate-200 rounded-xl text-[11px] font-bold">
+<input type="text" id="planner-habit-unit" maxlength="12" value="bardak" placeholder="Birim" class="px-2 py-1.5 bg-white border border-slate-200 rounded-xl text-[11px] font-bold">
+</div>
+</form>
+<div id="planner-habits-grid" class="grid grid-cols-2 gap-2"></div>
+</div>
+</div>
+
+<!-- ========================================================= -->
+<!-- SEKME 4: FİKİR & İŞ HAVUZU (TARİHSİZ)                     -->
+<!-- ========================================================= -->
+<div id="planner-pane-inbox" class="hidden space-y-2.5">
+<div class="neo-card rounded-[24px] p-4 space-y-3">
+<div class="flex items-center justify-between gap-2">
+<div class="flex items-center gap-2 min-w-0">
+<div class="w-7 h-7 rounded-xl bg-sky-500/15 text-sky-600 flex items-center justify-center shrink-0">
+<i class="fa-solid fa-inbox text-xs"></i>
+</div>
+<div class="min-w-0">
+<h3 class="text-xs font-extrabold text-slate-900">Fikir & İş Havuzu</h3>
+<p class="text-[10px] text-slate-400 font-medium truncate">Tarihsiz fikirler • müsait günde tek tıkla çek</p>
+</div>
+</div>
+<span id="planner-inbox-count" class="text-[10px] font-extrabold bg-slate-100 text-slate-700 px-2 py-0.5 rounded-lg shrink-0">0</span>
+</div>
+<form onsubmit="addPlannerInboxItem(event)" class="bg-slate-50 rounded-2xl p-2 border border-slate-200/70 flex gap-1.5">
+<input type="text" id="planner-inbox-input" maxlength="90" placeholder="Aklına geleni at... (Örn: Dişçi randevusu)" class="flex-1 min-w-0 px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold">
+<select id="planner-inbox-dur" class="px-2 py-1.5 bg-white border border-slate-200 rounded-xl text-[10px] font-extrabold text-slate-600 shrink-0">
+<option value="0">—</option>
+<option value="15">15dk</option>
+<option value="30">30dk</option>
+<option value="60">1s</option>
+<option value="120">2s</option>
+</select>
+<button type="submit" class="px-3 py-1.5 bg-[#090d16] text-emerald-400 rounded-xl text-xs font-extrabold shrink-0 active:scale-95 transition">
+<i class="fa-solid fa-plus"></i>
+</button>
+</form>
+<div id="planner-inbox-list" class="space-y-1.5"></div>
+</div>
+</div>
+
+<!-- ========================================================= -->
+<!-- SEKME 5: GÜNÜN KAPANIŞ NOTU & YARININ ÖNCELİĞİ            -->
+<!-- ========================================================= -->
+<div id="planner-pane-note" class="hidden space-y-2.5">
+<div class="neo-card rounded-[24px] p-4 space-y-3">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-xl bg-indigo-500/15 text-indigo-600 flex items-center justify-center shrink-0">
+<i class="fa-solid fa-feather-pointed text-xs"></i>
+</div>
+<div>
+<h3 class="text-xs font-extrabold text-slate-900">Günün Kapanış Notu</h3>
+<p id="planner-note-date-sub" class="text-[10px] text-slate-400 font-medium">Otomatik kaydedilir</p>
+</div>
+</div>
+<span id="planner-note-saved" class="text-[9.5px] font-bold text-emerald-600 opacity-0 transition-opacity">Kaydedildi ✓</span>
+</div>
+<textarea id="planner-note-text" rows="4" maxlength="300" oninput="handlePlannerNoteInput()" placeholder="Bugün ne iyi gitti? Kısa bir özet yaz..." class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium resize-none focus:outline-none focus:ring-2 focus:ring-slate-900"></textarea>
+<div class="space-y-1">
+<label class="block text-[10px] font-extrabold text-slate-500 uppercase">Yarının Tek Ana Önceliği</label>
+<div class="relative">
+<i class="fa-solid fa-star text-amber-400 text-[10px] absolute left-3 top-1/2 -translate-y-1/2"></i>
+<input type="text" id="planner-next-priority" maxlength="90" oninput="handlePlannerNoteInput()" placeholder="Yarın mutlaka bitireceğim en önemli 1 iş..." class="w-full pl-8 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold">
+</div>
+</div>
+</div>
+</div>
+
 </div>
 </section>
 </main>
@@ -2337,6 +2794,137 @@ Tamam
 </div>
 </div>
 
+<!-- PLANLAYICI: HAZIR RUTİN ŞABLONLARI & DÜZENLEYİCİ MODALI -->
+<div id="planner-templates-backdrop" onclick="if(event.target===this) closePlannerTemplatesModal()" class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm z-[45] hidden flex flex-col justify-end">
+<div class="bg-white rounded-t-[32px] p-5 shadow-2xl sheet-enter max-h-[90%] flex flex-col space-y-3">
+<div class="w-10 h-1 bg-slate-200 rounded-full mx-auto shrink-0"></div>
+
+<!-- ŞABLON LİSTE GÖRÜNÜMÜ -->
+<div id="tpl-list-pane" class="flex flex-col space-y-3 min-h-0 flex-1 overflow-hidden">
+<div class="flex items-center justify-between shrink-0 gap-2">
+<div class="min-w-0">
+<h3 class="text-sm font-extrabold text-slate-900 flex items-center gap-2">
+<i class="fa-solid fa-wand-magic-sparkles text-indigo-500"></i> Rutin Şablonları
+</h3>
+<p class="text-[10px] text-slate-400 mt-0.5 truncate">Yükle veya kalem ikonundan düzenle</p>
+</div>
+<div class="flex items-center gap-1.5 shrink-0">
+<button type="button" onclick="openTemplateEditor(null)" class="px-2.5 py-1.5 rounded-xl bg-[#090d16] text-emerald-400 text-[10px] font-extrabold flex items-center gap-1 active:scale-95 transition">
+<i class="fa-solid fa-plus text-[9px]"></i> Yeni
+</button>
+<button type="button" onclick="closePlannerTemplatesModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center">
+<i class="fa-solid fa-xmark text-sm"></i>
+</button>
+</div>
+</div>
+<div id="planner-templates-list" class="space-y-2.5 overflow-y-auto pr-0.5 flex-1"></div>
+<form onsubmit="saveCurrentDayAsTemplate(event)" class="pt-2 border-t border-slate-200/80 flex gap-1.5 shrink-0">
+<input type="text" id="planner-new-tpl-name" maxlength="32" placeholder="Bugünkü görevleri şablon kaydet..." class="flex-1 min-w-0 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold">
+<button type="submit" class="px-3.5 py-2 bg-[#090d16] text-emerald-400 rounded-xl text-xs font-extrabold shrink-0 active:scale-95 transition">Kaydet</button>
+</form>
+</div>
+
+<!-- ŞABLON DÜZENLEME GÖRÜNÜMÜ -->
+<div id="tpl-editor-pane" class="hidden flex flex-col space-y-3 min-h-0 flex-1 overflow-hidden">
+<div class="flex items-center justify-between shrink-0 gap-2">
+<button type="button" onclick="closeTemplateEditor()" class="px-2.5 py-1.5 rounded-xl bg-slate-100 text-slate-700 text-[10.5px] font-extrabold flex items-center gap-1 active:scale-95 transition">
+<i class="fa-solid fa-arrow-left text-[9.5px]"></i> Geri
+</button>
+<h3 id="tpl-editor-title" class="text-sm font-extrabold text-slate-900 truncate">Şablonu Düzenle</h3>
+<button type="button" onclick="closePlannerTemplatesModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center shrink-0">
+<i class="fa-solid fa-xmark text-sm"></i>
+</button>
+</div>
+<div class="flex gap-1.5 shrink-0">
+<input type="text" id="tpl-edit-emoji" maxlength="4" value="✨" class="w-12 px-1 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm text-center font-bold shrink-0">
+<input type="text" id="tpl-edit-name" maxlength="32" placeholder="Şablon adı (Örn: Okul Günü)" class="flex-1 min-w-0 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-extrabold">
+</div>
+<div id="tpl-editor-tasks-list" class="space-y-2 overflow-y-auto pr-0.5 flex-1"></div>
+<div class="space-y-2 pt-1 border-t border-slate-200/80 shrink-0">
+<button type="button" onclick="addTemplateEditorTaskRow()" class="w-full py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-extrabold flex items-center justify-center gap-1.5 active:scale-95 transition">
+<i class="fa-solid fa-plus text-[10px] text-emerald-600"></i> Görev Satırı Ekle
+</button>
+<button type="button" onclick="saveTemplateEditor()" class="w-full py-2.5 bg-[#090d16] text-white text-xs font-extrabold rounded-2xl shadow-md flex items-center justify-center gap-1.5 active:scale-95 transition">
+<i class="fa-solid fa-check text-emerald-400"></i> Şablonu Kaydet
+</button>
+</div>
+</div>
+
+</div>
+</div>
+
+<!-- PLANLAYICI: 30 SANİYELİK GÜNÜ KAPAT AKIŞI MODALI -->
+<div id="planner-close-day-backdrop" onclick="if(event.target===this) closeCloseDayModal()" class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm z-[45] hidden flex flex-col justify-end">
+<div class="bg-white rounded-t-[32px] p-5 shadow-2xl sheet-enter max-h-[90%] flex flex-col space-y-3.5">
+<div class="w-10 h-1 bg-slate-200 rounded-full mx-auto shrink-0"></div>
+<div class="flex items-center justify-between shrink-0">
+<div>
+<h3 class="text-sm font-extrabold text-slate-900 flex items-center gap-2">
+<i class="fa-solid fa-moon text-amber-500"></i> 30 Saniyede Günü Kapat
+</h3>
+<p id="close-day-date-sub" class="text-[10px] text-slate-400 mt-0.5">Günü özetle, kalanları yarına aktar</p>
+</div>
+<button type="button" onclick="closeCloseDayModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center shrink-0">
+<i class="fa-solid fa-xmark text-sm"></i>
+</button>
+</div>
+<div class="overflow-y-auto pr-0.5 flex-1 space-y-3">
+<div id="close-day-stats-box" class="grid grid-cols-2 gap-2"></div>
+<div id="close-day-pending-box" class="bg-slate-50 rounded-2xl p-3 border border-slate-200/80 space-y-2"></div>
+<div class="space-y-2">
+<label class="block text-[10px] font-extrabold text-slate-500 uppercase">Günün Kısa Kapanış Notu</label>
+<textarea id="close-day-note-inp" rows="2" maxlength="300" placeholder="Bugün ne iyi gitti? Neyi farklı yapardın?" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium resize-none"></textarea>
+</div>
+<div class="space-y-1.5">
+<label class="block text-[10px] font-extrabold text-slate-500 uppercase">Yarının Tek Ana Önceliği</label>
+<div class="relative">
+<i class="fa-solid fa-star text-amber-400 text-[10px] absolute left-3 top-1/2 -translate-y-1/2"></i>
+<input type="text" id="close-day-priority-inp" maxlength="90" placeholder="Yarın mutlaka bitireceğim en önemli 1 iş..." class="w-full pl-8 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold">
+</div>
+<label class="flex items-center gap-2 pt-0.5 cursor-pointer select-none">
+<input type="checkbox" id="close-day-add-priority-task" checked class="w-3.5 h-3.5 accent-emerald-600 rounded">
+<span class="text-[10.5px] font-bold text-slate-600">Yarının görev listesine Acil görev olarak da ekle</span>
+</label>
+</div>
+</div>
+<button type="button" onclick="submitCloseDayFlow()" class="w-full py-3 bg-[#090d16] text-white text-xs font-extrabold rounded-2xl shadow-md transition flex items-center justify-center gap-2 shrink-0 active:scale-95">
+<i class="fa-solid fa-check-double text-emerald-400"></i> Günü Kapat & Kaydet
+</button>
+</div>
+</div>
+
+<!-- PLANLAYICI: GÖREV İÇİ ARAMA & GEÇMİŞ ARŞİVİ MODALI -->
+<div id="planner-archive-backdrop" onclick="if(event.target===this) closePlannerArchiveModal()" class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm z-[45] hidden flex flex-col justify-end">
+<div class="bg-white rounded-t-[32px] p-5 shadow-2xl sheet-enter max-h-[88%] flex flex-col space-y-3">
+<div class="w-10 h-1 bg-slate-200 rounded-full mx-auto shrink-0"></div>
+<div class="flex items-center justify-between shrink-0">
+<div>
+<h3 class="text-sm font-extrabold text-slate-900 flex items-center gap-2">
+<i class="fa-solid fa-magnifying-glass text-sky-500"></i> Görev Arama & Geçmiş Arşivi
+</h3>
+<p class="text-[10px] text-slate-400 mt-0.5">Tüm günlerin görev, not ve fikirlerinde anında ara</p>
+</div>
+<button type="button" onclick="closePlannerArchiveModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center shrink-0">
+<i class="fa-solid fa-xmark text-sm"></i>
+</button>
+</div>
+<div class="space-y-2 shrink-0">
+<div class="relative">
+<i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+<input type="text" id="planner-archive-query" oninput="renderPlannerArchiveResults()" placeholder="Görev, not veya tarih ara... (Örn: tez, spor, 2026-11)" class="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-semibold">
+</div>
+<div class="flex gap-1.5 overflow-x-auto no-scrollbar">
+<button type="button" data-arch-flt="all" onclick="setPlannerArchiveFilter('all')" class="arch-flt-btn px-3 py-1 rounded-xl text-[10.5px] font-extrabold bg-[#090d16] text-white shrink-0 transition">Tümü</button>
+<button type="button" data-arch-flt="tasks" onclick="setPlannerArchiveFilter('tasks')" class="arch-flt-btn px-3 py-1 rounded-xl text-[10.5px] font-extrabold bg-slate-100 text-slate-600 shrink-0 transition">Görevler</button>
+<button type="button" data-arch-flt="notes" onclick="setPlannerArchiveFilter('notes')" class="arch-flt-btn px-3 py-1 rounded-xl text-[10.5px] font-extrabold bg-slate-100 text-slate-600 shrink-0 transition">Notlar</button>
+<button type="button" data-arch-flt="done" onclick="setPlannerArchiveFilter('done')" class="arch-flt-btn px-3 py-1 rounded-xl text-[10.5px] font-extrabold bg-slate-100 text-slate-600 shrink-0 transition">Tamamlanan</button>
+<button type="button" data-arch-flt="open" onclick="setPlannerArchiveFilter('open')" class="arch-flt-btn px-3 py-1 rounded-xl text-[10.5px] font-extrabold bg-slate-100 text-slate-600 shrink-0 transition">Açık</button>
+</div>
+</div>
+<div id="planner-archive-results" class="space-y-2 overflow-y-auto pr-0.5 flex-1"></div>
+</div>
+</div>
+
 <!-- ÖZET ARAYÜZÜ SIRALAMA MODALI -->
 <div id="home-layout-backdrop" onclick="if(event.target===this) closeHomeLayoutModal()" class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm z-[45] hidden flex flex-col justify-end">
 <div class="bg-white rounded-t-[32px] p-5 shadow-2xl sheet-enter max-h-[86%] flex flex-col space-y-3.5">
@@ -2735,8 +3323,8 @@ return { directCardUsd, atmSpentUsd, transferOutUsd, transferInUsd, totalSpentUs
 
 // --- SEKME DEĞİŞTİRME (Ortak Alan ayrı pencere/sekme) ---
 function switchTab(tabName) {
-const tabs = ['home', 'fxcard', 'stats', 'transactions', 'settings', 'shared'];
-const titles = { home: 'Varlık Özeti', fxcard: 'Yurt Dışı Kartlar', stats: 'Finansal Analiz', transactions: 'İşlem Geçmişi', settings: 'Ayarlar', shared: 'Ortak Alan' };
+const tabs = ['home', 'fxcard', 'stats', 'transactions', 'settings', 'shared', 'planner'];
+const titles = { home: 'Varlık Özeti', fxcard: 'Yurt Dışı Kartlar', stats: 'Finansal Analiz', transactions: 'İşlem Geçmişi', settings: 'Ayarlar', shared: 'Ortak Alan', planner: 'Gün Planlayıcı' };
 currentTabName = tabName;
 tabs.forEach(t => {
 const el = document.getElementById(`tab-${t}`);
@@ -2748,12 +3336,15 @@ navBtn.className = t === tabName
 : "flex flex-col items-center justify-center py-1 text-slate-400 transition";
 }
 });
+const pb = document.getElementById('planner-space-btn');
+if (pb) pb.classList.toggle('header-btn-active', tabName === 'planner');
 const sb = document.getElementById('shared-space-btn');
 if (sb) sb.classList.toggle('header-btn-active', tabName === 'shared');
 const setBtn = document.getElementById('nav-settings');
 if (setBtn) setBtn.classList.toggle('header-btn-active', tabName === 'settings');
 document.getElementById('header-title').textContent = titles[tabName] || 'Cüzdanım';
 if (tabName !== 'shared') stopSharedPolling();
+if (tabName !== 'planner') stopPlannerClockTimer();
 if (tabName === 'stats') updateStatsAndChart();
 else if (tabName === 'fxcard') { updateFxCardUI(); scrollToActiveFxCard(false); }
 else if (tabName === 'transactions') renderTransactions();
@@ -2762,6 +3353,7 @@ renderSettingsCardsList();
 renderAccounts(); renderSavingsGoals(); renderRecurringPlans(); renderCustomCategories(); populateCategoryBudgetSelect(); renderCategoryBudgets();
 } else if (tabName === 'home') { renderUpcomingSubscriptionsBanner(); renderDebts(); renderHomeTransfers(); }
 else if (tabName === 'shared') enterSharedTab();
+else if (tabName === 'planner') { renderPlannerUI(); startPlannerClockTimer(); }
 }
 
 // --- KART KARUSELİ ---
@@ -4136,6 +4728,7 @@ recurringPlans = Array.isArray(data.recurringPlans) ? data.recurringPlans : [];
 primaryAccountId = typeof data.primaryAccountId === 'string' ? data.primaryAccountId : primaryAccountId;
 if (data.homeLayout && typeof data.homeLayout === 'object') { homeLayoutState = normalizeHomeLayout(data.homeLayout); saveHomeLayoutLocal(); applyHomeLayoutToDOM(); }
 if (data.sharedLayout && typeof data.sharedLayout === 'object') { sharedLayoutState = normalizeSharedLayout(data.sharedLayout); saveSharedLayoutLocal(); }
+if (data.plannerState && typeof data.plannerState === 'object') { applyPlannerData(data.plannerState); }
 if (data.appLang && ['tr','en','ru'].includes(data.appLang)) { appLang = data.appLang; try { localStorage.setItem(APP_LANG_KEY, appLang); } catch (e) {} }
 if (typeof data.walletOwnerName === 'string' && data.walletOwnerName.trim()) walletOwnerName = data.walletOwnerName.trim();
 if (Array.isArray(data.customExpenseCategories)) categories.expense = categories.expense.filter(c => !c.id.startsWith('custom_')).concat(data.customExpenseCategories);
@@ -9199,6 +9792,7 @@ recurringPlans,
 primaryAccountId,
 homeLayout: homeLayoutState,
 sharedLayout: sharedLayoutState,
+plannerState: getSerializablePlannerState(),
 appLang,
 customExpenseCategories: categories.expense.filter(c => c.id.startsWith('custom_')),
 savedAt: new Date().toISOString()
@@ -10072,6 +10666,7 @@ recurringPlans = Array.isArray(data.recurringPlans) ? data.recurringPlans : [];
 if (typeof data.primaryAccountId === 'string') primaryAccountId = data.primaryAccountId;
 if (data.homeLayout && typeof data.homeLayout === 'object') { homeLayoutState = normalizeHomeLayout(data.homeLayout); saveHomeLayoutLocal(); }
 if (data.sharedLayout && typeof data.sharedLayout === 'object') { sharedLayoutState = normalizeSharedLayout(data.sharedLayout); saveSharedLayoutLocal(); }
+if (data.plannerState && typeof data.plannerState === 'object') { applyPlannerData(data.plannerState); }
 if (data.appLang && ['tr','en','ru'].includes(data.appLang)) { appLang = data.appLang; try { localStorage.setItem(APP_LANG_KEY, appLang); } catch (e) {} }
 if (Array.isArray(data.customExpenseCategories)) categories.expense = categories.expense.filter(c => !c.id.startsWith('custom_')).concat(data.customExpenseCategories);
 return true;
@@ -10094,6 +10689,36 @@ const I18N_EXACT = {
 'İşlem Geçmişi': { en: 'Transaction History', ru: 'История операций' },
 'Ayarlar': { en: 'Settings', ru: 'Настройки' },
 'Ortak Alan': { en: 'Shared Space', ru: 'Общая зона' },
+'Gün Planlayıcı': { en: 'Day Planner', ru: 'План дня' },
+'Bugünün Özeti': { en: "Today's Summary", ru: 'Итог дня' },
+'Günün Planı': { en: 'Daily Plan', ru: 'План на день' },
+'Saatli görevler otomatik sıralanır': { en: 'Timed tasks sort automatically', ru: 'Задачи по времени сортируются сами' },
+'Saat isteğe bağlı': { en: 'Time optional', ru: 'Время не обязательно' },
+'Günlük Alışkanlıklar': { en: 'Daily Habits', ru: 'Привычки' },
+'Tek dokunuşla işaretle • zinciri koru': { en: 'Tap to check • keep the streak', ru: 'Отмечай касанием • держи серию' },
+'Günün Kapanış Notu': { en: 'Daily Reflection', ru: 'Заметка дня' },
+'Otomatik kaydedilir': { en: 'Auto-saved', ru: 'Автосохранение' },
+'Planlayıcı Sırasını Düzenle': { en: 'Customize Planner Layout', ru: 'Настроить порядок' },
+'Günlük Plan': { en: 'Daily Plan', ru: 'План дня' },
+'Aylık Takvim': { en: 'Monthly Calendar', ru: 'Календарь' },
+'Namaz Vakitleri': { en: 'Prayer Times', ru: 'Время намаза' },
+'Ülke': { en: 'Country', ru: 'Страна' },
+'Şehir': { en: 'City', ru: 'Город' },
+'Vakitleri Getir': { en: 'Fetch Times', ru: 'Загрузить' },
+'Günü Aç': { en: 'Open Day', ru: 'Открыть день' },
+'Hedef': { en: 'Goals', ru: 'Цели' },
+'Rutin': { en: 'Habits', ru: 'Привычки' },
+'1 Aylık': { en: '1 Month', ru: '1 месяц' },
+'1 Yıllık': { en: '1 Year', ru: '1 год' },
+'5 Yıllık': { en: '5 Years', ru: '5 лет' },
+'Yeni Yaşam Hedefi': { en: 'New Life Goal', ru: 'Новая цель' },
+'Şablonlar': { en: 'Templates', ru: 'Шаблоны' },
+'Günü Kapat': { en: 'Close Day', ru: 'Итог дня' },
+'Ara & Arşiv': { en: 'Search', ru: 'Архив' },
+'Fikir & İş Havuzu': { en: 'Idea & Task Inbox', ru: 'Входящие задачи' },
+'Hazır Rutin Şablonları': { en: 'Routine Templates', ru: 'Шаблоны рутин' },
+'30 Saniyede Günü Kapat': { en: '30-Second Day Wrap-Up', ru: 'Завершить день' },
+'Görev Arama & Geçmiş Arşivi': { en: 'Search & History Archive', ru: 'Поиск и архив' },
 'Özet': { en: 'Home', ru: 'Обзор' },
 'Kart': { en: 'Cards', ru: 'Карты' },
 'Analiz': { en: 'Stats', ru: 'Анализ' },
@@ -10560,6 +11185,9 @@ const sheets = [
 ['shared-subview-backdrop', closeSharedSubview],
 ['shared-layout-backdrop', closeSharedLayoutModal],
 ['home-layout-backdrop', closeHomeLayoutModal],
+['planner-templates-backdrop', closePlannerTemplatesModal],
+['planner-close-day-backdrop', closeCloseDayModal],
+['planner-archive-backdrop', closePlannerArchiveModal],
 ['settings-sheet-backdrop', closeSettingsSheet],
 ['cloud-sync-backdrop', closeCloudSyncModal],
 ['cloud-pass-backdrop', closeCloudPasswordModal]
@@ -10794,7 +11422,7 @@ _lastBootDateStr = todayStr;
 const addSheetClosed = document.getElementById('add-sheet-backdrop')?.classList.contains('hidden');
 const txDateEl = document.getElementById('tx-date');
 if (addSheetClosed && txDateEl) txDateEl.value = todayStr;
-if (!isUserTypingInInput()) updateUI();
+if (!isUserTypingInInput()) { updateUI(); updatePlannerHeaderBadge(); if (currentTabName === 'planner') renderPlannerUI(); }
 }
 
 if (_swReg && (now - _lastSwCheck > 60000)) {
@@ -10811,6 +11439,2548 @@ if (getCloudAuth()) pullPersonalVaultFromCloud(true).catch(() => {});
 }
 }
 
+
+// =====================================================================
+// GÜN PLANLAYICI & TAKVİM MODÜLÜ v46
+// (Üstte Haftalık Şerit • Tek Satır Namaz Aç/Kapa • 5'li Kaydırmasız Sekmeler
+//  • Şablon Düzenleyici • Geçen Namaz Vakitlerini Otomatik Tamamlama)
+// =====================================================================
+const PLANNER_PRIORITY_CYCLE = ['normal', 'high', 'low'];
+const PLANNER_PRIORITY_META = {
+  high: { label: 'Acil', cls: 'bg-rose-50 border-rose-200 text-rose-700', dot: 'bg-rose-500', rank: 0 },
+  normal: { label: 'Normal', cls: 'bg-sky-50 border-sky-200 text-sky-700', dot: 'bg-sky-500', rank: 1 },
+  low: { label: 'Düşük', cls: 'bg-slate-100 border-slate-200 text-slate-600', dot: 'bg-slate-400', rank: 2 }
+};
+const PLANNER_REPEAT_CYCLE = ['none', 'daily', 'weekdays', 'custom_days'];
+const PLANNER_REPEAT_META = {
+  none: { label: 'Tek', cls: 'bg-white border-slate-200 text-slate-600' },
+  daily: { label: 'Her Gün', cls: 'bg-violet-50 border-violet-200 text-violet-700' },
+  weekdays: { label: 'Hafta İçi', cls: 'bg-indigo-50 border-indigo-200 text-indigo-700' },
+  custom_days: { label: 'Gün Seç', cls: 'bg-emerald-50 border-emerald-300 text-emerald-700' }
+};
+const PLANNER_WEEKDAYS_ORDER = [
+  { dow: 1, short: 'Pzt', ics: 'MO' },
+  { dow: 2, short: 'Sal', ics: 'TU' },
+  { dow: 3, short: 'Çar', ics: 'WE' },
+  { dow: 4, short: 'Per', ics: 'TH' },
+  { dow: 5, short: 'Cum', ics: 'FR' },
+  { dow: 6, short: 'Cmt', ics: 'SA' },
+  { dow: 0, short: 'Paz', ics: 'SU' }
+];
+const PLANNER_DEFAULT_TEMPLATES = [
+  {
+    id: 'tpl-school', name: 'Okul Günü', emoji: '🎓', builtin: true,
+    tasks: [
+      { title: 'Sabah ders & çanta hazırlığı', time: '08:15', durationMin: 15, priority: 'normal' },
+      { title: 'Ders notlarını özetle & düzenle', time: '17:30', durationMin: 45, priority: 'high' },
+      { title: 'Günlük konu tekrarı', time: '20:30', durationMin: 30, priority: 'normal' },
+      { title: 'Yarının programını kontrol et', time: '22:00', durationMin: 15, priority: 'low' }
+    ]
+  },
+  {
+    id: 'tpl-wfh', name: 'Evden Çalışma', emoji: '💻', builtin: true,
+    tasks: [
+      { title: 'Sabah yürüyüşü & kahve', time: '09:00', durationMin: 30, priority: 'low' },
+      { title: 'Derin çalışma bloğu 1 (Ana hedef)', time: '10:00', durationMin: 120, priority: 'high' },
+      { title: 'Derin çalışma bloğu 2', time: '14:30', durationMin: 60, priority: 'high' },
+      { title: 'Mesajlar & ufak işler', time: '17:30', durationMin: 30, priority: 'normal' }
+    ]
+  },
+  {
+    id: 'tpl-exam', name: 'Sınav Haftası', emoji: '📚', builtin: true,
+    tasks: [
+      { title: 'Ana konu özeti & kart çıkarma', time: '09:30', durationMin: 60, priority: 'high' },
+      { title: 'Süreli deneme / soru çözümü', time: '13:30', durationMin: 120, priority: 'high' },
+      { title: 'Yanlış yapılan konuları tekrar et', time: '19:00', durationMin: 60, priority: 'high' },
+      { title: 'Ekranı kapat & erken uyu', time: '22:30', durationMin: 15, priority: 'normal' }
+    ]
+  },
+  {
+    id: 'tpl-weekend', name: 'Hafta Sonu', emoji: '🌿', builtin: true,
+    tasks: [
+      { title: 'Oda & çalışma masasını toparla', time: '11:00', durationMin: 30, priority: 'normal' },
+      { title: 'Haftalık bütçe & harcama kontrolü', time: '14:00', durationMin: 15, priority: 'normal' },
+      { title: 'Kişisel proje / kitap okuma', time: '16:00', durationMin: 60, priority: 'normal' },
+      { title: 'Yeni hafta planını kur', time: '20:00', durationMin: 30, priority: 'high' }
+    ]
+  }
+];
+
+// --- NAMAZ VAKİTLERİ ÜLKE & ŞEHİR KATALOĞU (ALADHAN API UYUMLU) ---
+const PRAYER_CACHE_KEY = 'cuzdanim_prayer_cache_v1';
+const PRAYER_SLOTS = [
+  { key: 'Fajr', label: 'İmsak', full: 'Sabah (İmsak)', nextKey: 'Sunrise', checkable: true },
+  { key: 'Sunrise', label: 'Güneş', full: 'Güneş Doğuşu', nextKey: 'Dhuhr', checkable: false },
+  { key: 'Dhuhr', label: 'Öğle', full: 'Öğle Namazı', nextKey: 'Asr', checkable: true },
+  { key: 'Asr', label: 'İkindi', full: 'İkindi Namazı', nextKey: 'Maghrib', checkable: true },
+  { key: 'Maghrib', label: 'Akşam', full: 'Akşam Namazı', nextKey: 'Isha', checkable: true },
+  { key: 'Isha', label: 'Yatsı', full: 'Yatsı Namazı', nextKey: null, checkable: true }
+];
+const PRAYER_COUNTRIES = [
+  { code: 'Turkey', label: '🇹🇷 Türkiye', method: 13, cities: [
+    ['Istanbul', 'İstanbul'], ['Ankara', 'Ankara'], ['Izmir', 'İzmir'], ['Bursa', 'Bursa'],
+    ['Antalya', 'Antalya'], ['Konya', 'Konya'], ['Adana', 'Adana'], ['Gaziantep', 'Gaziantep'],
+    ['Kayseri', 'Kayseri'], ['Eskisehir', 'Eskişehir'], ['Trabzon', 'Trabzon'], ['Samsun', 'Samsun'],
+    ['Mersin', 'Mersin'], ['Diyarbakir', 'Diyarbakır'], ['Kocaeli', 'Kocaeli'], ['Sakarya', 'Sakarya']
+  ]},
+  { code: 'Turkmenistan', label: '🇹🇲 Türkmenistan', method: 13, cities: [
+    ['Ashgabat', 'Aşkabat'], ['Balkanabat', 'Balkanabat'], ['Turkmenbashi', 'Türkmenbaşı'],
+    ['Mary', 'Mary'], ['Turkmenabat', 'Türkmenabat'], ['Dashoguz', 'Daşoğuz']
+  ]},
+  { code: 'Azerbaijan', label: '🇦🇿 Azerbaycan', method: 13, cities: [
+    ['Baku', 'Bakü'], ['Ganja', 'Gence'], ['Sumqayit', 'Sumgayıt'], ['Nakhchivan', 'Nahçıvan']
+  ]},
+  { code: 'Germany', label: '🇩🇪 Almanya', method: 13, cities: [
+    ['Berlin', 'Berlin'], ['Munich', 'Münih'], ['Frankfurt', 'Frankfurt'], ['Cologne', 'Köln'],
+    ['Hamburg', 'Hamburg'], ['Stuttgart', 'Stuttgart'], ['Dusseldorf', 'Düsseldorf']
+  ]},
+  { code: 'Netherlands', label: '🇳🇱 Hollanda', method: 13, cities: [
+    ['Amsterdam', 'Amsterdam'], ['Rotterdam', 'Rotterdam'], ['Utrecht', 'Utrecht'], ['The Hague', 'Lahey']
+  ]},
+  { code: 'France', label: '🇫🇷 Fransa', method: 12, cities: [
+    ['Paris', 'Paris'], ['Lyon', 'Lyon'], ['Marseille', 'Marsilya'], ['Strasbourg', 'Strazburg']
+  ]},
+  { code: 'United Kingdom', label: '🇬🇧 İngiltere', method: 13, cities: [
+    ['London', 'Londra'], ['Manchester', 'Manchester'], ['Birmingham', 'Birmingham'], ['Edinburgh', 'Edinburg']
+  ]},
+  { code: 'Austria', label: '🇦🇹 Avusturya', method: 13, cities: [
+    ['Vienna', 'Viyana'], ['Graz', 'Graz'], ['Linz', 'Linz'], ['Salzburg', 'Salzburg']
+  ]},
+  { code: 'Belgium', label: '🇧🇪 Belçika', method: 13, cities: [
+    ['Brussels', 'Brüksel'], ['Antwerp', 'Anvers'], ['Ghent', 'Gent']
+  ]},
+  { code: 'Switzerland', label: '🇨🇭 İsviçre', method: 13, cities: [
+    ['Zurich', 'Zürih'], ['Geneva', 'Cenevre'], ['Basel', 'Basel'], ['Bern', 'Bern']
+  ]},
+  { code: 'Russia', label: '🇷🇺 Rusya', method: 14, cities: [
+    ['Moscow', 'Moskova'], ['Saint Petersburg', 'St. Petersburg'], ['Kazan', 'Kazan'], ['Ufa', 'Ufa']
+  ]},
+  { code: 'Uzbekistan', label: '🇺🇿 Özbekistan', method: 3, cities: [
+    ['Tashkent', 'Taşkent'], ['Samarkand', 'Semerkand'], ['Bukhara', 'Buhara']
+  ]},
+  { code: 'Kazakhstan', label: '🇰🇿 Kazakistan', method: 3, cities: [
+    ['Almaty', 'Almatı'], ['Astana', 'Astana'], ['Shymkent', 'Çimkent']
+  ]},
+  { code: 'Kyrgyzstan', label: '🇰🇬 Kırgızistan', method: 3, cities: [
+    ['Bishkek', 'Bişkek'], ['Osh', 'Oş']
+  ]},
+  { code: 'Saudi Arabia', label: '🇸🇦 Suudi Arabistan', method: 4, cities: [
+    ['Makkah', 'Mekke'], ['Madinah', 'Medine'], ['Riyadh', 'Riyad'], ['Jeddah', 'Cidde']
+  ]},
+  { code: 'United Arab Emirates', label: '🇦🇪 BAE', method: 16, cities: [
+    ['Dubai', 'Dubai'], ['Abu Dhabi', 'Abu Dabi'], ['Sharjah', 'Şarika']
+  ]},
+  { code: 'Qatar', label: '🇶🇦 Katar', method: 10, cities: [['Doha', 'Doha']] },
+  { code: 'Egypt', label: '🇪🇬 Mısır', method: 5, cities: [['Cairo', 'Kahire'], ['Alexandria', 'İskenderiye']] },
+  { code: 'United States', label: '🇺🇸 ABD', method: 2, cities: [
+    ['New York', 'New York'], ['Chicago', 'Chicago'], ['Los Angeles', 'Los Angeles'],
+    ['Houston', 'Houston'], ['Washington', 'Washington']
+  ]},
+  { code: 'Canada', label: '🇨🇦 Kanada', method: 2, cities: [
+    ['Toronto', 'Toronto'], ['Montreal', 'Montreal'], ['Vancouver', 'Vancouver'], ['Ottawa', 'Ottawa']
+  ]},
+  { code: 'Cyprus', label: '🇨🇾 KKTC / Kıbrıs', method: 13, cities: [
+    ['Nicosia', 'Lefkoşa'], ['Kyrenia', 'Girne'], ['Famagusta', 'Gazimağusa']
+  ]},
+  { code: 'Bosnia and Herzegovina', label: '🇧🇦 Bosna-Hersek', method: 13, cities: [
+    ['Sarajevo', 'Saraybosna'], ['Mostar', 'Mostar']
+  ]},
+  { code: 'custom', label: '🌍 Diğer Ülke (Elle Yaz)', method: 3, cities: [] }
+];
+
+let plannerState = {
+  tasks: [],
+  inbox: [],
+  templates: JSON.parse(JSON.stringify(PLANNER_DEFAULT_TEMPLATES)),
+  habits: [
+    { id: 'hab-water', emoji: '💧', name: 'Su İçme', mode: 'counter', target: 8, step: 1, unit: 'bardak', logs: {} },
+    { id: 'hab-read', emoji: '📖', name: 'Okuma', mode: 'counter', target: 30, step: 5, unit: 'sayfa', logs: {} },
+    { id: 'hab-sport', emoji: '🏋️', name: 'Spor / Yürüyüş', mode: 'check', target: 1, step: 1, unit: '', logs: {} },
+    { id: 'hab-words', emoji: '🇬🇧', name: 'Kelime', mode: 'counter', target: 20, step: 5, unit: 'kelime', logs: {} }
+  ],
+  notesByDate: {},
+  lifeGoals: [],
+  prayer: {
+    enabled: false,
+    country: 'Turkey',
+    city: 'Istanbul',
+    customCountry: '',
+    customCity: '',
+    prayedByDate: {}
+  }
+};
+
+let plannerSelectedDate = getTodayOffset(0);
+let plannerActiveSubtab = 'plan'; // 'plan' | 'calendar' | 'habits' | 'inbox' | 'note'
+let plannerCalYear = new Date().getFullYear();
+let plannerCalMonth = new Date().getMonth() + 1;
+let plannerNewPriority = 'normal';
+let plannerNewRepeat = 'none';
+let plannerSelectedRepeatDays = [];
+let plannerHabitEditMode = false;
+let plannerHabitFormMode = 'check';
+let plannerNoteSaveTimer = null;
+let plannerArchiveFilter = 'all';
+let prayerMonthCache = {};
+let prayerFetchingKeys = {};
+let _plannerClockInterval = null;
+let _editingTemplateId = null;
+
+function loadPrayerCacheFromStorage() {
+  try {
+    const raw = localStorage.getItem(PRAYER_CACHE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === 'object') prayerMonthCache = parsed;
+    }
+  } catch (e) {}
+}
+
+function savePrayerCacheToStorage() {
+  try {
+    const keys = Object.keys(prayerMonthCache);
+    if (keys.length > 12) {
+      keys.slice(0, keys.length - 12).forEach(k => delete prayerMonthCache[k]);
+    }
+    localStorage.setItem(PRAYER_CACHE_KEY, JSON.stringify(prayerMonthCache));
+  } catch (e) {}
+}
+
+function normalizePrayerSettings(raw) {
+  const base = { enabled: false, country: 'Turkey', city: 'Istanbul', customCountry: '', customCity: '', prayedByDate: {} };
+  if (!raw || typeof raw !== 'object') return base;
+  return {
+    enabled: !!raw.enabled,
+    country: typeof raw.country === 'string' && raw.country ? raw.country : 'Turkey',
+    city: typeof raw.city === 'string' && raw.city ? raw.city : 'Istanbul',
+    customCountry: typeof raw.customCountry === 'string' ? raw.customCountry : '',
+    customCity: typeof raw.customCity === 'string' ? raw.customCity : '',
+    prayedByDate: raw.prayedByDate && typeof raw.prayedByDate === 'object' ? raw.prayedByDate : {}
+  };
+}
+
+function getSerializablePlannerState() {
+  return {
+    tasks: Array.isArray(plannerState.tasks) ? plannerState.tasks : [],
+    inbox: Array.isArray(plannerState.inbox) ? plannerState.inbox : [],
+    templates: Array.isArray(plannerState.templates) && plannerState.templates.length ? plannerState.templates : PLANNER_DEFAULT_TEMPLATES,
+    habits: Array.isArray(plannerState.habits) ? plannerState.habits : [],
+    notesByDate: plannerState.notesByDate || {},
+    lifeGoals: Array.isArray(plannerState.lifeGoals) ? plannerState.lifeGoals : [],
+    prayer: normalizePrayerSettings(plannerState.prayer)
+  };
+}
+
+function applyPlannerData(data) {
+  if (!data || typeof data !== 'object') return;
+  plannerState.tasks = Array.isArray(data.tasks) ? data.tasks : [];
+  plannerState.inbox = Array.isArray(data.inbox) ? data.inbox : [];
+  if (Array.isArray(data.templates) && data.templates.length) plannerState.templates = data.templates;
+  if (Array.isArray(data.habits)) {
+    plannerState.habits = data.habits.map(h => ({
+      id: h.id || ('hab-' + Math.random().toString(36).slice(2, 8)),
+      emoji: h.emoji || '⚡',
+      name: h.name || 'Alışkanlık',
+      mode: h.mode === 'counter' ? 'counter' : 'check',
+      target: Math.max(1, Number(h.target) || 1),
+      step: Math.max(1, Number(h.step) || 1),
+      unit: h.unit || '',
+      logs: h.logs && typeof h.logs === 'object' ? h.logs : {}
+    }));
+  }
+  plannerState.notesByDate = data.notesByDate && typeof data.notesByDate === 'object' ? data.notesByDate : {};
+  plannerState.lifeGoals = Array.isArray(data.lifeGoals) ? data.lifeGoals : [];
+  plannerState.prayer = normalizePrayerSettings(data.prayer);
+  updatePlannerHeaderBadge();
+  if (currentTabName === 'planner') renderPlannerUI();
+}
+
+function initPlannerOnBoot() {
+  loadPrayerCacheFromStorage();
+  plannerSelectedDate = getTodayOffset(0);
+  syncCalendarYearMonthFromSelected();
+  populatePrayerCountrySelect();
+  updatePlannerHeaderBadge();
+  if (plannerState.prayer && plannerState.prayer.enabled) {
+    ensurePrayerTimesForYearMonth(plannerCalYear, plannerCalMonth, true);
+  }
+}
+
+function startPlannerClockTimer() {
+  stopPlannerClockTimer();
+  _plannerClockInterval = setInterval(() => {
+    if (!document.hidden && currentTabName === 'planner' && plannerState.prayer && plannerState.prayer.enabled && !isUserTypingInInput()) {
+      renderPlannerUI();
+    }
+  }, 30000);
+}
+
+function stopPlannerClockTimer() {
+  if (_plannerClockInterval) { clearInterval(_plannerClockInterval); _plannerClockInterval = null; }
+}
+
+function addDaysToIso(isoStr, delta) {
+  const parts = String(isoStr || getTodayOffset(0)).split('-').map(Number);
+  const d = new Date(parts[0], (parts[1] || 1) - 1, parts[2] || 1);
+  d.setDate(d.getDate() + delta);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+function formatDurationMinutes(totalMin) {
+  const m = Math.max(0, Math.round(Number(totalMin) || 0));
+  if (m === 0) return '0 dk';
+  const h = Math.floor(m / 60);
+  const r = m % 60;
+  if (h === 0) return `${r} dk`;
+  if (r === 0) return `${h}s`;
+  return `${h}s ${r}dk`;
+}
+
+function formatPlannerDateHeader(isoStr) {
+  const today = getTodayOffset(0);
+  const tomorrow = getTodayOffset(1);
+  const yesterday = getTodayOffset(-1);
+  const parts = String(isoStr).split('-').map(Number);
+  const d = new Date(parts[0], (parts[1] || 1) - 1, parts[2] || 1);
+  const months = ['Oca', 'Şub', 'Mar', 'Nis', 'May', 'Haz', 'Tem', 'Ağu', 'Eyl', 'Eki', 'Kas', 'Ara'];
+  const shortStr = `${d.getDate()} ${months[d.getMonth()]}`;
+  if (isoStr === today) return `Bugün, ${shortStr}`;
+  if (isoStr === tomorrow) return `Yarın, ${shortStr}`;
+  if (isoStr === yesterday) return `Dün, ${shortStr}`;
+  const days = ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'];
+  return `${days[d.getDay()]}, ${shortStr}`;
+}
+
+function formatFullTurkishDate(isoStr) {
+  const parts = String(isoStr).split('-').map(Number);
+  const d = new Date(parts[0], (parts[1] || 1) - 1, parts[2] || 1);
+  const months = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
+  const days = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'];
+  return `${d.getDate()} ${months[d.getMonth()]} ${days[d.getDay()]}`;
+}
+
+function syncCalendarYearMonthFromSelected() {
+  const p = String(plannerSelectedDate).split('-').map(Number);
+  if (p[0] && p[1]) {
+    plannerCalYear = p[0];
+    plannerCalMonth = p[1];
+  }
+}
+
+// --- 5'Lİ KAYDIRMASIZ SEKME GEÇİŞİ ---
+function setPlannerSubtab(tab) {
+  const valid = ['plan', 'calendar', 'goals', 'habits', 'inbox', 'note'];
+  plannerActiveSubtab = valid.includes(tab) ? tab : 'plan';
+  valid.forEach(k => {
+    const btn = document.getElementById(`psub-btn-${k}`);
+    const pane = document.getElementById(`planner-pane-${k}`);
+    if (btn) btn.classList.toggle('active', k === plannerActiveSubtab);
+    if (pane) pane.classList.toggle('hidden', k !== plannerActiveSubtab);
+  });
+  if (plannerActiveSubtab === 'calendar') {
+    syncCalendarYearMonthFromSelected();
+    if (plannerState.prayer && plannerState.prayer.enabled) {
+      ensurePrayerTimesForYearMonth(plannerCalYear, plannerCalMonth, true);
+    }
+  }
+  renderPlannerUI();
+}
+
+function shiftPlannerDate(delta) {
+  plannerSelectedDate = addDaysToIso(plannerSelectedDate, delta);
+  syncCalendarYearMonthFromSelected();
+  renderPlannerUI();
+}
+
+function selectPlannerDate(isoStr) {
+  if (!isoStr) return;
+  plannerSelectedDate = isoStr;
+  syncCalendarYearMonthFromSelected();
+  renderPlannerUI();
+}
+
+function jumpPlannerToday() {
+  plannerSelectedDate = getTodayOffset(0);
+  syncCalendarYearMonthFromSelected();
+  renderPlannerUI();
+}
+
+// =====================================================================
+// NAMAZ VAKİTLERİ (ALADHAN API • ÜLKE/ŞEHİR • OTOMATİK GEÇİNCE TAMAMLAMA)
+// =====================================================================
+function getActivePrayerLocation() {
+  const pr = normalizePrayerSettings(plannerState.prayer);
+  if (pr.country === 'custom') {
+    const ctry = (pr.customCountry || '').trim() || 'Turkey';
+    const cty = (pr.customCity || '').trim() || 'Istanbul';
+    return { country: ctry, city: cty, method: 3, cityDisplay: cty, display: `${ctry} • ${cty}` };
+  }
+  const cObj = PRAYER_COUNTRIES.find(c => c.code === pr.country) || PRAYER_COUNTRIES[0];
+  let cityApi = pr.city;
+  let cityDisplay = pr.city;
+  if (pr.city === '__custom__') {
+    cityApi = (pr.customCity || '').trim() || (cObj.cities[0] ? cObj.cities[0][0] : 'Istanbul');
+    cityDisplay = cityApi;
+  } else {
+    const found = (cObj.cities || []).find(pair => pair[0] === pr.city);
+    if (found) { cityApi = found[0]; cityDisplay = found[1]; }
+    else if (cObj.cities && cObj.cities.length) { cityApi = cObj.cities[0][0]; cityDisplay = cObj.cities[0][1]; }
+  }
+  return {
+    country: cObj.code,
+    city: cityApi,
+    method: cObj.method || 13,
+    cityDisplay,
+    display: `${cObj.label} • ${cityDisplay}`
+  };
+}
+
+function getPrayerCacheKey(year, month) {
+  const loc = getActivePrayerLocation();
+  const ym = `${year}-${String(month).padStart(2, '0')}`;
+  return `${loc.country.toLowerCase()}|${loc.city.toLowerCase()}|${loc.method}|${ym}`;
+}
+
+function getPrayerDayEntry(isoDate) {
+  if (!plannerState.prayer || !plannerState.prayer.enabled || !isoDate) return null;
+  const parts = String(isoDate).split('-').map(Number);
+  if (!parts[0] || !parts[1]) return null;
+  const key = getPrayerCacheKey(parts[0], parts[1]);
+  const monthMap = prayerMonthCache[key];
+  return (monthMap && monthMap[isoDate]) ? monthMap[isoDate] : null;
+}
+
+function parseCleanPrayerTime(raw) {
+  const m = String(raw || '').match(/\d{2}:\d{2}/);
+  return m ? m[0] : '';
+}
+
+function timeStrToMinutes(hhmm) {
+  if (!hhmm || !/^\d{2}:\d{2}$/.test(hhmm)) return -1;
+  const [h, m] = hhmm.split(':').map(Number);
+  return h * 60 + m;
+}
+
+// Yeni namaz vakti başladığında önceki vakit otomatik geçti/tamamlandı sayılır
+function hasPrayerTimePassed(isoDate, slotKey, dayEntry) {
+  if (!dayEntry) return false;
+  const todayIso = getTodayOffset(0);
+  if (isoDate < todayIso) return true;
+  if (isoDate > todayIso) return false;
+  const slot = PRAYER_SLOTS.find(s => s.key === slotKey);
+  if (!slot) return false;
+  const now = new Date();
+  const nowMin = now.getHours() * 60 + now.getMinutes();
+  if (slot.nextKey && dayEntry[slot.nextKey]) {
+    const nextMin = timeStrToMinutes(dayEntry[slot.nextKey]);
+    if (nextMin >= 0) return nowMin >= nextMin;
+  }
+  return false;
+}
+
+function getPrayerSlotStatus(isoDate, slotKey, dayEntry) {
+  const pr = normalizePrayerSettings(plannerState.prayer);
+  const savedMap = (pr.prayedByDate && pr.prayedByDate[isoDate]) || {};
+  const explicit = savedMap[slotKey];
+  const autoPassed = hasPrayerTimePassed(isoDate, slotKey, dayEntry);
+  if (explicit === true) return { done: true, auto: false };
+  if (explicit === false) return { done: false, auto: false };
+  return { done: autoPassed, auto: autoPassed };
+}
+
+async function ensurePrayerTimesForYearMonth(year, month, silent = false) {
+  if (!plannerState.prayer || !plannerState.prayer.enabled) return null;
+  const key = getPrayerCacheKey(year, month);
+  if (prayerMonthCache[key]) return prayerMonthCache[key];
+  if (prayerFetchingKeys[key]) return null;
+  if (navigator.onLine === false) {
+    if (!silent) showToast('Namaz vakitleri için internet bağlantısı gerekli');
+    return null;
+  }
+  const loc = getActivePrayerLocation();
+  prayerFetchingKeys[key] = true;
+  renderPrayerControlBar();
+  try {
+    const url1 = `https://api.aladhan.com/v1/calendarByCity/${year}/${month}?city=${encodeURIComponent(loc.city)}&country=${encodeURIComponent(loc.country)}&method=${loc.method}`;
+    let res = await fetch(url1);
+    let json = res.ok ? await res.json() : null;
+    if (!json || json.code !== 200 || !Array.isArray(json.data) || !json.data.length) {
+      const url2 = `https://api.aladhan.com/v1/calendarByAddress/${year}/${month}?address=${encodeURIComponent(loc.city + ', ' + loc.country)}&method=${loc.method}`;
+      res = await fetch(url2);
+      json = res.ok ? await res.json() : null;
+    }
+    if (!json || json.code !== 200 || !Array.isArray(json.data)) {
+      throw new Error('Vakitler alınamadı');
+    }
+    const map = {};
+    json.data.forEach(item => {
+      const g = item && item.date && item.date.gregorian;
+      const t = item && item.timings;
+      if (!g || !t) return;
+      const iso = `${g.year}-${String(g.month.number).padStart(2, '0')}-${String(g.day).padStart(2, '0')}`;
+      const h = item.date && item.date.hijri;
+      const hijriText = h ? `${h.day} ${h.month && h.month.en ? h.month.en : ''} ${h.year}` : '';
+      map[iso] = {
+        Fajr: parseCleanPrayerTime(t.Fajr),
+        Sunrise: parseCleanPrayerTime(t.Sunrise),
+        Dhuhr: parseCleanPrayerTime(t.Dhuhr),
+        Asr: parseCleanPrayerTime(t.Asr),
+        Maghrib: parseCleanPrayerTime(t.Maghrib),
+        Isha: parseCleanPrayerTime(t.Isha),
+        hijri: hijriText
+      };
+    });
+    prayerMonthCache[key] = map;
+    savePrayerCacheToStorage();
+    delete prayerFetchingKeys[key];
+    if (!silent) showToast(`☪️ ${loc.display} vakitleri plana eklendi`);
+    if (currentTabName === 'planner') renderPlannerUI();
+    return map;
+  } catch (err) {
+    delete prayerFetchingKeys[key];
+    if (!silent) showToast('Namaz vakitleri alınamadı • Şehir/ülke adını veya interneti kontrol et');
+    if (currentTabName === 'planner') renderPrayerControlBar();
+    return null;
+  }
+}
+
+function populatePrayerCountrySelect() {
+  const cSel = document.getElementById('prayer-country-select');
+  if (!cSel) return;
+  const pr = normalizePrayerSettings(plannerState.prayer);
+  cSel.innerHTML = PRAYER_COUNTRIES.map(c => `<option value="${escHtml(c.code)}">${escHtml(c.label)}</option>`).join('');
+  cSel.value = PRAYER_COUNTRIES.some(c => c.code === pr.country) ? pr.country : 'Turkey';
+  populatePrayerCitySelect();
+}
+
+function populatePrayerCitySelect() {
+  const cSel = document.getElementById('prayer-country-select');
+  const citySel = document.getElementById('prayer-city-select');
+  const customRow = document.getElementById('prayer-custom-loc-row');
+  const ccInp = document.getElementById('prayer-custom-country');
+  const cityInp = document.getElementById('prayer-custom-city');
+  if (!cSel || !citySel) return;
+  const pr = normalizePrayerSettings(plannerState.prayer);
+  const cObj = PRAYER_COUNTRIES.find(c => c.code === cSel.value) || PRAYER_COUNTRIES[0];
+  if (cObj.code === 'custom') {
+    citySel.innerHTML = `<option value="__custom__">Elle yaz</option>`;
+    citySel.disabled = true;
+    if (customRow) customRow.classList.remove('hidden');
+    if (ccInp) { ccInp.classList.remove('hidden'); ccInp.value = pr.customCountry || ''; }
+    if (cityInp) cityInp.value = pr.customCity || '';
+  } else {
+    citySel.disabled = false;
+    citySel.innerHTML = (cObj.cities || []).map(([val, lbl]) => `<option value="${escHtml(val)}">${escHtml(lbl)}</option>`).join('') +
+      `<option value="__custom__">✏️ Başka şehir yaz...</option>`;
+    if (pr.country === cObj.code && (pr.city === '__custom__' || (cObj.cities || []).some(p => p[0] === pr.city))) {
+      citySel.value = pr.city;
+    } else if (cObj.cities && cObj.cities.length) {
+      citySel.value = cObj.cities[0][0];
+    }
+    const isCustomCity = citySel.value === '__custom__';
+    if (customRow) customRow.classList.toggle('hidden', !isCustomCity);
+    if (ccInp) { ccInp.classList.add('hidden'); ccInp.value = cObj.code; }
+    if (cityInp) cityInp.value = pr.customCity || '';
+  }
+}
+
+function handlePrayerCountryChange() {
+  const cSel = document.getElementById('prayer-country-select');
+  if (!cSel) return;
+  plannerState.prayer.country = cSel.value;
+  const cObj = PRAYER_COUNTRIES.find(c => c.code === cSel.value);
+  plannerState.prayer.city = (cObj && cObj.cities && cObj.cities.length) ? cObj.cities[0][0] : '__custom__';
+  populatePrayerCitySelect();
+  renderPrayerControlBar();
+  if (plannerState.prayer.enabled && cSel.value !== 'custom') {
+    const p = plannerSelectedDate.split('-').map(Number);
+    ensurePrayerTimesForYearMonth(p[0], p[1], false);
+    triggerCloudSave();
+  }
+}
+
+function handlePrayerCityChange() {
+  const citySel = document.getElementById('prayer-city-select');
+  const customRow = document.getElementById('prayer-custom-loc-row');
+  const ccInp = document.getElementById('prayer-custom-country');
+  if (!citySel) return;
+  plannerState.prayer.city = citySel.value;
+  const isCustomCity = citySel.value === '__custom__';
+  if (customRow) customRow.classList.toggle('hidden', !isCustomCity);
+  if (ccInp) ccInp.classList.toggle('hidden', plannerState.prayer.country !== 'custom');
+  if (!isCustomCity) {
+    renderPrayerControlBar();
+    triggerCloudSave();
+    if (plannerState.prayer.enabled) {
+      const p = plannerSelectedDate.split('-').map(Number);
+      ensurePrayerTimesForYearMonth(p[0], p[1], false);
+    }
+  }
+}
+
+function togglePrayerLocationDrawer() {
+  const dr = document.getElementById('prayer-location-drawer');
+  const caret = document.getElementById('prayer-loc-caret');
+  if (!dr) return;
+  const open = dr.classList.contains('hidden');
+  dr.classList.toggle('hidden', !open);
+  if (caret) caret.style.transform = open ? 'rotate(180deg)' : '';
+  if (open) populatePrayerCountrySelect();
+}
+
+function applyPrayerLocationSelection() {
+  const cSel = document.getElementById('prayer-country-select');
+  const citySel = document.getElementById('prayer-city-select');
+  const ccInp = document.getElementById('prayer-custom-country');
+  const cityInp = document.getElementById('prayer-custom-city');
+  if (cSel) plannerState.prayer.country = cSel.value;
+  if (citySel) plannerState.prayer.city = citySel.value;
+  if (plannerState.prayer.country === 'custom') {
+    const ctry = (ccInp && ccInp.value || '').trim();
+    const cty = (cityInp && cityInp.value || '').trim();
+    if (!ctry || !cty) { showToast('Ülke ve şehir adını yaz'); return; }
+    plannerState.prayer.customCountry = ctry;
+    plannerState.prayer.customCity = cty;
+  } else if (plannerState.prayer.city === '__custom__') {
+    const cty = (cityInp && cityInp.value || '').trim();
+    if (!cty) { showToast('Şehir adını yaz'); return; }
+    plannerState.prayer.customCity = cty;
+  }
+  plannerState.prayer.enabled = true;
+  const tgl = document.getElementById('prayer-enabled-toggle');
+  if (tgl) tgl.checked = true;
+  const dr = document.getElementById('prayer-location-drawer');
+  const caret = document.getElementById('prayer-loc-caret');
+  if (dr) dr.classList.add('hidden');
+  if (caret) caret.style.transform = '';
+  triggerCloudSave();
+  const p = plannerSelectedDate.split('-').map(Number);
+  ensurePrayerTimesForYearMonth(p[0], p[1], false);
+  renderPlannerUI();
+}
+
+function togglePrayerTimes(enabled) {
+  plannerState.prayer = normalizePrayerSettings(plannerState.prayer);
+  plannerState.prayer.enabled = !!enabled;
+  triggerCloudSave();
+  if (enabled) {
+    const p = plannerSelectedDate.split('-').map(Number);
+    ensurePrayerTimesForYearMonth(p[0], p[1], false);
+    if (plannerActiveSubtab === 'calendar' && (plannerCalYear !== p[0] || plannerCalMonth !== p[1])) {
+      ensurePrayerTimesForYearMonth(plannerCalYear, plannerCalMonth, true);
+    }
+  } else {
+    showToast('Namaz vakitleri plan ve takvimden kaldırıldı');
+  }
+  renderPlannerUI();
+}
+
+function togglePrayedSlot(isoDate, slotKey) {
+  if (!plannerState.prayer.prayedByDate || typeof plannerState.prayer.prayedByDate !== 'object') {
+    plannerState.prayer.prayedByDate = {};
+  }
+  if (!plannerState.prayer.prayedByDate[isoDate] || typeof plannerState.prayer.prayedByDate[isoDate] !== 'object') {
+    plannerState.prayer.prayedByDate[isoDate] = {};
+  }
+  const entry = getPrayerDayEntry(isoDate);
+  const current = getPrayerSlotStatus(isoDate, slotKey, entry);
+  plannerState.prayer.prayedByDate[isoDate][slotKey] = !current.done;
+  renderPlannerUI();
+  triggerCloudSave();
+}
+
+function renderPrayerControlBar() {
+  const pr = normalizePrayerSettings(plannerState.prayer);
+  const tgl = document.getElementById('prayer-enabled-toggle');
+  const locShort = document.getElementById('prayer-loc-short');
+  const hijriEl = document.getElementById('prayer-hijri-label');
+  const loc = getActivePrayerLocation();
+  if (tgl) tgl.checked = !!pr.enabled;
+  if (locShort) {
+    const p = String(plannerSelectedDate).split('-').map(Number);
+    const cacheKey = getPrayerCacheKey(p[0], p[1]);
+    locShort.textContent = (pr.enabled && prayerFetchingKeys[cacheKey])
+      ? 'Yükleniyor...'
+      : `Namaz • ${loc.cityDisplay}`;
+  }
+  if (pr.enabled) {
+    const p = String(plannerSelectedDate).split('-').map(Number);
+    const entry = getPrayerDayEntry(plannerSelectedDate);
+    if (!entry) {
+      ensurePrayerTimesForYearMonth(p[0], p[1], true);
+    } else if (hijriEl && entry.hijri) {
+      hijriEl.textContent = `Hicri: ${entry.hijri}`;
+    }
+  }
+}
+
+// =====================================================================
+// AYLIK TAKVİM GÖRÜNÜMÜ (İŞLER + NAMAZ VAKİTLERİ DOĞRUDAN TAKVİMDE)
+// =====================================================================
+function shiftPlannerCalendarMonth(delta) {
+  let m = plannerCalMonth + delta;
+  let y = plannerCalYear;
+  if (m < 1) { m = 12; y -= 1; }
+  else if (m > 12) { m = 1; y += 1; }
+  plannerCalYear = y;
+  plannerCalMonth = m;
+  if (plannerState.prayer && plannerState.prayer.enabled) {
+    ensurePrayerTimesForYearMonth(y, m, true);
+  }
+  renderPlannerCalendar();
+}
+
+function addQuickCalendarTask(e) {
+  if (e) e.preventDefault();
+  const inp = document.getElementById('pcal-quick-task-input');
+  const timeInp = document.getElementById('pcal-quick-task-time');
+  const title = (inp && inp.value || '').trim();
+  if (!title) { showToast('Önce bir iş yaz'); return; }
+  const time = (timeInp && timeInp.value || '').trim();
+  plannerState.tasks.push({
+    id: 'pt-' + Date.now() + '-' + Math.floor(Math.random() * 999),
+    date: plannerSelectedDate,
+    title,
+    time,
+    durationMin: 0,
+    priority: 'normal',
+    repeat: 'none',
+    done: false,
+    doneDates: {},
+    deletedDates: {},
+    createdAt: Date.now()
+  });
+  inp.value = '';
+  if (timeInp) timeInp.value = '';
+  renderPlannerUI();
+  updatePlannerHeaderBadge();
+  triggerCloudSave();
+  showToast(`"${title}" takvime eklendi`);
+}
+
+function renderPlannerCalendar() {
+  const titleEl = document.getElementById('pcal-month-title');
+  const metaEl = document.getElementById('pcal-month-meta');
+  const gridEl = document.getElementById('pcal-grid');
+  if (!gridEl) return;
+
+  const monthsLong = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
+  if (titleEl) titleEl.textContent = `${monthsLong[plannerCalMonth - 1]} ${plannerCalYear}`;
+
+  const firstDay = new Date(plannerCalYear, plannerCalMonth - 1, 1);
+  const startDow = (firstDay.getDay() + 6) % 7;
+  const daysInMonth = new Date(plannerCalYear, plannerCalMonth, 0).getDate();
+  const totalCells = Math.ceil((startDow + daysInMonth) / 7) * 7;
+  const startDate = new Date(plannerCalYear, plannerCalMonth - 1, 1 - startDow);
+  const todayIso = getTodayOffset(0);
+  const prayerOn = !!(plannerState.prayer && plannerState.prayer.enabled);
+
+  let monthTaskCount = 0;
+  let cellsHtml = '';
+  for (let i = 0; i < totalCells; i++) {
+    const d = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate() + i);
+    const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    const inCurMonth = (d.getMonth() + 1) === plannerCalMonth && d.getFullYear() === plannerCalYear;
+    const isToday = iso === todayIso;
+    const isSel = iso === plannerSelectedDate;
+    const dayTasks = getPlannerTasksForDate(iso);
+    if (inCurMonth) monthTaskCount += dayTasks.length;
+
+    const pEntry = prayerOn ? getPrayerDayEntry(iso) : null;
+    const visibleTasks = dayTasks.slice(0, 2);
+    const extraCnt = dayTasks.length - visibleTasks.length;
+
+    const chipsHtml = visibleTasks.map(t => {
+      const done = isTaskDoneOnDate(t, iso);
+      const chipCls = done
+        ? 'bg-emerald-500/15 text-emerald-700 line-through'
+        : (t.priority === 'high' ? 'bg-rose-500/15 text-rose-700' : 'bg-indigo-500/15 text-indigo-700');
+      return `<div class="pcal-task-chip ${chipCls} text-[7.5px] font-extrabold leading-tight px-1 py-[1px] rounded truncate">${escHtml(t.title)}</div>`;
+    }).join('') + (extraCnt > 0 ? `<div class="text-[7.5px] font-extrabold text-slate-400 text-center leading-none">+${extraCnt}</div>` : '');
+
+    cellsHtml += `
+    <button type="button" onclick="selectPlannerDate('${iso}')" class="pcal-cell ${inCurMonth ? '' : 'other-month'} ${isToday ? 'is-today' : ''} ${isSel ? 'selected' : ''} active:scale-95">
+      <div class="flex items-center justify-between gap-0.5 mb-0.5 px-0.5">
+        <span class="pcal-day-num text-[10px] font-extrabold ${isToday && !isSel ? 'text-emerald-600' : 'text-slate-800'} leading-none">${d.getDate()}</span>
+        ${pEntry ? `<i class="pcal-prayer-dot fa-solid fa-moon text-[6.5px] text-emerald-500 shrink-0" title="Akşam: ${escHtml(pEntry.Maghrib)}"></i>` : ''}
+      </div>
+      <div class="space-y-0.5 w-full min-w-0">${chipsHtml}</div>
+    </button>`;
+  }
+  gridEl.innerHTML = cellsHtml;
+  if (metaEl) metaEl.textContent = `${monthTaskCount} iş planlandı${prayerOn ? ' • ☪️ vakitler aktif' : ''}`;
+  renderCalendarDayDetail();
+}
+
+function renderCalendarDayDetail() {
+  const titleEl = document.getElementById('pcal-day-detail-title');
+  const subEl = document.getElementById('pcal-day-detail-sub');
+  const listEl = document.getElementById('pcal-day-detail-list');
+  if (!listEl) return;
+
+  const dayTasks = getPlannerTasksForDate(plannerSelectedDate);
+  const doneCnt = dayTasks.filter(t => isTaskDoneOnDate(t, plannerSelectedDate)).length;
+  const prayerOn = !!(plannerState.prayer && plannerState.prayer.enabled);
+  const pEntry = prayerOn ? getPrayerDayEntry(plannerSelectedDate) : null;
+
+  if (titleEl) titleEl.textContent = formatFullTurkishDate(plannerSelectedDate);
+  if (subEl) subEl.textContent = `${doneCnt}/${dayTasks.length} iş tamamlandı${pEntry && pEntry.hijri ? ' • ' + pEntry.hijri : ''}`;
+
+  const combined = [];
+  dayTasks.forEach(t => {
+    combined.push({ kind: 'task', sortTime: t.time || '99:99', task: t, done: isTaskDoneOnDate(t, plannerSelectedDate) });
+  });
+  if (pEntry) {
+    PRAYER_SLOTS.forEach(s => {
+      if (pEntry[s.key]) combined.push({ kind: 'prayer', sortTime: pEntry[s.key], slot: s, time: pEntry[s.key], dayEntry: pEntry });
+    });
+  }
+  combined.sort((a, b) => a.sortTime.localeCompare(b.sortTime));
+
+  if (!combined.length) {
+    listEl.innerHTML = `<p class="text-[11px] text-slate-400 text-center py-3">Bu gün için kayıtlı iş yok. Yukarıdan hızlıca ekleyebilirsin.</p>`;
+    return;
+  }
+
+  listEl.innerHTML = combined.map(item => {
+    if (item.kind === 'prayer') return renderPrayerTimelineRowHtml(item.slot, item.time, item.dayEntry);
+    return renderPlannerTaskRowHtml(item.task, item.done);
+  }).join('');
+}
+
+// --- TEKRARLAYAN GÖREV DESTEĞİ ---
+function getIsoDayOfWeek(isoDate) {
+  const p = String(isoDate || getTodayOffset(0)).split('-').map(Number);
+  return new Date(p[0], (p[1] || 1) - 1, p[2] || 1).getDay();
+}
+
+function isTaskActiveOnDate(t, isoDate) {
+  if (!t) return false;
+  if (!t.repeat || t.repeat === 'none') return t.date === isoDate;
+  if (isoDate < t.date) return false;
+  if (t.deletedDates && t.deletedDates[isoDate]) return false;
+  if (t.repeat === 'daily') return true;
+  if (t.repeat === 'weekdays') {
+    const dow = getIsoDayOfWeek(isoDate);
+    return dow >= 1 && dow <= 5;
+  }
+  if (t.repeat === 'custom_days') {
+    const dow = getIsoDayOfWeek(isoDate);
+    return Array.isArray(t.repeatDays) && t.repeatDays.includes(dow);
+  }
+  return t.date === isoDate;
+}
+
+function isTaskDoneOnDate(t, isoDate) {
+  if (!t) return false;
+  if (!t.repeat || t.repeat === 'none') return !!t.done;
+  return !!(t.doneDates && t.doneDates[isoDate]);
+}
+
+function getPlannerTasksForDate(isoDate) {
+  return (plannerState.tasks || []).filter(t => isTaskActiveOnDate(t, isoDate));
+}
+
+function updatePlannerHeaderBadge() {
+  const badge = document.getElementById('planner-btn-badge');
+  if (!badge) return;
+  const today = getTodayOffset(0);
+  const pendingCount = getPlannerTasksForDate(today).filter(t => !isTaskDoneOnDate(t, today)).length;
+  badge.textContent = pendingCount > 99 ? '99+' : String(pendingCount);
+  badge.classList.toggle('hidden', pendingCount === 0);
+  badge.classList.toggle('flex', pendingCount > 0);
+}
+
+// --- EN ÜSTTEKİ HAFTALIK ŞERİT TAKVİM (Pzt–Paz) ---
+function renderPlannerWeekStrip() {
+  const strip = document.getElementById('planner-week-strip');
+  if (!strip) return;
+  const parts = String(plannerSelectedDate).split('-').map(Number);
+  const selDate = new Date(parts[0], (parts[1] || 1) - 1, parts[2] || 1);
+  const dow = selDate.getDay();
+  const mondayOffset = dow === 0 ? -6 : (1 - dow);
+  const mondayIso = addDaysToIso(plannerSelectedDate, mondayOffset);
+  const dayNames = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'];
+  const todayIso = getTodayOffset(0);
+
+  let out = '';
+  for (let i = 0; i < 7; i++) {
+    const iso = addDaysToIso(mondayIso, i);
+    const dayNum = Number(iso.split('-')[2]);
+    const isSel = iso === plannerSelectedDate;
+    const isToday = iso === todayIso;
+    const dayTasks = getPlannerTasksForDate(iso);
+    const total = dayTasks.length;
+    const doneCnt = dayTasks.filter(t => isTaskDoneOnDate(t, iso)).length;
+    const pendingCnt = total - doneCnt;
+    let dotsHtml = '';
+    if (total === 0) {
+      dotsHtml = `<span class="w-1 h-1 rounded-full opacity-0">.</span>`;
+    } else if (pendingCnt === 0) {
+      dotsHtml = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>`;
+    } else {
+      const nDots = Math.min(3, pendingCnt);
+      for (let d = 0; d < nDots; d++) {
+        dotsHtml += `<span class="w-1 h-1 rounded-full ${isSel ? 'bg-emerald-300' : 'bg-indigo-500'}"></span>`;
+      }
+    }
+    out += `
+    <button type="button" onclick="selectPlannerDate('${iso}')" class="planner-week-day ${isSel ? 'selected' : ''} ${isToday ? 'is-today' : ''} flex flex-col items-center justify-center py-1.5 px-0.5 rounded-2xl border border-slate-200/80 bg-white transition active:scale-95 shadow-sm">
+      <span class="text-[8.5px] font-bold ${isSel ? 'opacity-80' : 'text-slate-400'} leading-none">${dayNames[i]}</span>
+      <span class="text-xs font-extrabold mt-1 leading-none">${dayNum}</span>
+      <span class="flex items-center justify-center gap-0.5 mt-1 h-1.5">${dotsHtml}</span>
+    </button>`;
+  }
+  strip.innerHTML = out;
+}
+
+// --- GÖREV EKLEME / ÖNCELİK / TEKRAR ---
+function cyclePlannerPriority() {
+  const idx = PLANNER_PRIORITY_CYCLE.indexOf(plannerNewPriority);
+  plannerNewPriority = PLANNER_PRIORITY_CYCLE[(idx + 1) % PLANNER_PRIORITY_CYCLE.length];
+  const btn = document.getElementById('planner-priority-btn');
+  if (!btn) return;
+  const m = PLANNER_PRIORITY_META[plannerNewPriority];
+  btn.className = `h-8 px-2 rounded-lg border text-[10.5px] font-extrabold flex items-center gap-1 active:scale-95 transition ${m.cls}`;
+  btn.innerHTML = `<span class="w-1.5 h-1.5 rounded-full ${m.dot}"></span> ${m.label}`;
+}
+
+function formatRepeatDaysLabel(daysArr, compact = false) {
+  if (!Array.isArray(daysArr) || !daysArr.length) return '';
+  const ordered = PLANNER_WEEKDAYS_ORDER.filter(w => daysArr.includes(w.dow)).map(w => w.short);
+  if (!ordered.length) return '';
+  if (ordered.length === 7) return 'Her Gün';
+  if (compact && ordered.length > 2) return `${ordered.length} gün`;
+  return ordered.join(', ');
+}
+
+function renderPlannerRepeatDaysPicker() {
+  const row = document.getElementById('planner-repeat-days-row');
+  const grid = document.getElementById('planner-repeat-days-grid');
+  const sum = document.getElementById('planner-repeat-days-summary');
+  if (!row || !grid) return;
+  const show = plannerNewRepeat === 'custom_days';
+  row.classList.toggle('hidden', !show);
+  if (!show) return;
+  grid.innerHTML = PLANNER_WEEKDAYS_ORDER.map(w => {
+    const isAct = plannerSelectedRepeatDays.includes(w.dow);
+    return `<button type="button" onclick="togglePlannerRepeatDay(${w.dow})" class="planner-rep-day ${isAct ? 'active' : ''} py-1.5 rounded-lg border border-slate-200 bg-slate-50 text-[10px] font-extrabold text-slate-600 transition active:scale-95">${w.short}</button>`;
+  }).join('');
+  if (sum) {
+    const lbl = formatRepeatDaysLabel(plannerSelectedRepeatDays, false);
+    sum.textContent = lbl ? `Her ${lbl}` : 'Gün seçin';
+  }
+}
+
+function togglePlannerRepeatDay(dow) {
+  const idx = plannerSelectedRepeatDays.indexOf(dow);
+  if (idx >= 0) plannerSelectedRepeatDays.splice(idx, 1);
+  else plannerSelectedRepeatDays.push(dow);
+  renderPlannerRepeatDaysPicker();
+}
+
+function cyclePlannerRepeat() {
+  const idx = PLANNER_REPEAT_CYCLE.indexOf(plannerNewRepeat);
+  plannerNewRepeat = PLANNER_REPEAT_CYCLE[(idx + 1) % PLANNER_REPEAT_CYCLE.length];
+  if (plannerNewRepeat === 'custom_days' && !plannerSelectedRepeatDays.length) {
+    plannerSelectedRepeatDays = [getIsoDayOfWeek(plannerSelectedDate)];
+  }
+  const btn = document.getElementById('planner-repeat-btn');
+  if (btn) {
+    const m = PLANNER_REPEAT_META[plannerNewRepeat];
+    btn.className = `h-8 px-2 rounded-lg border text-[10.5px] font-extrabold flex items-center gap-1 active:scale-95 transition ${m.cls}`;
+    btn.innerHTML = `<i class="fa-solid fa-repeat text-[8.5px]"></i> ${m.label}`;
+  }
+  renderPlannerRepeatDaysPicker();
+}
+
+function handlePlannerDurSelectChange() {
+  const durSel = document.getElementById('planner-task-dur');
+  const row = document.getElementById('planner-custom-dur-row');
+  if (!durSel || !row) return;
+  const isCustom = durSel.value === 'custom';
+  row.classList.toggle('hidden', !isCustom);
+  if (isCustom) {
+    updateCustomDurPreview();
+    const minInp = document.getElementById('planner-custom-dur-min');
+    if (minInp) minInp.focus();
+  }
+}
+
+function getCustomTaskDurationMinutes() {
+  const hr = Math.max(0, parseInt(document.getElementById('planner-custom-dur-hr')?.value, 10) || 0);
+  const mn = Math.max(0, parseInt(document.getElementById('planner-custom-dur-min')?.value, 10) || 0);
+  return Math.min(1440, hr * 60 + mn);
+}
+
+function updateCustomDurPreview() {
+  const el = document.getElementById('planner-custom-dur-preview');
+  if (!el) return;
+  const total = getCustomTaskDurationMinutes();
+  el.textContent = total > 0 ? `= ${formatDurationMinutes(total)}` : '';
+}
+
+function addPlannerTask(e) {
+  if (e) e.preventDefault();
+  const inp = document.getElementById('planner-task-input');
+  const timeInp = document.getElementById('planner-task-time');
+  const durSel = document.getElementById('planner-task-dur');
+  const title = (inp && inp.value || '').trim();
+  if (!title) { showToast('Önce bir görev yaz'); return; }
+  const time = (timeInp && timeInp.value || '').trim();
+  let durationMin = 0;
+  if (durSel && durSel.value === 'custom') {
+    durationMin = getCustomTaskDurationMinutes();
+    if (durationMin <= 0) { showToast('Özel süre için saat veya dakika gir'); return; }
+  } else {
+    durationMin = Number(durSel && durSel.value) || 0;
+  }
+  let repeatDays = [];
+  if (plannerNewRepeat === 'custom_days') {
+    if (!plannerSelectedRepeatDays.length) {
+      showToast('En az 1 gün seçin (Örn: Pzt veya Sal, Per)');
+      return;
+    }
+    repeatDays = [...plannerSelectedRepeatDays];
+  }
+  plannerState.tasks.push({
+    id: 'pt-' + Date.now() + '-' + Math.floor(Math.random() * 999),
+    date: plannerSelectedDate,
+    title,
+    time,
+    durationMin,
+    priority: plannerNewPriority,
+    repeat: plannerNewRepeat,
+    repeatDays,
+    done: false,
+    doneDates: {},
+    deletedDates: {},
+    createdAt: Date.now()
+  });
+  inp.value = '';
+  if (timeInp) timeInp.value = '';
+  if (durSel) durSel.value = '0';
+  const hrInp = document.getElementById('planner-custom-dur-hr');
+  const mnInp = document.getElementById('planner-custom-dur-min');
+  if (hrInp) hrInp.value = '';
+  if (mnInp) mnInp.value = '';
+  handlePlannerDurSelectChange();
+  if (plannerNewRepeat === 'custom_days') {
+    const daysLbl = formatRepeatDaysLabel(repeatDays, false);
+    showToast(`↻ Her ${daysLbl} tekrarlanacak şekilde eklendi`);
+  }
+  renderPlannerUI();
+  updatePlannerHeaderBadge();
+  triggerCloudSave();
+}
+
+function togglePlannerTask(id) {
+  const t = (plannerState.tasks || []).find(x => x.id === id);
+  if (!t) return;
+  if (t.repeat && t.repeat !== 'none') {
+    if (!t.doneDates || typeof t.doneDates !== 'object') t.doneDates = {};
+    if (t.doneDates[plannerSelectedDate]) delete t.doneDates[plannerSelectedDate];
+    else t.doneDates[plannerSelectedDate] = true;
+  } else {
+    t.done = !t.done;
+  }
+  renderPlannerUI();
+  updatePlannerHeaderBadge();
+  triggerCloudSave();
+}
+
+function deferPlannerTaskToTomorrow(id) {
+  const t = (plannerState.tasks || []).find(x => x.id === id);
+  if (!t) return;
+  const nextIso = addDaysToIso(plannerSelectedDate, 1);
+  if (t.repeat && t.repeat !== 'none') {
+    if (!t.deletedDates) t.deletedDates = {};
+    t.deletedDates[plannerSelectedDate] = true;
+  } else {
+    t.date = nextIso;
+  }
+  renderPlannerUI();
+  updatePlannerHeaderBadge();
+  triggerCloudSave();
+  showToast(`"${t.title}" ertesi güne aktarıldı`);
+}
+
+function deferAllPendingTasksToTomorrow() {
+  const pending = getPlannerTasksForDate(plannerSelectedDate).filter(t => !isTaskDoneOnDate(t, plannerSelectedDate) && (!t.repeat || t.repeat === 'none'));
+  if (!pending.length) { showToast('Aktarılacak bitmemiş görev yok'); return; }
+  const nextIso = addDaysToIso(plannerSelectedDate, 1);
+  pending.forEach(t => { t.date = nextIso; });
+  renderPlannerUI();
+  updatePlannerHeaderBadge();
+  triggerCloudSave();
+  showToast(`${pending.length} görev yarına aktarıldı`);
+}
+
+function deletePlannerTask(id) {
+  const idx = (plannerState.tasks || []).findIndex(x => x.id === id);
+  if (idx < 0) return;
+  const removed = plannerState.tasks[idx];
+  plannerState.tasks.splice(idx, 1);
+  renderPlannerUI();
+  updatePlannerHeaderBadge();
+  triggerCloudSave();
+  showToastWithUndo('Görev silindi', () => {
+    plannerState.tasks.splice(Math.min(idx, plannerState.tasks.length), 0, removed);
+    renderPlannerUI();
+    updatePlannerHeaderBadge();
+    triggerCloudSave();
+    showToast('Görev geri alındı');
+  });
+}
+
+function openExpenseFromPlannerTask(id) {
+  const t = (plannerState.tasks || []).find(x => x.id === id);
+  if (!t) return;
+  openAddSheet('expense');
+  const dt = document.getElementById('tx-desc-toggle');
+  const ti = document.getElementById('tx-title');
+  const da = document.getElementById('tx-date');
+  if (dt) { dt.checked = true; toggleDescField(false); }
+  if (ti) ti.value = t.title;
+  if (da) da.value = plannerSelectedDate;
+  const amt = document.getElementById('tx-amount');
+  if (amt) amt.focus();
+}
+
+// --- TELEFON TAKVİMİNE AKTAR (.ICS) ---
+function exportPlannerTaskIcs(id) {
+  const t = (plannerState.tasks || []).find(x => x.id === id);
+  if (!t) return;
+  const iso = plannerSelectedDate || t.date || getTodayOffset(0);
+  const [y, m, d] = iso.split('-').map(Number);
+  let hh = 9, mm = 0;
+  if (t.time && /^\d{2}:\d{2}$/.test(t.time)) {
+    const tp = t.time.split(':').map(Number);
+    hh = tp[0]; mm = tp[1];
+  }
+  const dur = Math.max(15, Number(t.durationMin) || 30);
+  const startDt = new Date(y, m - 1, d, hh, mm, 0);
+  const endDt = new Date(startDt.getTime() + dur * 60000);
+  const pad = n => String(n).padStart(2, '0');
+  const fmtLocal = dt => `${dt.getFullYear()}${pad(dt.getMonth() + 1)}${pad(dt.getDate())}T${pad(dt.getHours())}${pad(dt.getMinutes())}00`;
+  const nowUtc = new Date().toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+  const safeSummary = String(t.title || 'Görev').replace(/[\r\n,;]/g, ' ');
+  const icsLines = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//Cuzdanim//Gun Planlayici//TR',
+    'CALSCALE:GREGORIAN',
+    'BEGIN:VEVENT',
+    `UID:${t.id}-${iso}@cuzdanim.app`,
+    `DTSTAMP:${nowUtc}`,
+    `DTSTART:${fmtLocal(startDt)}`,
+    `DTEND:${fmtLocal(endDt)}`,
+    `SUMMARY:${safeSummary}`,
+    `DESCRIPTION:Cüzdanım Gün Planlayıcı (${formatDurationMinutes(dur)})`,
+    ...(t.repeat === 'daily' ? ['RRULE:FREQ=DAILY'] :
+        t.repeat === 'weekdays' ? ['RRULE:FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR'] :
+        (t.repeat === 'custom_days' && Array.isArray(t.repeatDays) && t.repeatDays.length
+          ? ['RRULE:FREQ=WEEKLY;BYDAY=' + PLANNER_WEEKDAYS_ORDER.filter(w => t.repeatDays.includes(w.dow)).map(w => w.ics).join(',')]
+          : [])),
+    'BEGIN:VALARM',
+    'ACTION:DISPLAY',
+    `DESCRIPTION:${safeSummary}`,
+    'TRIGGER:-PT10M',
+    'END:VALARM',
+    'END:VEVENT',
+    'END:VCALENDAR'
+  ].join('\r\n');
+  const blob = new Blob([icsLines], { type: 'text/calendar;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `plan-${iso}-${pad(hh)}${pad(mm)}.ics`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  showToast(`Takvim dosyası (.ics) indirildi • 10 dk öncesi alarmlı`);
+}
+
+// --- TARİHSİZ FİKİR / İŞ HAVUZU (GELEN KUTUSU) ---
+function addPlannerInboxItem(e) {
+  if (e) e.preventDefault();
+  const inp = document.getElementById('planner-inbox-input');
+  const durSel = document.getElementById('planner-inbox-dur');
+  const title = (inp && inp.value || '').trim();
+  if (!title) { showToast('Havuz için bir fikir veya iş yaz'); return; }
+  const durationMin = Number(durSel && durSel.value) || 0;
+  if (!Array.isArray(plannerState.inbox)) plannerState.inbox = [];
+  plannerState.inbox.unshift({
+    id: 'inb-' + Date.now() + '-' + Math.floor(Math.random() * 999),
+    title,
+    durationMin,
+    createdAt: Date.now()
+  });
+  inp.value = '';
+  renderPlannerInbox();
+  triggerCloudSave();
+}
+
+function pullInboxItemToSelectedDate(id) {
+  const idx = (plannerState.inbox || []).findIndex(x => x.id === id);
+  if (idx < 0) return;
+  const item = plannerState.inbox.splice(idx, 1)[0];
+  plannerState.tasks.push({
+    id: 'pt-' + Date.now() + '-' + Math.floor(Math.random() * 999),
+    date: plannerSelectedDate,
+    title: item.title,
+    time: '',
+    durationMin: Number(item.durationMin) || 0,
+    priority: 'normal',
+    repeat: 'none',
+    done: false,
+    doneDates: {},
+    deletedDates: {},
+    createdAt: Date.now()
+  });
+  renderPlannerUI();
+  updatePlannerHeaderBadge();
+  triggerCloudSave();
+  showToast(`"${item.title}" ${formatPlannerDateHeader(plannerSelectedDate)} planına alındı`);
+}
+
+function deletePlannerInboxItem(id) {
+  plannerState.inbox = (plannerState.inbox || []).filter(x => x.id !== id);
+  renderPlannerInbox();
+  triggerCloudSave();
+}
+
+function renderPlannerInbox() {
+  const listEl = document.getElementById('planner-inbox-list');
+  const cntEl = document.getElementById('planner-inbox-count');
+  const dotEl = document.getElementById('psub-inbox-dot');
+  const items = plannerState.inbox || [];
+  if (cntEl) cntEl.textContent = String(items.length);
+  if (dotEl) dotEl.classList.toggle('hidden', items.length === 0);
+  if (!listEl) return;
+  if (!items.length) {
+    listEl.innerHTML = `<p class="text-[11px] text-slate-400 text-center py-4">Havuz boş. Aklına gelen tarihsiz işleri buraya bırakabilirsin.</p>`;
+    return;
+  }
+  listEl.innerHTML = items.map(it => {
+    const safeId = escJs(it.id);
+    return `
+    <div class="flex items-center justify-between gap-2 bg-slate-50 px-2.5 py-2 rounded-xl border border-slate-200/70">
+      <div class="min-w-0 flex items-center gap-1.5">
+        <span class="w-1.5 h-1.5 rounded-full bg-sky-400 shrink-0"></span>
+        <p class="text-xs font-bold text-slate-800 truncate">${escHtml(it.title)}</p>
+        ${it.durationMin > 0 ? `<span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded bg-white border border-slate-200 text-slate-500 shrink-0">${formatDurationMinutes(it.durationMin)}</span>` : ''}
+      </div>
+      <div class="flex items-center gap-1 shrink-0">
+        <button type="button" onclick="pullInboxItemToSelectedDate('${safeId}')" class="px-2 py-1 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 text-[9.5px] font-extrabold active:scale-95 transition">+ Güne Çek</button>
+        <button type="button" onclick="deletePlannerInboxItem('${safeId}')" class="w-6 h-6 rounded-lg text-slate-300 hover:text-rose-500 flex items-center justify-center"><i class="fa-solid fa-xmark text-xs"></i></button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// =====================================================================
+// HAZIR RUTİN ŞABLONLARI + TAM ŞABLON DÜZENLEYİCİ
+// =====================================================================
+function openPlannerTemplatesModal() {
+  closeTemplateEditor();
+  renderPlannerTemplatesList();
+  document.getElementById('planner-templates-backdrop').classList.remove('hidden');
+}
+
+function closePlannerTemplatesModal() {
+  document.getElementById('planner-templates-backdrop').classList.add('hidden');
+  closeTemplateEditor();
+}
+
+function openTemplateEditor(tplId) {
+  _editingTemplateId = tplId || null;
+  const listPane = document.getElementById('tpl-list-pane');
+  const editPane = document.getElementById('tpl-editor-pane');
+  const titleEl = document.getElementById('tpl-editor-title');
+  const emojiInp = document.getElementById('tpl-edit-emoji');
+  const nameInp = document.getElementById('tpl-edit-name');
+  const rowsWrap = document.getElementById('tpl-editor-tasks-list');
+  if (!listPane || !editPane || !rowsWrap) return;
+
+  const tpl = tplId ? (plannerState.templates || []).find(t => t.id === tplId) : null;
+  if (titleEl) titleEl.textContent = tpl ? 'Şablonu Düzenle' : 'Yeni Şablon Oluştur';
+  if (emojiInp) emojiInp.value = tpl ? (tpl.emoji || '📋') : '✨';
+  if (nameInp) nameInp.value = tpl ? (tpl.name || '') : '';
+  rowsWrap.innerHTML = '';
+
+  const tasks = (tpl && Array.isArray(tpl.tasks) && tpl.tasks.length)
+    ? tpl.tasks
+    : [{ title: '', time: '', durationMin: 30, priority: 'normal' }];
+  tasks.forEach(item => addTemplateEditorTaskRow(item));
+
+  listPane.classList.add('hidden');
+  editPane.classList.remove('hidden');
+}
+
+function closeTemplateEditor() {
+  _editingTemplateId = null;
+  const listPane = document.getElementById('tpl-list-pane');
+  const editPane = document.getElementById('tpl-editor-pane');
+  if (editPane) editPane.classList.add('hidden');
+  if (listPane) listPane.classList.remove('hidden');
+}
+
+function addTemplateEditorTaskRow(item) {
+  const rowsWrap = document.getElementById('tpl-editor-tasks-list');
+  if (!rowsWrap) return;
+  const t = item || { title: '', time: '', durationMin: 0, priority: 'normal' };
+  const row = document.createElement('div');
+  row.className = 'tpl-edit-row bg-slate-50 rounded-2xl p-2 border border-slate-200/80 space-y-1.5';
+  row.innerHTML = `
+    <div class="flex gap-1.5">
+      <input type="text" maxlength="90" value="${escHtml(t.title || '')}" placeholder="Görev adı..." class="tpl-r-title flex-1 min-w-0 px-2.5 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold">
+      <button type="button" onclick="removeTemplateEditorTaskRow(this)" class="w-7 h-7 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center shrink-0 active:scale-95 transition"><i class="fa-solid fa-xmark text-xs"></i></button>
+    </div>
+    <div class="grid grid-cols-3 gap-1.5">
+      <input type="time" value="${escHtml(t.time || '')}" class="tpl-r-time planner-time-inp px-1.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-800">
+      <div class="flex gap-1 min-w-0">
+        <select onchange="toggleTplRowCustomDur(this)" class="tpl-r-dur flex-1 min-w-0 px-1 py-1 bg-white border border-slate-200 rounded-lg text-[10px] font-extrabold text-slate-700">
+          <option value="0" ${Number(t.durationMin) === 0 ? 'selected' : ''}>— Süre</option>
+          <option value="15" ${Number(t.durationMin) === 15 ? 'selected' : ''}>15 dk</option>
+          <option value="30" ${Number(t.durationMin) === 30 ? 'selected' : ''}>30 dk</option>
+          <option value="45" ${Number(t.durationMin) === 45 ? 'selected' : ''}>45 dk</option>
+          <option value="60" ${Number(t.durationMin) === 60 ? 'selected' : ''}>1 saat</option>
+          <option value="120" ${Number(t.durationMin) === 120 ? 'selected' : ''}>2 saat</option>
+          <option value="custom" ${![0,15,30,45,60,120].includes(Number(t.durationMin) || 0) ? 'selected' : ''}>Özel</option>
+        </select>
+        <input type="number" min="1" max="1440" inputmode="numeric" placeholder="dk" value="${![0,15,30,45,60,120].includes(Number(t.durationMin) || 0) ? (Number(t.durationMin) || '') : ''}" class="tpl-r-cdur ${![0,15,30,45,60,120].includes(Number(t.durationMin) || 0) ? '' : 'hidden'} w-11 px-1 py-1 bg-white border border-indigo-300 rounded-lg text-[10px] font-extrabold text-center shrink-0">
+      </div>
+      <select class="tpl-r-prio px-1.5 py-1 bg-white border border-slate-200 rounded-lg text-[10px] font-extrabold text-slate-700">
+        <option value="normal" ${(t.priority || 'normal') === 'normal' ? 'selected' : ''}>Normal</option>
+        <option value="high" ${t.priority === 'high' ? 'selected' : ''}>Acil</option>
+        <option value="low" ${t.priority === 'low' ? 'selected' : ''}>Düşük</option>
+      </select>
+    </div>`;
+  rowsWrap.appendChild(row);
+}
+
+function toggleTplRowCustomDur(sel) {
+  const inp = sel && sel.parentElement ? sel.parentElement.querySelector('.tpl-r-cdur') : null;
+  if (!inp) return;
+  const isC = sel.value === 'custom';
+  inp.classList.toggle('hidden', !isC);
+  if (isC) inp.focus();
+}
+
+function removeTemplateEditorTaskRow(btn) {
+  const rowsWrap = document.getElementById('tpl-editor-tasks-list');
+  if (!rowsWrap) return;
+  if (rowsWrap.querySelectorAll('.tpl-edit-row').length <= 1) {
+    showToast('Şablonda en az 1 görev satırı olmalı');
+    return;
+  }
+  btn.closest('.tpl-edit-row').remove();
+}
+
+function saveTemplateEditor() {
+  const name = (document.getElementById('tpl-edit-name')?.value || '').trim();
+  const emoji = (document.getElementById('tpl-edit-emoji')?.value || '✨').trim() || '✨';
+  if (!name) { showToast('Şablon adını yaz'); return; }
+  const rows = [...document.querySelectorAll('#tpl-editor-tasks-list .tpl-edit-row')];
+  const tasks = [];
+  rows.forEach(r => {
+    const title = (r.querySelector('.tpl-r-title')?.value || '').trim();
+    if (!title) return;
+    const dSelVal = r.querySelector('.tpl-r-dur')?.value;
+    const dMin = dSelVal === 'custom'
+      ? Math.min(1440, Math.max(0, parseInt(r.querySelector('.tpl-r-cdur')?.value, 10) || 0))
+      : (Number(dSelVal) || 0);
+    tasks.push({
+      title,
+      time: (r.querySelector('.tpl-r-time')?.value || '').trim(),
+      durationMin: dMin,
+      priority: r.querySelector('.tpl-r-prio')?.value || 'normal'
+    });
+  });
+  if (!tasks.length) { showToast('En az 1 geçerli görev yaz'); return; }
+
+  if (!Array.isArray(plannerState.templates)) plannerState.templates = JSON.parse(JSON.stringify(PLANNER_DEFAULT_TEMPLATES));
+  if (_editingTemplateId) {
+    const idx = plannerState.templates.findIndex(t => t.id === _editingTemplateId);
+    if (idx >= 0) {
+      plannerState.templates[idx] = { ...plannerState.templates[idx], name, emoji, tasks };
+    }
+  } else {
+    plannerState.templates.unshift({
+      id: 'tpl-' + Date.now(),
+      name,
+      emoji,
+      builtin: false,
+      tasks
+    });
+  }
+  closeTemplateEditor();
+  renderPlannerTemplatesList();
+  triggerCloudSave();
+  showToast(`"${name}" şablonu kaydedildi!`);
+}
+
+function applyPlannerTemplate(tplId) {
+  const tpl = (plannerState.templates || []).find(t => t.id === tplId);
+  if (!tpl || !Array.isArray(tpl.tasks)) return;
+  const existingTitles = new Set(getPlannerTasksForDate(plannerSelectedDate).map(t => String(t.title || '').toLocaleLowerCase('tr-TR')));
+  let added = 0;
+  tpl.tasks.forEach((item, i) => {
+    const key = String(item.title || '').toLocaleLowerCase('tr-TR');
+    if (existingTitles.has(key)) return;
+    plannerState.tasks.push({
+      id: 'pt-' + Date.now() + '-' + i + '-' + Math.floor(Math.random() * 999),
+      date: plannerSelectedDate,
+      title: item.title,
+      time: item.time || '',
+      durationMin: Number(item.durationMin) || 0,
+      priority: item.priority || 'normal',
+      repeat: 'none',
+      done: false,
+      doneDates: {},
+      deletedDates: {},
+      createdAt: Date.now()
+    });
+    added++;
+  });
+  closePlannerTemplatesModal();
+  setPlannerSubtab('plan');
+  updatePlannerHeaderBadge();
+  triggerCloudSave();
+  showToast(added > 0 ? `"${tpl.name}" şablonundan ${added} görev eklendi!` : 'Bu şablondaki görevler zaten planda var');
+}
+
+function saveCurrentDayAsTemplate(e) {
+  if (e) e.preventDefault();
+  const inp = document.getElementById('planner-new-tpl-name');
+  const name = (inp && inp.value || '').trim();
+  const dayTasks = getPlannerTasksForDate(plannerSelectedDate);
+  if (!name) { showToast('Şablon için bir ad yaz'); return; }
+  if (!dayTasks.length) { showToast('Önce seçili güne en az 1 görev ekle'); return; }
+  plannerState.templates.unshift({
+    id: 'tpl-' + Date.now(),
+    name,
+    emoji: '✨',
+    builtin: false,
+    tasks: dayTasks.map(t => ({ title: t.title, time: t.time || '', durationMin: Number(t.durationMin) || 0, priority: t.priority || 'normal' }))
+  });
+  inp.value = '';
+  renderPlannerTemplatesList();
+  triggerCloudSave();
+  showToast(`"${name}" rutin şablonu kaydedildi!`);
+}
+
+function deletePlannerTemplate(tplId) {
+  if ((plannerState.templates || []).length <= 1) {
+    showToast('En az 1 şablon kalmalıdır');
+    return;
+  }
+  plannerState.templates = (plannerState.templates || []).filter(t => t.id !== tplId);
+  renderPlannerTemplatesList();
+  triggerCloudSave();
+  showToast('Şablon silindi');
+}
+
+function renderPlannerTemplatesList() {
+  const listEl = document.getElementById('planner-templates-list');
+  if (!listEl) return;
+  const list = plannerState.templates && plannerState.templates.length ? plannerState.templates : PLANNER_DEFAULT_TEMPLATES;
+  listEl.innerHTML = list.map(tpl => {
+    const totalMin = (tpl.tasks || []).reduce((s, x) => s + (Number(x.durationMin) || 0), 0);
+    const safeId = escJs(tpl.id);
+    return `
+    <div class="bg-slate-50 rounded-2xl p-3 border border-slate-200/80 space-y-2">
+      <div class="flex items-center justify-between gap-2">
+        <div class="flex items-center gap-2 min-w-0">
+          <span class="w-8 h-8 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-sm shrink-0">${escHtml(tpl.emoji || '📋')}</span>
+          <div class="min-w-0">
+            <p class="text-xs font-extrabold text-slate-900 truncate">${escHtml(tpl.name)}</p>
+            <p class="text-[10px] text-slate-400 font-semibold">${(tpl.tasks || []).length} görev${totalMin > 0 ? ' • ' + formatDurationMinutes(totalMin) : ''}</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-1 shrink-0">
+          <button type="button" onclick="applyPlannerTemplate('${safeId}')" class="px-2.5 py-1.5 rounded-xl bg-[#090d16] text-emerald-400 text-[10px] font-extrabold active:scale-95 transition">Yükle</button>
+          <button type="button" onclick="openTemplateEditor('${safeId}')" title="Şablonu Düzenle" class="w-7 h-7 rounded-xl bg-white border border-slate-200 text-slate-600 hover:text-indigo-600 flex items-center justify-center active:scale-95 transition"><i class="fa-solid fa-pen text-[10px]"></i></button>
+          <button type="button" onclick="deletePlannerTemplate('${safeId}')" title="Şablonu Sil" class="w-7 h-7 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center active:scale-95 transition"><i class="fa-solid fa-trash-can text-[10px]"></i></button>
+        </div>
+      </div>
+      <div class="flex flex-wrap gap-1">
+        ${(tpl.tasks || []).map(x => `<span class="text-[9.5px] font-semibold px-2 py-0.5 rounded-lg bg-white border border-slate-200/80 text-slate-600">${x.time ? escHtml(x.time) + ' ' : ''}${escHtml(x.title)}</span>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// --- KADEMELİ (SAYAÇLI) & TEK TIK ALIŞKANLIKLAR + 7 GÜNLÜK İZ ---
+function setHabitFormMode(mode) {
+  plannerHabitFormMode = mode === 'counter' ? 'counter' : 'check';
+  const cBtn = document.getElementById('hab-mode-check');
+  const nBtn = document.getElementById('hab-mode-counter');
+  const opts = document.getElementById('planner-habit-counter-opts');
+  if (cBtn) cBtn.className = plannerHabitFormMode === 'check' ? 'px-2.5 py-1 rounded-lg bg-[#090d16] text-emerald-400 text-[10px] font-extrabold transition' : 'px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-slate-600 text-[10px] font-extrabold transition';
+  if (nBtn) nBtn.className = plannerHabitFormMode === 'counter' ? 'px-2.5 py-1 rounded-lg bg-[#090d16] text-emerald-400 text-[10px] font-extrabold transition' : 'px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-slate-600 text-[10px] font-extrabold transition';
+  if (opts) opts.classList.toggle('hidden', plannerHabitFormMode !== 'counter');
+}
+
+function togglePlannerHabitAddForm() {
+  const f = document.getElementById('planner-habit-add-form');
+  if (!f) return;
+  f.classList.toggle('hidden');
+  if (!f.classList.contains('hidden')) {
+    setHabitFormMode('check');
+    const inp = document.getElementById('planner-habit-name');
+    if (inp) inp.focus();
+  }
+}
+
+function togglePlannerHabitEditMode() {
+  plannerHabitEditMode = !plannerHabitEditMode;
+  const btn = document.getElementById('planner-habit-edit-btn');
+  if (btn) btn.classList.toggle('text-rose-600', plannerHabitEditMode);
+  renderPlannerHabits();
+}
+
+function addPlannerHabit(e) {
+  if (e) e.preventDefault();
+  const emojiInp = document.getElementById('planner-habit-emoji');
+  const nameInp = document.getElementById('planner-habit-name');
+  const name = (nameInp && nameInp.value || '').trim();
+  const emoji = (emojiInp && emojiInp.value || '⚡').trim() || '⚡';
+  if (!name) { showToast('Alışkanlık adı yaz'); return; }
+  const isCounter = plannerHabitFormMode === 'counter';
+  const target = isCounter ? Math.max(2, Number(document.getElementById('planner-habit-target')?.value) || 8) : 1;
+  const step = isCounter ? Math.max(1, Number(document.getElementById('planner-habit-step')?.value) || 1) : 1;
+  const unit = isCounter ? (document.getElementById('planner-habit-unit')?.value || '').trim() : '';
+  plannerState.habits.push({ id: 'hab-' + Date.now(), emoji, name, mode: isCounter ? 'counter' : 'check', target, step, unit, logs: {} });
+  nameInp.value = '';
+  togglePlannerHabitAddForm();
+  renderPlannerHabits();
+  triggerCloudSave();
+  showToast(`"${name}" alışkanlığı eklendi`);
+}
+
+function getHabitNumericValue(h, isoDate) {
+  const raw = h && h.logs ? h.logs[isoDate] : undefined;
+  if (raw === true) return Math.max(1, Number(h.target) || 1);
+  if (typeof raw === 'number' && Number.isFinite(raw)) return Math.max(0, raw);
+  return 0;
+}
+
+function isHabitDoneOnDate(h, isoDate) {
+  const target = h && h.mode === 'counter' ? Math.max(1, Number(h.target) || 1) : 1;
+  return getHabitNumericValue(h, isoDate) >= target;
+}
+
+function stepPlannerHabit(habitId, direction = 1) {
+  if (plannerHabitEditMode) return;
+  const h = (plannerState.habits || []).find(x => x.id === habitId);
+  if (!h) return;
+  if (!h.logs || typeof h.logs !== 'object') h.logs = {};
+  if (h.mode === 'counter') {
+    const cur = getHabitNumericValue(h, plannerSelectedDate);
+    const step = Math.max(1, Number(h.step) || 1);
+    const target = Math.max(1, Number(h.target) || 1);
+    const next = Math.max(0, cur + (direction * step));
+    if (next <= 0) delete h.logs[plannerSelectedDate];
+    else h.logs[plannerSelectedDate] = next;
+    if (direction > 0 && cur < target && next >= target) showToast(`🎉 ${h.name} günlük hedefi tamamlandı!`);
+  } else {
+    if (h.logs[plannerSelectedDate]) delete h.logs[plannerSelectedDate];
+    else h.logs[plannerSelectedDate] = true;
+  }
+  renderPlannerHabits();
+  triggerCloudSave();
+}
+
+function deletePlannerHabit(habitId) {
+  plannerState.habits = (plannerState.habits || []).filter(x => x.id !== habitId);
+  renderPlannerHabits();
+  triggerCloudSave();
+  showToast('Alışkanlık silindi');
+}
+
+function computeHabitStreak(habit, refDateIso) {
+  let cursor = refDateIso;
+  if (!isHabitDoneOnDate(habit, cursor)) {
+    const prev = addDaysToIso(cursor, -1);
+    if (!isHabitDoneOnDate(habit, prev)) return 0;
+    cursor = prev;
+  }
+  let streak = 0;
+  for (let i = 0; i < 365; i++) {
+    if (isHabitDoneOnDate(habit, cursor)) { streak++; cursor = addDaysToIso(cursor, -1); }
+    else break;
+  }
+  return streak;
+}
+
+function renderPlannerHabits() {
+  const grid = document.getElementById('planner-habits-grid');
+  if (!grid) return;
+  const list = plannerState.habits || [];
+  if (!list.length) {
+    grid.innerHTML = `<p class="col-span-2 text-[11px] text-slate-400 text-center py-4">Henüz alışkanlık yok. Sağ üstten <strong>+ Ekle</strong> ile ekleyebilirsin.</p>`;
+    return;
+  }
+  grid.innerHTML = list.map(h => {
+    const isCounter = h.mode === 'counter';
+    const cur = getHabitNumericValue(h, plannerSelectedDate);
+    const target = isCounter ? Math.max(1, Number(h.target) || 1) : 1;
+    const done = cur >= target;
+    const pct = Math.min(100, Math.round((cur / target) * 100));
+    const streak = computeHabitStreak(h, plannerSelectedDate);
+    const safeId = escJs(h.id);
+    let dots7 = '';
+    for (let d = -6; d <= 0; d++) {
+      const dIso = addDaysToIso(plannerSelectedDate, d);
+      const ok = isHabitDoneOnDate(h, dIso);
+      const partial = !ok && isCounter && getHabitNumericValue(h, dIso) > 0;
+      dots7 += `<span class="w-2 h-1.5 rounded-[3px] ${ok ? 'bg-emerald-500' : (partial ? 'bg-amber-400' : 'bg-slate-200')}"></span>`;
+    }
+    return `
+    <div onclick="stepPlannerHabit('${safeId}', 1)" class="planner-habit-card ${done ? 'done' : ''} relative flex flex-col justify-between gap-1.5 px-3 py-2.5 rounded-2xl border border-slate-200/80 bg-slate-50 cursor-pointer active:scale-[0.98] transition select-none">
+      <div class="flex items-center justify-between gap-1.5">
+        <div class="flex items-center gap-2 min-w-0">
+          <span class="w-6 h-6 rounded-lg ${done ? 'bg-emerald-500 text-white' : 'bg-white border border-slate-200 text-slate-700'} text-xs flex items-center justify-center shrink-0 transition">
+            ${done ? '<i class="fa-solid fa-check text-[10px]"></i>' : escHtml(h.emoji || '⚡')}
+          </span>
+          <div class="min-w-0">
+            <p class="text-[11px] font-extrabold ${done ? 'text-emerald-800' : 'text-slate-800'} truncate">${escHtml(h.name)}</p>
+            <p class="text-[9.5px] font-bold ${done ? 'text-emerald-600' : (streak > 0 ? 'text-amber-600' : 'text-slate-400')}">
+              ${isCounter ? `${cur}/${target}${h.unit ? ' ' + escHtml(h.unit) : ''}` : (streak > 0 ? `🔥 ${streak} gün` : 'Tek tık')}
+            </p>
+          </div>
+        </div>
+        ${plannerHabitEditMode
+          ? `<button type="button" onclick="event.stopPropagation();deletePlannerHabit('${safeId}')" class="w-6 h-6 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-trash-can text-[10px]"></i></button>`
+          : (isCounter && cur > 0 ? `<button type="button" onclick="event.stopPropagation();stepPlannerHabit('${safeId}', -1)" title="Azalt" class="w-5 h-5 rounded-md bg-white border border-slate-200 text-slate-500 text-[10px] font-extrabold flex items-center justify-center shrink-0">−</button>` : (streak > 0 && isCounter ? `<span class="text-[9px] font-extrabold text-amber-600 shrink-0">🔥${streak}</span>` : ''))}
+      </div>
+      ${isCounter ? `<div class="w-full h-1 bg-slate-200/80 rounded-full overflow-hidden"><div class="h-1 ${done ? 'bg-emerald-500' : 'bg-amber-500'} rounded-full transition-all" style="width:${pct}%"></div></div>` : ''}
+      <div class="flex items-center justify-between gap-1 pt-0.5">
+        <div class="flex items-center gap-0.5">${dots7}</div>
+        <span class="text-[8.5px] font-bold text-slate-400">${isCounter ? `+${h.step || 1}` : '7g'}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// --- 30 SANİYELİK GÜNÜ KAPAT AKIŞI ---
+function openCloseDayModal() {
+  const dayTasks = getPlannerTasksForDate(plannerSelectedDate);
+  const doneCnt = dayTasks.filter(t => isTaskDoneOnDate(t, plannerSelectedDate)).length;
+  const pending = dayTasks.filter(t => !isTaskDoneOnDate(t, plannerSelectedDate) && (!t.repeat || t.repeat === 'none'));
+  const habDone = (plannerState.habits || []).filter(h => isHabitDoneOnDate(h, plannerSelectedDate)).length;
+  const habTot = (plannerState.habits || []).length;
+
+  const sub = document.getElementById('close-day-date-sub');
+  if (sub) sub.textContent = `${formatPlannerDateHeader(plannerSelectedDate)} • hızlı kapanış özeti`;
+
+  const statsBox = document.getElementById('close-day-stats-box');
+  if (statsBox) {
+    statsBox.innerHTML = `
+      <div class="bg-emerald-50/80 border border-emerald-200/80 rounded-2xl p-2.5 text-center">
+        <p class="text-[9.5px] font-bold text-emerald-700">Tamamlanan Görev</p>
+        <p class="text-sm font-extrabold text-emerald-900 mt-0.5">${doneCnt} / ${dayTasks.length}</p>
+      </div>
+      <div class="bg-amber-50/80 border border-amber-200/80 rounded-2xl p-2.5 text-center">
+        <p class="text-[9.5px] font-bold text-amber-700">Alışkanlıklar</p>
+        <p class="text-sm font-extrabold text-amber-900 mt-0.5">${habDone} / ${habTot}</p>
+      </div>`;
+  }
+
+  const pendBox = document.getElementById('close-day-pending-box');
+  if (pendBox) {
+    if (pending.length === 0) {
+      pendBox.innerHTML = `<p class="text-xs font-extrabold text-emerald-600 text-center py-1"><i class="fa-solid fa-circle-check mr-1"></i>Tüm görevlerin tamamlandı! Harika bir gün.</p>`;
+    } else {
+      pendBox.innerHTML = `
+        <div class="flex items-center justify-between">
+          <span class="text-[10.5px] font-extrabold text-slate-800">Bitmeyen Görevler (${pending.length})</span>
+          <span class="text-[9.5px] font-bold text-indigo-600">Seçilenler yarına taşınır</span>
+        </div>
+        <div class="space-y-1.5 max-h-32 overflow-y-auto">
+          ${pending.map(t => `
+            <label class="flex items-center gap-2 bg-white px-2.5 py-1.5 rounded-xl border border-slate-200/80 cursor-pointer">
+              <input type="checkbox" class="close-day-defer-cb w-3.5 h-3.5 accent-indigo-600 rounded shrink-0" value="${escHtml(t.id)}" checked>
+              <span class="text-xs font-bold text-slate-700 truncate">${escHtml(t.title)}</span>
+            </label>`).join('')}
+        </div>`;
+    }
+  }
+
+  const noteObj = (plannerState.notesByDate || {})[plannerSelectedDate] || { text: '', nextPriority: '' };
+  const nInp = document.getElementById('close-day-note-inp');
+  const pInp = document.getElementById('close-day-priority-inp');
+  if (nInp) nInp.value = noteObj.text || '';
+  if (pInp) pInp.value = noteObj.nextPriority || '';
+  document.getElementById('planner-close-day-backdrop').classList.remove('hidden');
+}
+
+function closeCloseDayModal() {
+  document.getElementById('planner-close-day-backdrop').classList.add('hidden');
+}
+
+function submitCloseDayFlow() {
+  const nextIso = addDaysToIso(plannerSelectedDate, 1);
+  let movedCount = 0;
+  document.querySelectorAll('.close-day-defer-cb:checked').forEach(cb => {
+    const t = (plannerState.tasks || []).find(x => x.id === cb.value);
+    if (t) { t.date = nextIso; movedCount++; }
+  });
+  const noteTxt = (document.getElementById('close-day-note-inp')?.value || '').trim();
+  const nextPrio = (document.getElementById('close-day-priority-inp')?.value || '').trim();
+  if (!plannerState.notesByDate || typeof plannerState.notesByDate !== 'object') plannerState.notesByDate = {};
+  plannerState.notesByDate[plannerSelectedDate] = { text: noteTxt, nextPriority: nextPrio };
+
+  const addPrioTask = document.getElementById('close-day-add-priority-task')?.checked;
+  if (nextPrio && addPrioTask) {
+    const alreadyExists = getPlannerTasksForDate(nextIso).some(t => String(t.title || '').toLocaleLowerCase('tr-TR') === nextPrio.toLocaleLowerCase('tr-TR'));
+    if (!alreadyExists) {
+      plannerState.tasks.push({
+        id: 'pt-' + Date.now() + '-prio',
+        date: nextIso,
+        title: nextPrio,
+        time: '',
+        durationMin: 60,
+        priority: 'high',
+        repeat: 'none',
+        done: false,
+        doneDates: {},
+        deletedDates: {},
+        createdAt: Date.now()
+      });
+    }
+  }
+  closeCloseDayModal();
+  renderPlannerUI();
+  updatePlannerHeaderBadge();
+  triggerCloudSave();
+  showToast(movedCount > 0 ? `🌙 Gün kapatıldı • ${movedCount} görev yarına taşındı` : '🌙 Gün kapatıldı • yarın için hazırsın!');
+}
+
+// --- GÖREV İÇİ ARAMA & GEÇMİŞ ARŞİVİ ---
+function openPlannerArchiveModal() {
+  const qEl = document.getElementById('planner-archive-query');
+  if (qEl) qEl.value = '';
+  setPlannerArchiveFilter('all');
+  document.getElementById('planner-archive-backdrop').classList.remove('hidden');
+  setTimeout(() => { if (qEl) qEl.focus(); }, 120);
+}
+
+function closePlannerArchiveModal() {
+  document.getElementById('planner-archive-backdrop').classList.add('hidden');
+}
+
+function setPlannerArchiveFilter(flt) {
+  plannerArchiveFilter = flt || 'all';
+  document.querySelectorAll('.arch-flt-btn').forEach(btn => {
+    const isAct = btn.getAttribute('data-arch-flt') === plannerArchiveFilter;
+    btn.className = isAct
+      ? 'arch-flt-btn px-3 py-1 rounded-xl text-[10.5px] font-extrabold bg-[#090d16] text-white shrink-0 transition'
+      : 'arch-flt-btn px-3 py-1 rounded-xl text-[10.5px] font-extrabold bg-slate-100 text-slate-600 shrink-0 transition';
+  });
+  renderPlannerArchiveResults();
+}
+
+function jumpToArchiveDate(iso) {
+  closePlannerArchiveModal();
+  selectPlannerDate(iso);
+  setPlannerSubtab('plan');
+}
+
+function renderPlannerArchiveResults() {
+  const resEl = document.getElementById('planner-archive-results');
+  if (!resEl) return;
+  const q = String(document.getElementById('planner-archive-query')?.value || '').trim().toLocaleLowerCase('tr-TR');
+  const hits = [];
+
+  if (plannerArchiveFilter !== 'notes') {
+    (plannerState.tasks || []).forEach(t => {
+      const done = !!(t.done || (t.doneDates && Object.keys(t.doneDates).length > 0));
+      if (plannerArchiveFilter === 'done' && !done) return;
+      if (plannerArchiveFilter === 'open' && done) return;
+      const hay = `${t.title || ''} ${t.date || ''} ${t.time || ''}`.toLocaleLowerCase('tr-TR');
+      if (q && !hay.includes(q)) return;
+      hits.push({ kind: 'task', date: t.date || '', title: t.title, sub: `${t.date || ''}${t.time ? ' • ' + t.time : ''}${t.durationMin ? ' • ' + formatDurationMinutes(t.durationMin) : ''}`, done });
+    });
+  }
+  if (plannerArchiveFilter === 'all' || plannerArchiveFilter === 'notes') {
+    Object.entries(plannerState.notesByDate || {}).forEach(([iso, obj]) => {
+      const text = (obj && obj.text || '').trim();
+      const prio = (obj && obj.nextPriority || '').trim();
+      if (!text && !prio) return;
+      const hay = `${text} ${prio} ${iso}`.toLocaleLowerCase('tr-TR');
+      if (q && !hay.includes(q)) return;
+      hits.push({ kind: 'note', date: iso, title: text || ('Öncelik: ' + prio), sub: `${iso}${prio && text ? ' • ★ ' + prio : ''}`, done: false });
+    });
+  }
+  hits.sort((a, b) => String(b.date).localeCompare(String(a.date)));
+
+  if (!hits.length) {
+    resEl.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">Aramana uygun geçmiş görev veya not bulunamadı.</p>`;
+    return;
+  }
+  resEl.innerHTML = hits.slice(0, 60).map(h => `
+    <button type="button" onclick="jumpToArchiveDate('${escJs(h.date)}')" class="w-full text-left flex items-center justify-between gap-2 bg-slate-50 hover:bg-slate-100 px-3 py-2.5 rounded-2xl border border-slate-200/70 transition active:scale-[0.99]">
+      <div class="flex items-center gap-2.5 min-w-0">
+        <span class="w-7 h-7 rounded-xl ${h.kind === 'note' ? 'bg-indigo-500/15 text-indigo-600' : (h.done ? 'bg-emerald-500/15 text-emerald-600' : 'bg-amber-500/15 text-amber-600')} flex items-center justify-center shrink-0 text-[10px]">
+          <i class="fa-solid ${h.kind === 'note' ? 'fa-feather-pointed' : (h.done ? 'fa-check' : 'fa-circle-dot')}"></i>
+        </span>
+        <div class="min-w-0">
+          <p class="text-xs font-extrabold ${h.done ? 'line-through text-slate-400' : 'text-slate-900'} truncate">${escHtml(h.title)}</p>
+          <p class="text-[10px] text-slate-400 font-semibold truncate">${escHtml(h.sub)}</p>
+        </div>
+      </div>
+      <i class="fa-solid fa-chevron-right text-[10px] text-slate-400 shrink-0"></i>
+    </button>`).join('');
+}
+
+// --- GÜNÜN NOTU ---
+function handlePlannerNoteInput() {
+  const noteEl = document.getElementById('planner-note-text');
+  const prioEl = document.getElementById('planner-next-priority');
+  if (!plannerState.notesByDate || typeof plannerState.notesByDate !== 'object') plannerState.notesByDate = {};
+  plannerState.notesByDate[plannerSelectedDate] = {
+    text: noteEl ? noteEl.value : '',
+    nextPriority: prioEl ? prioEl.value : ''
+  };
+  if (plannerNoteSaveTimer) clearTimeout(plannerNoteSaveTimer);
+  plannerNoteSaveTimer = setTimeout(() => {
+    triggerCloudSave();
+    const ind = document.getElementById('planner-note-saved');
+    if (ind) {
+      ind.classList.remove('opacity-0');
+      setTimeout(() => ind.classList.add('opacity-0'), 1400);
+    }
+  }, 500);
+}
+
+// --- KOMPAKT HERO ŞERİDİ ---
+function renderPlannerHero() {
+  const dayTasks = getPlannerTasksForDate(plannerSelectedDate);
+  const doneCnt = dayTasks.filter(t => isTaskDoneOnDate(t, plannerSelectedDate)).length;
+  const totalCnt = dayTasks.length;
+  const pct = totalCnt > 0 ? Math.round((doneCnt / totalCnt) * 100) : 0;
+  const plannedMin = dayTasks.reduce((s, t) => s + (Number(t.durationMin) || 0), 0);
+  const isToday = plannerSelectedDate === getTodayOffset(0);
+
+  const dateChip = document.getElementById('planner-hero-date-chip');
+  const todayBtn = document.getElementById('planner-hero-today-btn');
+  const tasksStatEl = document.getElementById('planner-hero-tasks-stat');
+  const prayerStatEl = document.getElementById('planner-hero-prayer-stat');
+  const pctEl = document.getElementById('planner-hero-pct');
+  const barEl = document.getElementById('planner-hero-bar');
+  const loadEl = document.getElementById('planner-hero-load');
+  const budgetBadge = document.getElementById('planner-hero-budget-badge');
+  const billsEl = document.getElementById('planner-hero-bills');
+
+  if (dateChip) dateChip.textContent = formatPlannerDateHeader(plannerSelectedDate);
+  if (todayBtn) todayBtn.classList.toggle('hidden', isToday);
+  if (tasksStatEl) tasksStatEl.textContent = `${doneCnt}/${totalCnt} Görev`;
+  if (pctEl) pctEl.textContent = `%${pct}`;
+  if (barEl) barEl.style.width = `${pct}%`;
+
+  const pEntry = getPrayerDayEntry(plannerSelectedDate);
+  if (prayerStatEl) {
+    if (pEntry) {
+      const checkableSlots = PRAYER_SLOTS.filter(s => s.checkable);
+      const pDone = checkableSlots.filter(s => getPrayerSlotStatus(plannerSelectedDate, s.key, pEntry).done).length;
+      prayerStatEl.textContent = `☪️ ${pDone}/${checkableSlots.length}`;
+      prayerStatEl.classList.remove('hidden');
+    } else {
+      prayerStatEl.classList.add('hidden');
+    }
+  }
+
+  if (loadEl) {
+    const heavy = plannedMin >= 480;
+    loadEl.className = `font-bold ${heavy ? 'text-amber-200' : 'text-slate-200'}`;
+    loadEl.innerHTML = `<i class="fa-regular fa-hourglass-half mr-1 ${heavy ? 'text-amber-300' : 'text-sky-300'}"></i>Planlanan: ${formatDurationMinutes(plannedMin)}${heavy ? ' • Yoğun' : ''}`;
+  }
+
+  if (budgetBadge) {
+    const dayExpense = (transactions || []).filter(t => t.type === 'expense' && t.date === plannerSelectedDate).reduce((s, t) => s + Number(t.amount || 0), 0);
+    const dailyTarget = Math.max(1, Math.round((monthlyBudgetLimit || 15000) / 30));
+    if (dayExpense === 0) {
+      budgetBadge.className = 'font-bold text-emerald-200';
+      budgetBadge.innerHTML = `<i class="fa-solid fa-leaf mr-1"></i>Harcamasız (₺0)`;
+    } else if (dayExpense <= dailyTarget) {
+      budgetBadge.className = 'font-bold text-emerald-200';
+      budgetBadge.innerHTML = `<i class="fa-solid fa-shield-check mr-1"></i>Bütçede: ${formatCurrency(dayExpense)}`;
+    } else {
+      budgetBadge.className = 'font-bold text-rose-200';
+      budgetBadge.innerHTML = `<i class="fa-solid fa-wallet mr-1"></i>Günlük: ${formatCurrency(dayExpense)}`;
+    }
+  }
+
+  if (billsEl) {
+    const selDay = Number(String(plannerSelectedDate).split('-')[2] || 0);
+    const dueBills = (recurringPlans || []).filter(p => {
+      if (recurringPeriodKey(p) === 'paid') return false;
+      if (p.frequency === 'weekly') return isToday;
+      return Number(p.day) === selDay;
+    });
+    if (dueBills.length) {
+      billsEl.classList.remove('hidden');
+      billsEl.innerHTML = dueBills.map(p => `
+        <div class="flex items-center justify-between gap-2 bg-white/[0.08] border border-white/10 rounded-xl px-2.5 py-1 text-[10px]">
+          <span class="truncate text-amber-200 font-bold"><i class="fa-solid fa-bell mr-1"></i>Ödeme: ${escHtml(p.name)} (${formatCurrency(p.amount)})</span>
+          <button type="button" onclick="markRecurringPaid(${p.id});renderPlannerHero();" class="px-2 py-0.5 rounded-lg bg-emerald-400 text-slate-950 text-[9px] font-extrabold shrink-0 active:scale-95 transition">Ödendi</button>
+        </div>`).join('');
+    } else {
+      billsEl.classList.add('hidden');
+      billsEl.innerHTML = '';
+    }
+  }
+}
+
+// --- NAMAZ VAKTİ SATIRI (YENİ VAKİT BAŞLAYINCA OTOMATİK YAPILDI İŞARETLENİR) ---
+function renderPrayerTimelineRowHtml(slot, timeStr, dayEntry) {
+  const st = getPrayerSlotStatus(plannerSelectedDate, slot.key, dayEntry);
+  const isDone = slot.checkable ? st.done : hasPrayerTimePassed(plannerSelectedDate, slot.key, dayEntry);
+  const badgeText = slot.checkable
+    ? (isDone ? 'Kılındı ✓' : 'Vakit')
+    : (isDone ? 'Geçti ✓' : 'Güneş');
+  return `
+  <div ${slot.checkable ? `onclick="togglePrayedSlot('${escJs(plannerSelectedDate)}','${slot.key}')"` : ''} class="prayer-timeline-row flex items-center justify-between gap-2 px-2.5 py-2 rounded-2xl border ${slot.checkable ? 'cursor-pointer active:scale-[0.99]' : ''} ${isDone ? 'opacity-65' : ''} transition">
+    <div class="flex items-center gap-2 min-w-0">
+      <span class="w-5 h-5 rounded-full ${isDone ? 'bg-emerald-500 text-white' : 'bg-emerald-500/15 text-emerald-600'} flex items-center justify-center shrink-0 text-[9px] transition">
+        <i class="fa-solid ${isDone ? 'fa-check' : 'fa-mosque'}"></i>
+      </span>
+      <span class="text-[11.5px] font-extrabold px-2 py-0.5 rounded-lg bg-white border border-emerald-200/80 text-emerald-700 tracking-tight shrink-0">${escHtml(timeStr)}</span>
+      <p class="text-xs font-extrabold ${isDone ? 'line-through text-slate-400' : 'text-emerald-900'} truncate">${escHtml(slot.full)}</p>
+    </div>
+    <span class="text-[9px] font-extrabold px-2 py-0.5 rounded-lg ${isDone ? 'bg-emerald-500/15 text-emerald-700' : 'bg-white/80 text-emerald-700'} border border-emerald-200/70 shrink-0">${badgeText}</span>
+  </div>`;
+}
+
+// --- GÖREV SATIRI ---
+function renderPlannerTaskRowHtml(t, done) {
+  const pm = PLANNER_PRIORITY_META[t.priority] || PLANNER_PRIORITY_META.normal;
+  const safeId = escJs(t.id);
+  const durBadge = Number(t.durationMin) > 0 ? `<span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded-md bg-indigo-50 text-indigo-700 shrink-0">${formatDurationMinutes(t.durationMin)}</span>` : '';
+  let repBadge = '';
+  if (t.repeat && t.repeat !== 'none') {
+    let repTxt = '';
+    let repTitle = 'Tekrarlayan görev';
+    if (t.repeat === 'daily') { repTxt = 'Her gün'; repTitle = 'Her gün tekrarlanır'; }
+    else if (t.repeat === 'weekdays') { repTxt = 'H.içi'; repTitle = 'Hafta içi her gün'; }
+    else if (t.repeat === 'custom_days') {
+      repTxt = formatRepeatDaysLabel(t.repeatDays, true);
+      repTitle = 'Her ' + formatRepeatDaysLabel(t.repeatDays, false);
+    }
+    repBadge = `<span class="text-[8.5px] font-extrabold px-1.5 py-0.5 rounded-md bg-violet-50 text-violet-700 shrink-0 flex items-center gap-0.5" title="${escHtml(repTitle)}"><i class="fa-solid fa-repeat text-[7.5px]"></i>${repTxt ? ' ' + escHtml(repTxt) : ''}</span>`;
+  }
+  return `
+  <div class="flex items-center justify-between gap-1.5 px-2.5 py-2 rounded-2xl border ${done ? 'bg-slate-50/60 border-slate-200/50 opacity-70' : 'bg-slate-50 border-slate-200/80'} transition">
+    <div onclick="togglePlannerTask('${safeId}')" class="flex items-center gap-2 min-w-0 flex-1 cursor-pointer">
+      <span class="w-5 h-5 rounded-full border-2 ${done ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-300 bg-white'} flex items-center justify-center shrink-0 transition">
+        ${done ? '<i class="fa-solid fa-check text-[9px]"></i>' : ''}
+      </span>
+      <div class="min-w-0 flex-1">
+        <div class="flex items-center gap-1 flex-wrap">
+          ${t.time ? `<span class="text-[11.5px] font-extrabold px-2 py-0.5 rounded-lg bg-white border border-slate-200 text-slate-700 tracking-tight shrink-0">${escHtml(t.time)}</span>` : ''}
+          <span class="w-1.5 h-1.5 rounded-full ${pm.dot} shrink-0"></span>
+          <p class="text-xs font-bold ${done ? 'line-through text-slate-400' : 'text-slate-900'} truncate">${escHtml(t.title)}</p>
+          ${durBadge}${repBadge}
+        </div>
+      </div>
+    </div>
+    <div class="flex items-center gap-0.5 shrink-0">
+      ${!done ? `
+        <button type="button" onclick="exportPlannerTaskIcs('${safeId}')" title="Telefon takvimine aktar (.ics)" class="w-6 h-6 rounded-lg bg-white border border-slate-200 text-amber-600 flex items-center justify-center active:scale-90 transition"><i class="fa-regular fa-bell text-[9px]"></i></button>
+        <button type="button" onclick="openExpenseFromPlannerTask('${safeId}')" title="Bu görevden gider ekle" class="w-6 h-6 rounded-lg bg-white border border-slate-200 text-sky-600 text-[10px] font-extrabold flex items-center justify-center active:scale-90 transition">₺</button>
+        <button type="button" onclick="deferPlannerTaskToTomorrow('${safeId}')" title="Yarına ertele" class="w-6 h-6 rounded-lg bg-white border border-slate-200 text-slate-500 flex items-center justify-center active:scale-90 transition"><i class="fa-solid fa-forward-step text-[8.5px]"></i></button>
+      ` : ''}
+      <button type="button" onclick="deletePlannerTask('${safeId}')" title="Sil" class="w-6 h-6 rounded-lg text-slate-300 hover:text-rose-500 flex items-center justify-center"><i class="fa-solid fa-xmark text-xs"></i></button>
+    </div>
+  </div>`;
+}
+
+function promotePinnedPriorityToTask(text) {
+  if (!text) return;
+  plannerState.tasks.push({
+    id: 'pt-' + Date.now() + '-pin',
+    date: plannerSelectedDate,
+    title: text,
+    time: '',
+    durationMin: 60,
+    priority: 'high',
+    repeat: 'none',
+    done: false,
+    doneDates: {},
+    deletedDates: {},
+    createdAt: Date.now()
+  });
+  renderPlannerUI();
+  updatePlannerHeaderBadge();
+  triggerCloudSave();
+  showToast('Ana öncelik günün planına eklendi!');
+}
+
+function renderPlannerTasks() {
+  const listEl = document.getElementById('planner-tasks-list');
+  const pinEl = document.getElementById('planner-pinned-priority-banner');
+  const bulkWrap = document.getElementById('planner-bulk-defer-wrap');
+  const bulkTxt = document.getElementById('planner-bulk-defer-text');
+  if (!listEl) return;
+
+  const dayTasks = getPlannerTasksForDate(plannerSelectedDate);
+  const pEntry = getPrayerDayEntry(plannerSelectedDate);
+
+  if (pinEl) {
+    const prevIso = addDaysToIso(plannerSelectedDate, -1);
+    const prevNote = (plannerState.notesByDate || {})[prevIso];
+    const prioText = prevNote && prevNote.nextPriority ? prevNote.nextPriority.trim() : '';
+    const alreadyInList = prioText && dayTasks.some(t => String(t.title || '').toLocaleLowerCase('tr-TR') === prioText.toLocaleLowerCase('tr-TR'));
+    if (prioText && !alreadyInList) {
+      pinEl.classList.remove('hidden');
+      pinEl.innerHTML = `
+        <div class="flex items-center justify-between gap-2 bg-amber-50/80 border border-amber-200/80 rounded-2xl px-3 py-2">
+          <div class="min-w-0">
+            <p class="text-[9.5px] font-extrabold text-amber-700 uppercase"><i class="fa-solid fa-star mr-1"></i>Dünden Aktarılan Öncelik</p>
+            <p class="text-xs font-extrabold text-slate-900 truncate mt-0.5">${escHtml(prioText)}</p>
+          </div>
+          <button type="button" onclick="promotePinnedPriorityToTask('${escJs(prioText)}')" class="px-2.5 py-1 rounded-xl bg-[#090d16] text-emerald-400 text-[10px] font-extrabold shrink-0 active:scale-95 transition">+ Plana Al</button>
+        </div>`;
+    } else {
+      pinEl.classList.add('hidden');
+      pinEl.innerHTML = '';
+    }
+  }
+
+  const pending = dayTasks.filter(t => !isTaskDoneOnDate(t, plannerSelectedDate));
+  const completed = dayTasks.filter(t => isTaskDoneOnDate(t, plannerSelectedDate));
+  const nonRepeatPending = pending.filter(t => !t.repeat || t.repeat === 'none');
+  if (bulkWrap && bulkTxt) {
+    bulkWrap.classList.toggle('hidden', nonRepeatPending.length < 2);
+    bulkTxt.textContent = `Bitmeyen ${nonRepeatPending.length} Görevi Yarına Aktar`;
+  }
+
+  if (!dayTasks.length && !pEntry) {
+    listEl.innerHTML = `<p class="text-[11px] text-slate-400 text-center py-4">Bu gün için görev yok. Yukarıdan ekle veya <strong>Şablon</strong> ile hızlı başlat.</p>`;
+    return;
+  }
+
+  const buckets = [
+    { id: 'morning', label: 'Sabah', icon: 'fa-sun text-amber-500', items: [] },
+    { id: 'afternoon', label: 'Öğle', icon: 'fa-cloud-sun text-sky-500', items: [] },
+    { id: 'evening', label: 'Akşam', icon: 'fa-moon text-indigo-500', items: [] },
+    { id: 'anytime', label: 'Esnek / Saatsiz', icon: 'fa-thumbtack text-slate-400', items: [] }
+  ];
+
+  pending.forEach(t => {
+    const entry = { kind: 'task', time: t.time || '', priority: t.priority, durationMin: Number(t.durationMin) || 0, task: t };
+    if (t.time && /^\d{2}:\d{2}$/.test(t.time)) {
+      const hr = Number(t.time.split(':')[0]);
+      if (hr < 12) buckets[0].items.push(entry);
+      else if (hr < 18) buckets[1].items.push(entry);
+      else buckets[2].items.push(entry);
+    } else {
+      buckets[3].items.push(entry);
+    }
+  });
+
+  if (pEntry) {
+    PRAYER_SLOTS.forEach(s => {
+      const tVal = pEntry[s.key];
+      if (!tVal || !/^\d{2}:\d{2}$/.test(tVal)) return;
+      const hr = Number(tVal.split(':')[0]);
+      const pItem = { kind: 'prayer', time: tVal, slot: s, durationMin: 0, dayEntry: pEntry };
+      if (hr < 12) buckets[0].items.push(pItem);
+      else if (hr < 18) buckets[1].items.push(pItem);
+      else buckets[2].items.push(pItem);
+    });
+  }
+
+  buckets.forEach(b => {
+    b.items.sort((a, b2) => {
+      if (a.time && b2.time) return a.time.localeCompare(b2.time);
+      const ra = a.kind === 'task' ? (PLANNER_PRIORITY_META[a.priority] || PLANNER_PRIORITY_META.normal).rank : 5;
+      const rb = b2.kind === 'task' ? (PLANNER_PRIORITY_META[b2.priority] || PLANNER_PRIORITY_META.normal).rank : 5;
+      return ra - rb;
+    });
+  });
+
+  const activeBuckets = buckets.filter(b => b.items.length > 0);
+  let htmlOut = activeBuckets.map(b => {
+    const bDur = b.items.reduce((s, x) => s + (x.durationMin || 0), 0);
+    return `
+    <div class="space-y-1.5">
+      <div class="flex items-center justify-between px-1">
+        <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+          <i class="fa-solid ${b.icon} text-[10px]"></i> ${b.label}
+        </span>
+        ${bDur > 0 ? `<span class="text-[9.5px] font-bold text-slate-400">${formatDurationMinutes(bDur)}</span>` : ''}
+      </div>
+      <div class="space-y-1.5">${b.items.map(it => it.kind === 'prayer' ? renderPrayerTimelineRowHtml(it.slot, it.time, it.dayEntry) : renderPlannerTaskRowHtml(it.task, false)).join('')}</div>
+    </div>`;
+  }).join('');
+
+  if (completed.length > 0) {
+    htmlOut += `
+    <div class="space-y-1.5 pt-1">
+      <div class="flex items-center justify-between px-1">
+        <span class="text-[10px] font-extrabold uppercase tracking-wider text-emerald-600 flex items-center gap-1.5">
+          <i class="fa-solid fa-circle-check text-[10px]"></i> Tamamlananlar (${completed.length})
+        </span>
+      </div>
+      <div class="space-y-1.5">${completed.map(t => renderPlannerTaskRowHtml(t, true)).join('')}</div>
+    </div>`;
+  }
+  listEl.innerHTML = htmlOut;
+}
+
+// =====================================================================
+// YAŞAM HEDEFLERİ MODÜLÜ (1 AYLIK • 1 YILLIK • 5 YILLIK • AŞAMALAR • % TAKİBİ)
+// =====================================================================
+const LIFE_GOAL_HORIZONS = {
+  '1m': { label: '1 Aylık', short: '1A', badgeCls: 'bg-emerald-50 text-emerald-700 border-emerald-200', barCls: 'bg-emerald-500', addMonths: 1 },
+  '1y': { label: '1 Yıllık', short: '1Y', badgeCls: 'bg-indigo-50 text-indigo-700 border-indigo-200', barCls: 'bg-indigo-500', addMonths: 12 },
+  '5y': { label: '5 Yıllık', short: '5Y', badgeCls: 'bg-amber-50 text-amber-700 border-amber-200', barCls: 'bg-amber-500', addMonths: 60 }
+};
+const LIFE_GOAL_CATS = {
+  career: { label: 'Eğitim / İş', icon: 'fa-graduation-cap', color: 'text-indigo-500' },
+  health: { label: 'Sağlık', icon: 'fa-heart-pulse', color: 'text-rose-500' },
+  finance: { label: 'Finans', icon: 'fa-coins', color: 'text-emerald-600' },
+  growth: { label: 'Gelişim', icon: 'fa-seedling', color: 'text-teal-600' },
+  other: { label: 'Diğer', icon: 'fa-sparkles', color: 'text-amber-500' }
+};
+let lifeGoalHorizonFilter = 'all';
+let editingLifeGoalId = null;
+let expandedLifeGoals = {};
+
+function addMonthsToTodayIso(months) {
+  const d = new Date();
+  d.setMonth(d.getMonth() + (Number(months) || 1));
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+function getLifeGoalProgress(g) {
+  if (!g) return 0;
+  const steps = Array.isArray(g.steps) ? g.steps : [];
+  if (steps.length > 0) {
+    const done = steps.filter(s => !!s.done).length;
+    return Math.round((done / steps.length) * 100);
+  }
+  return Math.max(0, Math.min(100, Math.round(Number(g.manualProgress) || 0)));
+}
+
+function formatGoalRemainingDays(targetDate) {
+  if (!targetDate || !/^\d{4}-\d{2}-\d{2}$/.test(targetDate)) return '';
+  const todayParts = getTodayOffset(0).split('-').map(Number);
+  const tgtParts = targetDate.split('-').map(Number);
+  const d0 = new Date(todayParts[0], todayParts[1] - 1, todayParts[2]);
+  const d1 = new Date(tgtParts[0], tgtParts[1] - 1, tgtParts[2]);
+  const diffDays = Math.round((d1 - d0) / 86400000);
+  if (diffDays < 0) return `${Math.abs(diffDays)} gün geçti`;
+  if (diffDays === 0) return 'Bugün son gün';
+  if (diffDays >= 365) {
+    const yrs = (diffDays / 365).toFixed(1).replace(/\.0$/, '');
+    return `${yrs} yıl kaldı`;
+  }
+  if (diffDays >= 60) {
+    const mos = Math.round(diffDays / 30);
+    return `~${mos} ay kaldı`;
+  }
+  return `${diffDays} gün kaldı`;
+}
+
+function updateLifeGoalsTabDot() {
+  const dot = document.getElementById('psub-goals-dot');
+  if (!dot) return;
+  const active = (plannerState.lifeGoals || []).some(g => getLifeGoalProgress(g) < 100);
+  dot.classList.toggle('hidden', !active);
+}
+
+function setLifeGoalHorizonFilter(horizon) {
+  lifeGoalHorizonFilter = horizon || 'all';
+  document.querySelectorAll('.lgoal-horizon-pill').forEach(btn => {
+    btn.classList.toggle('active', btn.getAttribute('data-gh') === lifeGoalHorizonFilter);
+  });
+  renderLifeGoalsUI();
+}
+
+function autoFillLifeGoalTargetDate() {
+  const hSel = document.getElementById('lgoal-horizon-inp');
+  const dInp = document.getElementById('lgoal-target-date-inp');
+  if (!hSel || !dInp) return;
+  const meta = LIFE_GOAL_HORIZONS[hSel.value] || LIFE_GOAL_HORIZONS['1m'];
+  dInp.value = addMonthsToTodayIso(meta.addMonths);
+}
+
+function toggleLifeGoalAddForm(forceOpen) {
+  const form = document.getElementById('lgoal-add-form');
+  if (!form) return;
+  const shouldOpen = typeof forceOpen === 'boolean' ? forceOpen : form.classList.contains('hidden');
+  form.classList.toggle('hidden', !shouldOpen);
+  if (shouldOpen) {
+    editingLifeGoalId = null;
+    const tEl = document.getElementById('lgoal-form-title');
+    if (tEl) tEl.innerHTML = '<i class="fa-solid fa-bullseye text-emerald-600"></i> Yeni Yaşam Hedefi';
+    const subBtn = document.getElementById('lgoal-submit-btn');
+    if (subBtn) subBtn.innerHTML = '<i class="fa-solid fa-check text-emerald-400"></i> Hedefi Kaydet';
+    const stepsWrap = document.getElementById('lgoal-init-steps-wrap');
+    if (stepsWrap) stepsWrap.classList.remove('hidden');
+    const tInp = document.getElementById('lgoal-title-inp');
+    const hInp = document.getElementById('lgoal-horizon-inp');
+    const cInp = document.getElementById('lgoal-cat-inp');
+    const sInp = document.getElementById('lgoal-steps-inp');
+    if (tInp) tInp.value = '';
+    if (hInp) hInp.value = lifeGoalHorizonFilter !== 'all' ? lifeGoalHorizonFilter : '1m';
+    if (cInp) cInp.value = 'career';
+    if (sInp) sInp.value = '';
+    autoFillLifeGoalTargetDate();
+    if (tInp) tInp.focus();
+  }
+}
+
+function editLifeGoal(goalId) {
+  const g = (plannerState.lifeGoals || []).find(x => x.id === goalId);
+  if (!g) return;
+  const form = document.getElementById('lgoal-add-form');
+  if (!form) return;
+  editingLifeGoalId = g.id;
+  form.classList.remove('hidden');
+  const tEl = document.getElementById('lgoal-form-title');
+  if (tEl) tEl.innerHTML = '<i class="fa-solid fa-pen text-indigo-500"></i> Hedefi Düzenle';
+  const subBtn = document.getElementById('lgoal-submit-btn');
+  if (subBtn) subBtn.innerHTML = '<i class="fa-solid fa-floppy-disk text-emerald-400"></i> Değişiklikleri Kaydet';
+  const stepsWrap = document.getElementById('lgoal-init-steps-wrap');
+  if (stepsWrap) stepsWrap.classList.add('hidden');
+  document.getElementById('lgoal-title-inp').value = g.title || '';
+  document.getElementById('lgoal-horizon-inp').value = g.horizon || '1m';
+  document.getElementById('lgoal-cat-inp').value = g.category || 'career';
+  document.getElementById('lgoal-target-date-inp').value = g.targetDate || addMonthsToTodayIso(1);
+  document.getElementById('lgoal-title-inp').focus();
+}
+
+function saveLifeGoalForm(e) {
+  if (e) e.preventDefault();
+  const title = (document.getElementById('lgoal-title-inp')?.value || '').trim();
+  const horizon = document.getElementById('lgoal-horizon-inp')?.value || '1m';
+  const category = document.getElementById('lgoal-cat-inp')?.value || 'career';
+  const targetDate = (document.getElementById('lgoal-target-date-inp')?.value || '').trim();
+  if (!title) { showToast('Hedef başlığını yaz'); return; }
+  if (!Array.isArray(plannerState.lifeGoals)) plannerState.lifeGoals = [];
+
+  if (editingLifeGoalId) {
+    const g = plannerState.lifeGoals.find(x => x.id === editingLifeGoalId);
+    if (g) {
+      g.title = title;
+      g.horizon = horizon;
+      g.category = category;
+      g.targetDate = targetDate;
+    }
+    editingLifeGoalId = null;
+    toggleLifeGoalAddForm(false);
+    renderLifeGoalsUI();
+    updateLifeGoalsTabDot();
+    triggerCloudSave();
+    showToast('Hedef güncellendi');
+    return;
+  }
+
+  const rawSteps = (document.getElementById('lgoal-steps-inp')?.value || '').trim();
+  const steps = rawSteps
+    ? rawSteps.split(/\r?\n|,/).map(s => s.trim()).filter(Boolean).slice(0, 20).map((st, idx) => ({
+        id: 'gs-' + Date.now() + '-' + idx,
+        title: st,
+        done: false
+      }))
+    : [];
+
+  const newId = 'lg-' + Date.now() + '-' + Math.floor(Math.random() * 999);
+  plannerState.lifeGoals.unshift({
+    id: newId,
+    title,
+    horizon,
+    category,
+    targetDate,
+    manualProgress: 0,
+    steps,
+    createdAt: Date.now()
+  });
+  expandedLifeGoals[newId] = true;
+  toggleLifeGoalAddForm(false);
+  renderLifeGoalsUI();
+  updateLifeGoalsTabDot();
+  triggerCloudSave();
+  showToast(`🎯 "${title}" hedefin eklendi!`);
+}
+
+function toggleLifeGoalExpand(goalId) {
+  expandedLifeGoals[goalId] = !(expandedLifeGoals[goalId] !== false);
+  renderLifeGoalsUI();
+}
+
+function addLifeGoalStep(e, goalId) {
+  if (e) e.preventDefault();
+  const g = (plannerState.lifeGoals || []).find(x => x.id === goalId);
+  if (!g) return;
+  const inp = document.getElementById('lgoal-step-inp-' + goalId);
+  const title = (inp && inp.value || '').trim();
+  if (!title) { showToast('Aşama adını yaz'); return; }
+  if (!Array.isArray(g.steps)) g.steps = [];
+  g.steps.push({ id: 'gs-' + Date.now() + '-' + Math.floor(Math.random() * 999), title, done: false });
+  if (inp) inp.value = '';
+  renderLifeGoalsUI();
+  updateLifeGoalsTabDot();
+  triggerCloudSave();
+}
+
+function toggleLifeGoalStep(goalId, stepId) {
+  const g = (plannerState.lifeGoals || []).find(x => x.id === goalId);
+  if (!g || !Array.isArray(g.steps)) return;
+  const st = g.steps.find(s => s.id === stepId);
+  if (!st) return;
+  const prevPct = getLifeGoalProgress(g);
+  st.done = !st.done;
+  const nextPct = getLifeGoalProgress(g);
+  if (prevPct < 100 && nextPct === 100) {
+    g.achievedAt = getTodayOffset(0);
+    showToast(`🏆 Tebrikler! "${g.title}" hedefine ulaştın!`);
+  } else if (nextPct < 100) {
+    delete g.achievedAt;
+  }
+  renderLifeGoalsUI();
+  updateLifeGoalsTabDot();
+  triggerCloudSave();
+}
+
+function deleteLifeGoalStep(goalId, stepId) {
+  const g = (plannerState.lifeGoals || []).find(x => x.id === goalId);
+  if (!g || !Array.isArray(g.steps)) return;
+  g.steps = g.steps.filter(s => s.id !== stepId);
+  renderLifeGoalsUI();
+  updateLifeGoalsTabDot();
+  triggerCloudSave();
+}
+
+function adjustLifeGoalManualProgress(goalId, delta) {
+  const g = (plannerState.lifeGoals || []).find(x => x.id === goalId);
+  if (!g) return;
+  const prev = getLifeGoalProgress(g);
+  const next = Math.max(0, Math.min(100, prev + delta));
+  g.manualProgress = next;
+  if (prev < 100 && next === 100) {
+    g.achievedAt = getTodayOffset(0);
+    showToast(`🏆 Tebrikler! "${g.title}" hedefine ulaştın!`);
+  } else if (next < 100) {
+    delete g.achievedAt;
+  }
+  renderLifeGoalsUI();
+  updateLifeGoalsTabDot();
+  triggerCloudSave();
+}
+
+function pushLifeGoalStepToDailyPlan(goalId, stepId) {
+  const g = (plannerState.lifeGoals || []).find(x => x.id === goalId);
+  if (!g || !Array.isArray(g.steps)) return;
+  const st = g.steps.find(s => s.id === stepId);
+  if (!st) return;
+  const taskTitle = `${st.title}`;
+  const already = getPlannerTasksForDate(plannerSelectedDate).some(t => String(t.title || '').toLocaleLowerCase('tr-TR') === taskTitle.toLocaleLowerCase('tr-TR'));
+  if (already) {
+    showToast('Bu aşama zaten seçili günün planında var');
+    return;
+  }
+  plannerState.tasks.push({
+    id: 'pt-' + Date.now() + '-' + Math.floor(Math.random() * 999),
+    date: plannerSelectedDate,
+    title: taskTitle,
+    time: '',
+    durationMin: 30,
+    priority: 'high',
+    repeat: 'none',
+    repeatDays: [],
+    done: false,
+    doneDates: {},
+    deletedDates: {},
+    createdAt: Date.now()
+  });
+  updatePlannerHeaderBadge();
+  triggerCloudSave();
+  showToast(`"${st.title}" ${formatPlannerDateHeader(plannerSelectedDate)} planına eklendi!`);
+}
+
+function deleteLifeGoal(goalId) {
+  const idx = (plannerState.lifeGoals || []).findIndex(x => x.id === goalId);
+  if (idx < 0) return;
+  const removed = plannerState.lifeGoals[idx];
+  plannerState.lifeGoals.splice(idx, 1);
+  renderLifeGoalsUI();
+  updateLifeGoalsTabDot();
+  triggerCloudSave();
+  showToastWithUndo('Yaşam hedefi silindi', () => {
+    plannerState.lifeGoals.splice(Math.min(idx, plannerState.lifeGoals.length), 0, removed);
+    renderLifeGoalsUI();
+    updateLifeGoalsTabDot();
+    triggerCloudSave();
+    showToast('Hedef geri alındı');
+  });
+}
+
+function renderLifeGoalsUI() {
+  const allGoals = Array.isArray(plannerState.lifeGoals) ? plannerState.lifeGoals : [];
+  const countEl = document.getElementById('lgoals-hero-count');
+  const stepsEl = document.getElementById('lgoals-hero-steps');
+  const pctEl = document.getElementById('lgoals-hero-pct');
+  const barEl = document.getElementById('lgoals-hero-bar');
+  const hStatsEl = document.getElementById('lgoals-horizon-stats');
+  const listEl = document.getElementById('lgoals-list');
+  if (!listEl) return;
+
+  const totalGoals = allGoals.length;
+  const achievedGoals = allGoals.filter(g => getLifeGoalProgress(g) >= 100).length;
+  const avgPct = totalGoals > 0 ? Math.round(allGoals.reduce((s, g) => s + getLifeGoalProgress(g), 0) / totalGoals) : 0;
+  let totalSteps = 0, doneSteps = 0;
+  allGoals.forEach(g => {
+    (g.steps || []).forEach(st => { totalSteps++; if (st.done) doneSteps++; });
+  });
+
+  if (countEl) countEl.textContent = `${achievedGoals} / ${totalGoals} Başarıldı`;
+  if (stepsEl) stepsEl.textContent = totalSteps > 0 ? `${doneSteps}/${totalSteps} aşama` : 'Aşama ekleyip takip et';
+  if (pctEl) pctEl.textContent = `%${avgPct}`;
+  if (barEl) barEl.style.width = `${avgPct}%`;
+
+  if (hStatsEl) {
+    hStatsEl.innerHTML = ['1m', '1y', '5y'].map(hk => {
+      const m = LIFE_GOAL_HORIZONS[hk];
+      const sub = allGoals.filter(g => g.horizon === hk);
+      const hpct = sub.length ? Math.round(sub.reduce((s, g) => s + getLifeGoalProgress(g), 0) / sub.length) : 0;
+      return `
+      <button type="button" onclick="setLifeGoalHorizonFilter('${hk}')" class="bg-white/[0.08] border border-white/10 rounded-xl py-1 px-1.5 active:scale-95 transition">
+        <p class="text-[9px] font-bold text-slate-300 leading-none">${m.label}</p>
+        <p class="text-[11px] font-extrabold text-emerald-300 mt-0.5 leading-none">%${hpct} <span class="text-[9px] font-semibold text-slate-400">(${sub.length})</span></p>
+      </button>`;
+    }).join('');
+  }
+
+  const filtered = lifeGoalHorizonFilter === 'all'
+    ? allGoals
+    : allGoals.filter(g => g.horizon === lifeGoalHorizonFilter);
+
+  if (!filtered.length) {
+    const hTxt = lifeGoalHorizonFilter === 'all' ? '' : (LIFE_GOAL_HORIZONS[lifeGoalHorizonFilter]?.label + ' ');
+    listEl.innerHTML = `
+      <div class="neo-card rounded-[24px] p-5 text-center space-y-2">
+        <div class="w-10 h-10 rounded-2xl bg-emerald-500/15 text-emerald-600 flex items-center justify-center mx-auto">
+          <i class="fa-solid fa-bullseye text-base"></i>
+        </div>
+        <p class="text-xs font-extrabold text-slate-800">Henüz ${escHtml(hTxt)}hedef eklenmedi</p>
+        <p class="text-[10.5px] text-slate-400">1 aylık, 1 yıllık veya 5 yıllık hedeflerini oluşturup aşamalara bölerek ilerlemeni takip et.</p>
+        <button type="button" onclick="toggleLifeGoalAddForm(true)" class="mt-1 px-3.5 py-2 rounded-xl bg-[#090d16] text-emerald-400 text-[11px] font-extrabold active:scale-95 transition">
+          <i class="fa-solid fa-plus text-[9.5px] mr-1"></i>İlk Hedefini Ekle
+        </button>
+      </div>`;
+    return;
+  }
+
+  listEl.innerHTML = filtered.map(g => {
+    const hMeta = LIFE_GOAL_HORIZONS[g.horizon] || LIFE_GOAL_HORIZONS['1m'];
+    const cMeta = LIFE_GOAL_CATS[g.category] || LIFE_GOAL_CATS.other;
+    const pct = getLifeGoalProgress(g);
+    const achieved = pct >= 100;
+    const steps = Array.isArray(g.steps) ? g.steps : [];
+    const doneStepsCnt = steps.filter(s => s.done).length;
+    const isExpanded = expandedLifeGoals[g.id] !== false;
+    const remTxt = achieved ? '🏆 Başarıldı' : formatGoalRemainingDays(g.targetDate);
+    const safeId = escJs(g.id);
+
+    const stepsHtml = steps.length > 0
+      ? steps.map(st => {
+          const safeSid = escJs(st.id);
+          return `
+          <div class="flex items-center justify-between gap-1.5 bg-slate-50 px-2.5 py-1.5 rounded-xl border border-slate-200/70">
+            <div onclick="toggleLifeGoalStep('${safeId}','${safeSid}')" class="flex items-center gap-2 min-w-0 flex-1 cursor-pointer">
+              <span class="w-4 h-4 rounded-md border ${st.done ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-300 bg-white'} flex items-center justify-center shrink-0 transition">
+                ${st.done ? '<i class="fa-solid fa-check text-[8.5px]"></i>' : ''}
+              </span>
+              <span class="text-[11px] font-bold ${st.done ? 'line-through text-slate-400' : 'text-slate-800'} truncate">${escHtml(st.title)}</span>
+            </div>
+            <div class="flex items-center gap-1 shrink-0">
+              ${!st.done ? `<button type="button" onclick="pushLifeGoalStepToDailyPlan('${safeId}','${safeSid}')" title="Seçili günün planına görev olarak ekle" class="px-1.5 py-0.5 rounded-md bg-white border border-slate-200 text-indigo-600 text-[9px] font-extrabold active:scale-95 transition">+ Plan</button>` : ''}
+              <button type="button" onclick="deleteLifeGoalStep('${safeId}','${safeSid}')" title="Aşamayı sil" class="w-5 h-5 rounded-md text-slate-300 hover:text-rose-500 flex items-center justify-center"><i class="fa-solid fa-xmark text-[10px]"></i></button>
+            </div>
+          </div>`;
+        }).join('')
+      : `<div class="flex items-center justify-between gap-2 bg-slate-50 px-2.5 py-2 rounded-xl border border-slate-200/70">
+          <span class="text-[10px] font-semibold text-slate-500">Manuel ilerleme veya aşağıdan aşama ekle</span>
+          <div class="flex items-center gap-1 shrink-0">
+            <button type="button" onclick="adjustLifeGoalManualProgress('${safeId}', -10)" class="px-2 py-1 rounded-lg bg-white border border-slate-200 text-slate-600 text-[10px] font-extrabold active:scale-95">−10%</button>
+            <button type="button" onclick="adjustLifeGoalManualProgress('${safeId}', 10)" class="px-2 py-1 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 text-[10px] font-extrabold active:scale-95">+10%</button>
+          </div>
+        </div>`;
+
+    return `
+    <div class="lgoal-card ${achieved ? 'achieved' : ''} neo-card rounded-[24px] p-3.5 space-y-2.5">
+      <div class="flex items-start justify-between gap-2">
+        <div onclick="toggleLifeGoalExpand('${safeId}')" class="min-w-0 flex-1 cursor-pointer">
+          <div class="flex items-center gap-1.5 flex-wrap mb-1">
+            <span class="text-[9px] font-extrabold px-2 py-0.5 rounded-md border ${hMeta.badgeCls}">${hMeta.label}</span>
+            <span class="text-[9.5px] font-bold text-slate-500 flex items-center gap-1"><i class="fa-solid ${cMeta.icon} ${cMeta.color} text-[9px]"></i>${cMeta.label}</span>
+            ${remTxt ? `<span class="text-[9px] font-extrabold ${achieved ? 'text-emerald-600' : 'text-slate-400'}">• ${escHtml(remTxt)}</span>` : ''}
+          </div>
+          <h4 class="text-xs font-extrabold ${achieved ? 'text-emerald-700' : 'text-slate-900'} leading-snug">${escHtml(g.title)}</h4>
+        </div>
+        <div class="flex items-center gap-1 shrink-0">
+          <span class="text-xs font-extrabold ${achieved ? 'text-emerald-600' : 'text-slate-900'} bg-slate-100 px-2 py-0.5 rounded-lg">%${pct}</span>
+          <button type="button" onclick="editLifeGoal('${safeId}')" title="Düzenle" class="w-6 h-6 rounded-lg bg-slate-50 text-slate-400 hover:text-indigo-600 flex items-center justify-center"><i class="fa-solid fa-pen text-[9.5px]"></i></button>
+          <button type="button" onclick="deleteLifeGoal('${safeId}')" title="Sil" class="w-6 h-6 rounded-lg bg-slate-50 text-slate-300 hover:text-rose-500 flex items-center justify-center"><i class="fa-solid fa-trash-can text-[9.5px]"></i></button>
+        </div>
+      </div>
+
+      <div class="space-y-1">
+        <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden p-0.5">
+          <div class="${achieved ? 'bg-emerald-500' : hMeta.barCls} h-1 rounded-full transition-all duration-500" style="width:${pct}%"></div>
+        </div>
+        <div class="flex items-center justify-between text-[9.5px] font-semibold text-slate-400">
+          <span>${steps.length > 0 ? `${doneStepsCnt} / ${steps.length} aşama tamamlandı` : 'Aşamasız takip'}</span>
+          <button type="button" onclick="toggleLifeGoalExpand('${safeId}')" class="text-[9.5px] font-extrabold text-slate-500 hover:text-slate-800 flex items-center gap-1">
+            ${isExpanded ? 'Gizle' : 'Aşamaları Aç'} <i class="fa-solid fa-chevron-down text-[8px] transition-transform ${isExpanded ? 'rotate-180' : ''}"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="${isExpanded ? 'block' : 'hidden'} space-y-1.5 pt-1 border-t border-slate-100">
+        ${stepsHtml}
+        <form onsubmit="addLifeGoalStep(event,'${safeId}')" class="flex gap-1.5 pt-1">
+          <input type="text" id="lgoal-step-inp-${escHtml(g.id)}" maxlength="80" placeholder="+ Yeni aşama ekle..." class="flex-1 min-w-0 px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-[11px] font-semibold">
+          <button type="submit" class="px-2.5 py-1.5 bg-[#090d16] text-emerald-400 rounded-xl text-[10px] font-extrabold shrink-0 active:scale-95 transition">Ekle</button>
+        </form>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderPlannerUI() {
+  renderPlannerWeekStrip();
+  renderPrayerControlBar();
+  renderPlannerInbox();
+  updateLifeGoalsTabDot();
+  if (plannerActiveSubtab === 'calendar') {
+    renderPlannerCalendar();
+  } else if (plannerActiveSubtab === 'goals') {
+    renderLifeGoalsUI();
+  } else if (plannerActiveSubtab === 'habits') {
+    renderPlannerHabits();
+  } else if (plannerActiveSubtab === 'note') {
+    const sub = document.getElementById('planner-note-date-sub');
+    if (sub) sub.textContent = `${formatPlannerDateHeader(plannerSelectedDate)} • otomatik kaydedilir`;
+    const noteObj = (plannerState.notesByDate || {})[plannerSelectedDate] || { text: '', nextPriority: '' };
+    const noteEl = document.getElementById('planner-note-text');
+    const prioEl = document.getElementById('planner-next-priority');
+    if (noteEl && document.activeElement !== noteEl) noteEl.value = noteObj.text || '';
+    if (prioEl && document.activeElement !== prioEl) prioEl.value = noteObj.nextPriority || '';
+  } else if (plannerActiveSubtab === 'plan') {
+    renderPlannerHero();
+    renderPlannerTasks();
+  }
+}
+
 function safeInitStep(fn) {
 try { fn(); } catch (e) { console.error('Başlatma uyarısı:', e); }
 }
@@ -10825,6 +13995,7 @@ safeInitStep(restoreNightMode);
 safeInitStep(restoreWalletState);
 safeInitStep(restoreHomeLayout);
 safeInitStep(restoreSharedLayout);
+safeInitStep(initPlannerOnBoot);
 safeInitStep(restoreAppLanguage);
 safeInitStep(restorePersonalCache);
 safeInitStep(migrateLegacyTransactionsToAccounts);
