@@ -1,14 +1,14 @@
 {
-  "name": "Cüzdanım — Kişisel Finans",
+  "name": "Cüzdanım — Kişisel Finans & Planlayıcı",
   "short_name": "Cüzdanım",
-  "description": "Cihaza özel kişisel gelir, gider, döviz kartı, borç ve ortak alan takip uygulaması.",
+  "description": "Cihaza özel kişisel gelir, gider, döviz kartı, borç, ortak alan ve gün planlayıcı uygulaması.",
   "id": "./",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#090d16",
-  "theme_color": "#090d16",
+  "background_color": "#012136",
+  "theme_color": "#012136",
   "lang": "tr",
   "icons": [
     {

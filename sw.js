@@ -1,6 +1,6 @@
-/* Cüzdanım PWA Service Worker v48 (iOS Safari 404 & Redirect Korumalı) */
-const APP_CACHE = 'cuzdanim-app-v48';
-const CDN_CACHE = 'cuzdanim-cdn-v48';
+/* Cüzdanım PWA Service Worker v58 (Anında Önbellek Açılışı + Çevrimdışı & Düşük İnternet Korumalı) */
+const APP_CACHE = 'cuzdanim-app-v58';
+const CDN_CACHE = 'cuzdanim-cdn-v58';
 const PRECACHE_URLS = [
   './',
   './index.html',
@@ -17,25 +17,17 @@ const CDN_HOSTS = new Set([
   'cdn.jsdelivr.net'
 ]);
 
-// iOS Safari, Service Worker'dan donen redirected=true yanitlari navigasyonda reddedebilir.
 function cleanResponse(res) {
   if (!res || !res.redirected) return Promise.resolve(res);
   return res.arrayBuffer().then((buf) => {
     const headers = new Headers(res.headers);
-    return new Response(buf, {
-      status: res.status,
-      statusText: res.statusText,
-      headers
-    });
+    return new Response(buf, { status: res.status, statusText: res.statusText, headers });
   });
 }
 
 function precacheOne(cache, url) {
   return fetch(url, { cache: 'reload', credentials: 'same-origin', redirect: 'follow' })
-    .then((res) => {
-      if (!res || !res.ok) return null;
-      return cleanResponse(res).then((clean) => cache.put(url, clean));
-    })
+    .then((res) => (res && res.ok) ? cleanResponse(res).then((clean) => cache.put(url, clean)) : null)
     .catch(() => null);
 }
 
@@ -50,37 +42,26 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys()
-      .then((keys) =>
-        Promise.all(
-          keys
-            .filter((k) => k !== APP_CACHE && k !== CDN_CACHE)
-            .map((k) => caches.delete(k))
-        )
-      )
+      .then((keys) => Promise.all(keys.filter((k) => k !== APP_CACHE && k !== CDN_CACHE).map((k) => caches.delete(k))))
       .then(() => self.clients.claim())
   );
 });
 
 self.addEventListener('message', (event) => {
-  if (event.data && event.data.type === 'SKIP_WAITING') {
-    self.skipWaiting();
-  }
+  if (event.data && event.data.type === 'SKIP_WAITING') self.skipWaiting();
 });
 
 function isLiveApiRequest(url) {
   if (url.hostname.endsWith('supabase.co')) return true;
   if (url.hostname === 'open.er-api.com') return true;
+  if (url.hostname === 'api.aladhan.com') return true;
   return false;
 }
 
-function fetchWithTimeout(input, init, ms) {
-  return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => reject(new Error('timeout')), ms);
-    fetch(input, init).then(
-      (res) => { clearTimeout(timer); resolve(res); },
-      (err) => { clearTimeout(timer); reject(err); }
-    );
-  });
+function notifyClientsUpdated() {
+  self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clients) => {
+    clients.forEach((c) => { try { c.postMessage({ type: 'APP_UPDATED' }); } catch (e) {} });
+  }).catch(() => {});
 }
 
 function getCachedShell() {
@@ -89,34 +70,29 @@ function getCachedShell() {
     .then((m) => (m ? cleanResponse(m) : m));
 }
 
-function cacheAndReturnShell(res) {
-  return cleanResponse(res).then((clean) => {
-    const c1 = clean.clone();
-    const c2 = clean.clone();
-    caches.open(APP_CACHE).then((cache) => {
-      cache.put('./index.html', c1).catch(() => {});
-      cache.put('./', c2).catch(() => {});
-    });
-    return clean;
-  });
-}
-
-function fetchAppShellNetworkFirst(reqUrl) {
+function revalidateAppShell(reqUrl, hadCached, cachedEtag, cachedLen) {
   const opts = { cache: 'no-cache', credentials: 'same-origin', redirect: 'follow' };
-  return fetchWithTimeout(reqUrl, opts, 3500)
+  return fetch(reqUrl, opts)
+    .then((res) => (res && res.ok) ? res : fetch('./index.html', opts))
     .then((res) => {
-      if (res && res.ok) return cacheAndReturnShell(res);
-      // Sunucu 404/5xx donduyse (ornegin eski kisayol yolu) dogrudan ./index.html dene
-      return fetchWithTimeout('./index.html', opts, 3500).then((fallbackRes) => {
-        if (fallbackRes && fallbackRes.ok) return cacheAndReturnShell(fallbackRes);
-        return getCachedShell();
+      if (!res || !res.ok) return null;
+      return cleanResponse(res).then((clean) => {
+        const newEtag = clean.headers.get('etag') || clean.headers.get('last-modified') || '';
+        const newLen = clean.headers.get('content-length') || '';
+        const c1 = clean.clone();
+        const c2 = clean.clone();
+        return caches.open(APP_CACHE).then((cache) =>
+          Promise.all([cache.put('./index.html', c1), cache.put('./', c2)])
+            .then(() => {
+              if (hadCached && ((newEtag && cachedEtag && newEtag !== cachedEtag) || (newLen && cachedLen && newLen !== cachedLen))) {
+                notifyClientsUpdated();
+              }
+              return clean;
+            })
+        );
       });
     })
-    .catch(() => getCachedShell())
-    .then((res) => res || new Response('Cevrimdisi — Lutfen internet baglantinizi kontrol edin.', {
-      status: 503,
-      headers: { 'Content-Type': 'text/plain; charset=utf-8' }
-    }));
+    .catch(() => null);
 }
 
 self.addEventListener('fetch', (event) => {
@@ -128,43 +104,64 @@ self.addEventListener('fetch', (event) => {
   if (url.protocol !== 'http:' && url.protocol !== 'https:') return;
   if (isLiveApiRequest(url)) return;
 
-  // 1) Sayfa acilisi / HTML: Network-First + 404/Redirect korumasi + Cevrimdisi onbellek
+  // 1) Sayfa acilisi / HTML: Aninda Onbellek (Stale-While-Revalidate) -> 0ms bekleme + arka planda guncelleme
   if (
     req.mode === 'navigate' ||
     (url.origin === self.location.origin && (url.pathname.endsWith('/') || /\.html?$/i.test(url.pathname)))
   ) {
-    event.respondWith(fetchAppShellNetworkFirst(req.url));
+    event.respondWith(
+      getCachedShell().then((cached) => {
+        const cachedEtag = cached ? (cached.headers.get('etag') || cached.headers.get('last-modified') || '') : '';
+        const cachedLen = cached ? (cached.headers.get('content-length') || '') : '';
+        const netPromise = revalidateAppShell(req.url, !!cached, cachedEtag, cachedLen);
+        if (cached) {
+          event.waitUntil(netPromise);
+          return cached;
+        }
+        return netPromise.then((res) => res || new Response('Cevrimdisi — Lutfen internet baglantinizi kontrol edin.', {
+          status: 503,
+          headers: { 'Content-Type': 'text/plain; charset=utf-8' }
+        }));
+      })
+    );
     return;
   }
 
-  // 2) CDN kutuphaneleri & yazi tipleri: Stale-While-Revalidate (aninda acilis + cevrimdisi destek)
+  // 2) CDN kutuphaneleri & yazi tipleri: Stale-While-Revalidate
   if (CDN_HOSTS.has(url.hostname)) {
     event.respondWith(
       caches.open(CDN_CACHE).then((cache) =>
         cache.match(req).then((cached) => {
           const networkPromise = fetch(req).then((res) => {
-            if (res && (res.ok || res.type === 'opaque')) {
-              cache.put(req, res.clone()).catch(() => {});
-            }
+            if (res && (res.ok || res.type === 'opaque')) cache.put(req, res.clone()).catch(() => {});
             return res;
           }).catch(() => cached);
-          return cached || networkPromise;
+          if (cached) {
+            event.waitUntil(networkPromise);
+            return cached;
+          }
+          return networkPromise;
         })
       )
     );
     return;
   }
 
-  // 3) Ayni kaynak statik dosyalar (ikonlar, manifest): Stale-While-Revalidate
+  // 3) Ayni kaynak statik dosyalar (ikonlar, manifest): Stale-While-Revalidate (tekil anahtar)
   if (url.origin === self.location.origin) {
+    const cleanKey = url.origin + url.pathname;
     event.respondWith(
       caches.open(APP_CACHE).then((cache) =>
-        cache.match(req).then((cached) => {
+        cache.match(cleanKey, { ignoreSearch: true }).then((cached) => {
           const networkPromise = fetch(req).then((res) => {
-            if (res && res.ok) cache.put(req, res.clone()).catch(() => {});
+            if (res && res.ok) cache.put(cleanKey, res.clone()).catch(() => {});
             return res;
           }).catch(() => cached);
-          return cached || networkPromise;
+          if (cached) {
+            event.waitUntil(networkPromise);
+            return cached;
+          }
+          return networkPromise;
         })
       )
     );
