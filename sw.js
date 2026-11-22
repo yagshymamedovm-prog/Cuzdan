@@ -1,6 +1,6 @@
-/* Cüzdanım PWA Service Worker v59 (Anında Önbellek Açılışı + Çevrimdışı & Düşük İnternet Korumalı) */
-const APP_CACHE = 'cuzdanim-app-v59';
-const CDN_CACHE = 'cuzdanim-cdn-v59';
+/* Cüzdanım PWA Service Worker v60 (Anında Önbellek Açılışı + Çevrimdışı & Düşük İnternet Korumalı) */
+const APP_CACHE = 'cuzdanim-app-v60';
+const CDN_CACHE = 'cuzdanim-cdn-v60';
 const PRECACHE_URLS = [
   './',
   './index.html',
