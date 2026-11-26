@@ -1,6 +1,6 @@
-/* cio PWA Service Worker v91 (Anında Önbellek Açılışı + Çevrimdışı & Düşük İnternet Korumalı) */
-const APP_CACHE = 'cio-app-v91';
-const CDN_CACHE = 'cio-cdn-v91';
+/* cio PWA Service Worker v94 (Anında Önbellek Açılışı + Çevrimdışı & Düşük İnternet Korumalı) */
+const APP_CACHE = 'cio-app-v94';
+const CDN_CACHE = 'cio-cdn-v94';
 const PRECACHE_URLS = [
   './',
   './index.html',
