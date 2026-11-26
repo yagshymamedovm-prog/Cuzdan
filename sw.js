@@ -1,6 +1,6 @@
-/* cio PWA Service Worker v94 (Anında Önbellek Açılışı + Çevrimdışı & Düşük İnternet Korumalı) */
-const APP_CACHE = 'cio-app-v94';
-const CDN_CACHE = 'cio-cdn-v94';
+/* cio PWA Service Worker v95 (Anında Önbellek Açılışı + Çevrimdışı & Düşük İnternet Korumalı) */
+const APP_CACHE = 'cio-app-v95';
+const CDN_CACHE = 'cio-cdn-v95';
 const PRECACHE_URLS = [
   './',
   './index.html',
@@ -8,7 +8,9 @@ const PRECACHE_URLS = [
   './favicon.ico',
   './apple-touch-icon.png',
   './icon-192.png',
-  './icon-512.png'
+  './icon-512.png',
+  './icon-maskable-192.png',
+  './icon-maskable-512.png'
 ];
 const CDN_HOSTS = new Set([
   'cdn.tailwindcss.com',
