@@ -1,6 +1,6 @@
-/* cio PWA Service Worker v95 (Anında Önbellek Açılışı + Çevrimdışı & Düşük İnternet Korumalı) */
-const APP_CACHE = 'cio-app-v95';
-const CDN_CACHE = 'cio-cdn-v95';
+/* cio PWA Service Worker v96 (Anında Önbellek Açılışı + Çevrimdışı & Düşük İnternet Korumalı) */
+const APP_CACHE = 'cio-app-v96';
+const CDN_CACHE = 'cio-cdn-v96';
 const PRECACHE_URLS = [
   './',
   './index.html',
@@ -169,4 +169,16 @@ self.addEventListener('fetch', (event) => {
       )
     );
   }
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientsArr) => {
+      for (const client of clientsArr) {
+        if ('focus' in client) return client.focus();
+      }
+      if (self.clients.openWindow) return self.clients.openWindow('./');
+    })
+  );
 });
